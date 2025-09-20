@@ -26,6 +26,7 @@
   "dependencies": {
     "@types/dompurify": "^3.0.5",
     "dompurify": "^3.2.7",
+    "pinia": "^3.0.3",
     "streaming-markdown": "^0.2.15"
   }
 }
