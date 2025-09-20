@@ -21,10 +21,13 @@
 </template>
 
 <script setup lang="ts">
-import { usePrompt } from "@/composables/geminiNanoComposable";
-import { useMangle } from "@/composables/useMangle";
-import { manglePrompt, MangleSchemaProperties } from "@/geminiNano/prompts";
-import { geminiNanoService } from "@/services/geminiNanoService";
+import { usePrompt } from "@/modules/geminiNano/composables/geminiNanoComposable";
+import { useMangle } from "@/modules/mangle/composables/useMangle";
+import {
+    manglePrompt,
+    MangleSchemaProperties,
+} from "@/modules/geminiNano/utils/prompts";
+import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
 import DOMPurify from "dompurify";
 import * as smd from "streaming-markdown";
 import { ref } from "vue";

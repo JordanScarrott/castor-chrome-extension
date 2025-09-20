@@ -1,5 +1,8 @@
-import { manglePrompt, MangleSchemaProperties } from "@/geminiNano/prompts";
-import { geminiNanoService } from "@/services/geminiNanoService";
+import {
+    manglePrompt,
+    MangleSchemaProperties,
+} from "@/modules/geminiNano/utils/prompts";
+import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
 
 export function usePrompt() {
     async function prompt(
