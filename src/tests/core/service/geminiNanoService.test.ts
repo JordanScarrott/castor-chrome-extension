@@ -1,11 +1,11 @@
-import { geminiNanoService } from "@/services/geminiNanoService";
-import { usePrompt } from "@/composables/geminiNanoComposable";
-import { exampleText } from "./exampleData";
-import { describe, test, expect, vi } from "vitest";
+import { usePrompt } from "@/modules/geminiNano/composables/geminiNanoComposable";
+import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
+import { exampleText } from "@/tests/core/service/exampleData";
+import { describe, expect, test, vi } from "vitest";
 
 // Mock the global objects
-vi.stubGlobal('LanguageModel', {
-    availability: vi.fn().mockResolvedValue('available'),
+vi.stubGlobal("LanguageModel", {
+    availability: vi.fn().mockResolvedValue("available"),
     create: vi.fn().mockResolvedValue({
         promptStreaming: vi.fn().mockImplementation(async function* () {
             yield "This ";
@@ -29,7 +29,11 @@ describe("geminiNanoService", () => {
         const onChunk = (chunk: string) => {
             fullResponse += chunk;
         };
-        await geminiNanoService.askPromptStreaming("test prompt", undefined, onChunk);
+        await geminiNanoService.askPromptStreaming(
+            "test prompt",
+            undefined,
+            onChunk
+        );
         expect(fullResponse).toBe("This is a test.");
     });
 
