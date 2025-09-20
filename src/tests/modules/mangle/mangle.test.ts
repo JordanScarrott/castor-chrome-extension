@@ -1,8 +1,7 @@
-import { describe, test, expect, beforeAll } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import "../../src/mangle/wasm_exec.js";
+import { beforeAll, describe, expect, test } from "vitest";
 
 // Declare the globals that the WASM module will expose
 declare const Go: any;
@@ -13,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const MANGLE_WASM_PATH = path.resolve(
     __dirname,
-    "../../src/mangle/mangle.wasm"
+    "../../../../public/mangle/mangle.wasm"
 );
 
 async function runMangleInstance(wasmPath: string) {

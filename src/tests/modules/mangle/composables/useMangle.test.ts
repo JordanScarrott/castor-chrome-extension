@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { useMangle } from "../src/composables/useMangle";
+import { useMangle } from "@/modules/mangle/composables/useMangle";
+import { describe, expect, it } from "vitest";
 
 describe("useMangle", () => {
     it("mangles text correctly", () => {
