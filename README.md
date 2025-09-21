@@ -2,140 +2,94 @@
 
 *An experimental Chrome extension that gives your browser a persistent, logical memory, enabling on-device AI to reason about the web content you consume.*
 
-## The Problem
+## Project Goal
 
-Current web browsing is a stateless experience. We consume vast amounts of information, but our browsers have no memory of the content we've seen. AI assistants, while powerful, operate in a similar vacuum, lacking the ability to connect ideas across multiple sessions or detect logical inconsistencies in information gathered over time. This limits their potential from being simple information retrievers to true intellectual partners.
+The primary goal of this project is to transform the web browsing experience from a series of disconnected sessions into a cohesive, intelligent research process. By leveraging the on-device power of Gemini Nano and the Mangle reasoning engine, this extension aims to provide users with deep insights into the information they gather across multiple tabs. It helps users synthesize data and make complex decisions without manually collating information.
 
-## Our Solution
+## Use Case Example: Buying a Laptop
 
-The Mangle Chrome Extension is our answer. By integrating a Mangle reasoning engine (compiled to Wasm) directly into the browser, we give Gemini Nano a powerful, on-device knowledge graph. This transforms the AI from a simple content processor into an intelligent research assistant that understands, remembers, and reasons about the web content you consume. It's not just a smarter browser; it's a browser with a brain.
+Imagine you're trying to buy a new laptop. You have ten tabs open: five with different models from various online stores, and five with reviews and benchmark comparisons. Switching between tabs, you struggle to keep track of the specs, prices, and pros and cons of each option.
 
-## How It Works: The Reasoning Loop
+With this extension, you can simply tell it: "My goal is to find the best laptop for under $1500 with at least 16GB of RAM and a good keyboard for programming."
 
-This is the core of our innovation. The extension follows a precise, multi-step process to turn unstructured web content into a queryable, logical knowledge base, all on your local device.
+As you browse, the extension consumes the information from each tab, adding it to its knowledge base. When you're ready, you can ask it questions like:
+*   "Which of these laptops have the best battery life according to the reviews?"
+*   "Summarize the negative feedback for the Dell XPS 15."
+*   "Based on my goal, which laptop is the best value for the money?"
 
-```mermaid
-graph TD
-    A[1. Consume Content] --> B(2. Perceive & Summarize);
-    B --> C(3. Extract Knowledge);
-    C --> D[4. Load into Memory];
-    D -- Knowledge Base --> G;
-    E[5. Ask a Question] --> F(6. Translate to Logic);
-    F -- Mangle Query --> G;
-    G[7. Reason & Deduce];
-    G --> H(8. Deliver the Insight);
+The extension reasons over the data from all your open tabs and provides you with a synthesized, actionable answer, helping you make a better, more informed decision, faster.
 
-    subgraph "User Action"
-        A
-        E
-    end
+## How It Works
 
-    subgraph "Gemini Nano (On-Device AI)"
-        B
-        C
-        F
-    end
+The extension uses a combination of on-device AI (via Gemini Nano) and a WebAssembly-based reasoning engine (Mangle) to create a local knowledge graph from the web pages you visit. This allows you to ask complex questions and get synthesized answers based on the content you've consumed.
 
-    subgraph "Mangle Engine (Wasm)"
-        D
-        G
-    end
+The core reasoning loop is as follows:
+1.  **Consume Content:** The user browses to a web page.
+2.  **Perceive & Summarize:** Gemini Nano summarizes the page content.
+3.  **Extract Knowledge:** The summary is converted into structured Mangle Datalog facts.
+4.  **Load into Memory:** The facts are loaded into the Mangle Wasm engine.
+5.  **Ask a Question:** The user asks a natural language question.
+6.  **Translate to Logic:** The question is translated into a formal Mangle query.
+7.  **Reason & Deduce:** The Mangle engine executes the query against its knowledge graph.
+8.  **Deliver the Insight:** The result is displayed to the user.
 
-    subgraph "Extension UI"
-        H
-    end
-```
+## Dependencies
 
-Here is a step-by-step breakdown of the reasoning loop:
+This project is built with a modern web stack:
 
-1.  **Consume Content:** The user browses the web as usual. When they are on a page they want to "add to their knowledge base," they activate the extension.
-2.  **Perceive & Summarize (Gemini Nano):** The extension's content script sends the page text to the on-device Gemini Nano **Summarizer API**.
-3.  **Extract Knowledge (Gemini Nano):** The concise summary is then sent to the Gemini Nano **Prompt API** with a specific instruction: *"Convert this text into a structured set of Mangle Datalog facts and rules."* This step transforms unstructured text into structured, logical data.
-4.  **Load into Memory (Mangle Wasm):** The generated Mangle facts and rules are passed to the Mangle engine, which is running locally in the browser via a **WebAssembly module**. The engine adds this new knowledge to its existing in-memory knowledge graph.
-5.  **Ask a Question (User):** The user can now ask a complex, natural language question about the content they've consumed across multiple pages.
-6.  **Translate to Logic (Gemini Nano):** The user's question is sent to the Gemini Nano **Prompt API** with a different instruction: *"Based on the schema of the Mangle facts, translate this question into a formal Mangle query."*
-7.  **Reason & Deduce (Mangle Wasm):** The generated Mangle query is executed against the full knowledge graph in the Wasm module. Mangle uses its deductive reasoning capabilities to find the answer, even if it requires connecting facts from multiple different web pages.
-8.  **Deliver the Insight:** The result from Mangle is returned to the UI, providing the user with an intelligent, synthesized answer.
+*   **Framework:** [Vue 3](https://vuejs.org/)
+*   **Build Tool:** [Vite](https://vitejs.dev/)
+*   **Testing:** [Vitest](https://vitest.dev/)
+*   **State Management:** [Pinia](https://pinia.vuejs.org/)
+*   **Language:** [TypeScript](https://www.typescriptlang.org/)
+*   **Linting/Formatting:** [Biome](https://biomejs.dev/)
 
-## Technical Architecture
+## Wasm Module
 
-The extension is built on a modern, privacy-preserving, on-device stack.
+The Mangle reasoning engine is compiled to WebAssembly from a forked version of the official Mangle project. The source for the Wasm module can be found here:
+[https://github.com/JordanScarrott/mangle-wasm](https://github.com/JordanScarrott/mangle-wasm)
 
-```mermaid
-graph LR
-    subgraph "Mangle Chrome Extension"
-        UI["Frontend UI (Manifest V3)"]
-        Wasm["Mangle Engine (Wasm Module)"]
-        Proxy["Gemini Service Proxy"]
-    end
+## Developer Setup
 
-    subgraph "Google Chrome Browser"
-        NanoAPI["Chrome Gemini Nano API"]
-    end
-
-    User[User] -- Interacts --> UI
-    UI -- "1. Sends page content & questions" --> Proxy
-    Proxy -- "2. Calls Summarizer/Prompt APIs" --> NanoAPI
-    NanoAPI -- "3. Returns structured data & queries" --> Proxy
-    Proxy -- "4. Loads facts/rules into memory" --> Wasm
-    Proxy -- "5. Executes Mangle query" --> Wasm
-    Wasm -- "6. Returns reasoning results" --> Proxy
-    Proxy -- "7. Forwards results" --> UI
-    UI -- "8. Displays insight" --> User
-```
-
-*   **Frontend:** A modern Chrome Extension built with **Manifest V3**, using standard HTML, CSS, and JavaScript Modules for a lightweight and secure user interface.
-*   **Perception Layer:** On-device AI powered by the **Google Chrome Gemini Nano API**. We will primarily leverage the `Summarizer` and `Prompt` APIs for knowledge extraction and query translation.
-*   **Reasoning Layer:** The core of our innovation. The official Rust implementation of the **Google Mangle** engine, compiled to a highly efficient **WebAssembly (Wasm)** module. This allows for complex, on-device deductive reasoning without any server calls, ensuring privacy and performance.
-
-## Getting Started
-
-To run this extension locally, follow these steps:
+To get started with development, follow these steps:
 
 **Prerequisites:**
-*   Google Chrome (latest version recommended, with AI features enabled).
+*   [Node.js](https://nodejs.org/) (which includes npm)
+*   [Google Chrome](https://www.google.com/chrome/) (latest version recommended)
 
-**Installation Steps:**
-1.  Clone the repository: `git clone https://github.com/google/mangle-chrome-extension.git`
-2.  Open Chrome and navigate to `chrome://extensions`.
-3.  Enable **"Developer mode"** using the toggle in the top-right corner.
-4.  Click **"Load unpacked"** and select the `mangle-chrome-extension` folder you just cloned.
-5.  The extension icon will appear in the toolbar, ready for use.
+**Installation:**
 
-### Testing
-
-The project includes a unit test suite for the `mangleService` which communicates with the Wasm module. To run these tests, you will need to set up the Deno runtime.
-
-**Testing Prerequisites:**
-*   [Node.js and npm](https://nodejs.org/en/download/)
-*   [Deno](https://deno.com/)
-
-**Setup and Execution:**
-
-1.  **Install Deno:** The recommended way to install Deno for this project is via npm, which will add the `deno` command to your path.
+1.  **Clone the repository:**
     ```bash
-    npm install -g deno
+    git clone https://github.com/JordanScarrott/mangle-chrome-extension.git
+    cd mangle-chrome-extension
     ```
 
-2.  **Run the Test Suite:** Once Deno is installed, you can run the tests using the configured Deno task.
+2.  **Install dependencies:**
     ```bash
-    deno task test
+    npm install
     ```
 
-**Expected Outcome:**
+3.  **Build the extension:**
+    ```bash
+    npm run build
+    ```
+    This will create a `dist` directory with the unpacked extension files.
 
-When you run the tests, you should see 2 tests passing and 1 test failing. This is the correct and expected outcome.
+**Loading the extension in Chrome:**
 
-*   **Passing (2 tests):** The tests for the "Error Case" (invalid syntax) and "No Results Case" (valid query with no results) should pass.
-*   **Failing (1 test):** The "Success Case" test is expected to fail. This is because the test suite has uncovered a likely bug in the Wasm module's query engine, which currently fails to return the correct results for a valid query.
+1.  Open Chrome and navigate to `chrome://extensions`.
+2.  Enable **"Developer mode"** using the toggle in the top-right corner.
+3.  Click **"Load unpacked"**.
+4.  Select the `dist` directory from this project.
+5.  The extension icon should appear in your browser's toolbar.
 
-If you see this result, your test environment is set up correctly.
+## Testing
 
-## Project Roadmap
+This project uses [Vitest](https://vitest.dev/) for unit testing. To run the tests, use the following command:
 
-This project is ambitious, and we are tackling it in phases.
+```bash
+npm test
+```
 
-*   [X] **Phase 1: Foundation** - Basic Manifest V3 extension skeleton. Mock interfaces for Gemini and Mangle services.
-*   [ ] **Phase 2: Wasm Integration** - Compile the Mangle Rust engine to Wasm and integrate the module into the extension.
-*   [ ] **Phase 3: Gemini Nano Integration** - Replace the mock Gemini service with live calls to the Chrome Gemini Nano APIs.
-*   [ ] **Phase 4: Feature Development** - Build out the core UI and user-facing features (e.g., the Research Assistant).
+This will run all tests defined in the `src/tests` directory.
