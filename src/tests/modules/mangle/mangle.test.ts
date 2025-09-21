@@ -83,4 +83,62 @@ describe("Mangle WASM Module", () => {
             { Destination: '"Paris"', Name: '"Zoe"' },
         ]));
     });
+
+    test("should infer the best value powerful and portable laptop using complex rules", () => {
+        const facts = [
+          'laptop(L1) has-brand("Dell")',
+          'laptop(L1) has-price(1200)',
+          'laptop(L1) has-ram(16)',
+          'laptop(L1) has-storage-type("SSD")',
+          'laptop(L1) has-screen-size(15.6)',
+          'laptop(L1) has-battery(6)', // in hours
+
+          'laptop(L2) has-brand("Apple")',
+          'laptop(L2) has-price(1800)',
+          'laptop(L2) has-ram(16)',
+          'laptop(L2) has-storage-type("SSD")',
+          'laptop(L2) has-screen-size(13.3)',
+          'laptop(L2) has-battery(12)',
+
+          'laptop(L3) has-brand("HP")',
+          'laptop(L3) has-price(950)',
+          'laptop(L3) has-ram(8)',
+          'laptop(L3) has-storage-type("SSD")',
+          'laptop(L3) has-screen-size(14)',
+          'laptop(L3) has-battery(8)',
+
+          'laptop(L4) has-brand("Dell")',
+          'laptop(L4) has-price(1450)',
+          'laptop(L4) has-ram(32)',
+          'laptop(L4) has-storage-type("SSD")',
+          'laptop(L4) has-screen-size(14)',
+          'laptop(L4) has-battery(9)',
+        ];
+
+        const rules = [
+          // Rule: A laptop is "powerful" if it has 16GB of RAM or more AND an SSD.
+          'is_powerful(?laptop) :- laptop(?laptop) has-ram(?ram) has-storage-type("SSD"), ?ram >= 16.',
+
+          // Rule: A laptop is "portable" if its screen size is 14 inches or less AND its battery lasts 8 hours or more.
+          'is_portable(?laptop) :- laptop(?laptop) has-screen-size(?size) has-battery(?battery), ?size <= 14, ?battery >= 8.',
+
+          // Rule: A laptop is "good_value" if its price is under 1500.
+          'is_good_value(?laptop) :- laptop(?laptop) has-price(?price), ?price < 1500.',
+        ];
+
+        facts.forEach(fact => {
+            // Facts in mangle need to be terminated by a period.
+            const err = mangleDefine(`${fact}.`);
+            expect(err).toBe(null);
+        });
+
+        rules.forEach(rule => {
+            const err = mangleDefine(rule);
+            expect(err).toBe(null);
+        });
+
+        const query = 'is_powerful(?laptop), is_portable(?laptop), is_good_value(?laptop)';
+        const result = mangleQuery(query);
+        expect(JSON.parse(result.trim())).toEqual([{ laptop: 'L4' }]);
+    });
 });
