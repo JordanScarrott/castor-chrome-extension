@@ -2,6 +2,11 @@
     <div class="container">
         <h1>Mangle Extension</h1>
         <p>Hello, Mangle!</p>
+
+        <textarea v-model="newContent" placeholder="Enter content to process..."></textarea>
+        <button @click="handleSubmitContent">Submit Content</button>
+        <hr/>
+
         isWasmLoaded: {{ isWasmLoaded }}
 
         <input v-model="inputText" />
@@ -31,6 +36,22 @@ import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoServic
 import DOMPurify from "dompurify";
 import * as smd from "streaming-markdown";
 import { ref } from "vue";
+import { serviceWorkerApi } from "./popup/api";
+
+const newContent = ref('');
+
+async function handleSubmitContent() {
+  if (!newContent.value) return;
+  try {
+    const response = await serviceWorkerApi.processNewContent(newContent.value);
+    console.log('API Response:', response); // Should log { status: 'QUEUED' }
+    alert('Content submitted for processing!');
+    newContent.value = '';
+  } catch (error) {
+    console.error('API Error:', error);
+    alert('Failed to submit content.');
+  }
+}
 
 // No script logic needed for this simple component yet.
 
