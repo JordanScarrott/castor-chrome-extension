@@ -8,6 +8,12 @@ declare const Go: any;
 declare function mangleDefine(text: string): string | null;
 declare function mangleQuery(text: string): string;
 
+// Helper function to sort results for comparison.
+// This is necessary because the order of results from the mangle query is not guaranteed.
+function sortResults<T>(arr: T[]): T[] {
+    return arr.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const MANGLE_WASM_PATH = path.resolve(
@@ -54,10 +60,11 @@ describe("Mangle WASM Module", () => {
         mangleDefine('travels_to("Mia", "Paris").');
 
         const result1 = mangleQuery('lives_in(Name, "Paris")');
-        expect(JSON.parse(result1)).toEqual([
+        const parsedResult1 = JSON.parse(result1);
+        expect(sortResults(parsedResult1)).toEqual(sortResults([
             { Name: '"Leo"' },
             { Name: '"Zoe"' },
-        ]);
+        ]));
 
         const result2 = mangleQuery(
             'travels_to("Mia", Destination), lives_in(Name, Destination)'
@@ -70,9 +77,35 @@ describe("Mangle WASM Module", () => {
         const result3 = mangleQuery(
             'visitorAndLocal("Mia", Name, Destination)'
         );
-        expect(JSON.parse(result3)).toEqual([
+        const parsedResult3 = JSON.parse(result3);
+        expect(sortResults(parsedResult3)).toEqual(sortResults([
             { Destination: '"Paris"', Name: '"Leo"' },
             { Destination: '"Paris"', Name: '"Zoe"' },
-        ]);
+        ]));
+    });
+
+    test("should handle complex queries about laptop data", () => {
+        // Facts: laptop(Brand, Model, Price, RAM, Storage, ScreenSize)
+        mangleDefine('laptop("Dell", "XPS 15", 1500, 16, 512, 15.6).');
+        mangleDefine('laptop("Apple", "MacBook Pro 16", 2400, 16, 512, 16.2).');
+        mangleDefine('laptop("HP", "Spectre x360", 1200, 16, 512, 13.5).');
+        mangleDefine('laptop("Lenovo", "ThinkPad X1 Carbon", 1800, 16, 1024, 14).');
+        mangleDefine('laptop("Dell", "Inspiron 15", 800, 8, 256, 15.6).');
+        mangleDefine('laptop("Apple", "MacBook Air", 999, 8, 256, 13.3).');
+
+        // Rules
+        mangleDefine("is_portable(Model) :- laptop(_, Model, _, _, _, ScreenSize), ScreenSize < 14.");
+        mangleDefine("is_powerhouse(Model) :- laptop(_, Model, _, RAM, Storage, _), RAM >= 16, Storage >= 512.");
+        mangleDefine("good_for_students(Model) :- is_portable(Model), laptop(_, Model, Price, _, _, _), Price < 1300.");
+
+        // Query
+        const result = mangleQuery("good_for_students(Model)");
+        const parsedResult = JSON.parse(result);
+
+        // Assert
+        expect(sortResults(parsedResult)).toEqual(sortResults([
+            { Model: '"HP Spectre x360"' },
+            { Model: '"MacBook Air"' },
+        ]));
     });
 });
