@@ -142,3 +142,87 @@ describe("Mangle WASM Module", () => {
         expect(JSON.parse(result.trim())).toEqual([{ laptop: 'L4' }]);
     });
 });
+
+describe("Complex Scenarios", () => {
+    test("should correctly validate a fully compatible desk setup by resolving chained dependencies and power constraints", async () => {
+        // Re-initialize to ensure a clean slate, avoiding state from other tests.
+        await runMangleInstance(MANGLE_WASM_PATH);
+
+        const facts = [
+            // -- Setups (Bundles of components) --
+            'is_setup("S1")', // The one that should work
+            'setup("S1") has-laptop("L1_Mac")',
+            'setup("S1") has-dock("D1_Thunderbolt")',
+            'setup("S1") has-monitor("M1_4K")',
+            'setup("S1") has-psu("PSU_100W")',
+
+            'is_setup("S2")', // Should fail on power
+            'setup("S2") has-laptop("L2_Win")',
+            'setup("S2") has-dock("D2_USB-C")',
+            'setup("S2") has-monitor("M1_4K")',
+            'setup("S2") has-psu("PSU_65W")',
+
+            'is_setup("S3")', // Should fail on port compatibility (Dock->Monitor)
+            'setup("S3") has-laptop("L2_Win")',
+            'setup("S3") has-dock("D2_USB-C")',
+            'setup("S3") has-monitor("M2_Ultrawide")',
+            'setup("S3") has-psu("PSU_100W")',
+
+            // -- Laptops --
+            'laptop("L1_Mac") requires-port("Thunderbolt")',
+            'laptop("L1_Mac") power-draw(45)',
+            'laptop("L2_Win") requires-port("USB-C")',
+            'laptop("L2_Win") power-draw(60)',
+
+            // -- Docks --
+            'dock("D1_Thunderbolt") provides-laptop-port("Thunderbolt")',
+            'dock("D1_Thunderbolt") provides-monitor-port("DisplayPort")',
+            'dock("D1_Thunderbolt") power-draw(15)',
+            'dock("D2_USB-C") provides-laptop-port("USB-C")',
+            'dock("D2_USB-C") provides-monitor-port("HDMI")',
+            'dock("D2_USB-C") power-draw(10)',
+
+            // -- Monitors --
+            'monitor("M1_4K") requires-port("DisplayPort")',
+            'monitor("M2_Ultrawide") requires-port("DisplayPort")', // Note: D2 only has HDMI
+
+            // -- Power Supplies --
+            'psu("PSU_65W") provides-power(65)',
+            'psu("PSU_100W") provides-power(100)',
+        ];
+
+        const rules = [
+            // -- Level 1 Rule: Port Compatibility --
+            // A dock is compatible with a laptop if their connecting ports match.
+            'dock_compatible_with_laptop(?dock, ?laptop) :- dock(?dock) provides-laptop-port(?port), laptop(?laptop) requires-port(?port)',
+            // A monitor is compatible with a dock if their connecting ports match.
+            'monitor_compatible_with_dock(?monitor, ?dock) :- monitor(?monitor) requires-port(?port), dock(?dock) provides-monitor-port(?port)',
+
+            // -- Level 2 Rule: Full Device Chain Compatibility --
+            // A setup's device chain is valid if all adjacent devices are compatible.
+            'setup_chain_is_compatible(?setup) :- setup(?setup) has-laptop(?laptop) has-dock(?dock) has-monitor(?monitor), dock_compatible_with_laptop(?dock, ?laptop), monitor_compatible_with_dock(?monitor, ?dock)',
+
+            // -- Level 2 Rule: Power Calculation --
+            // The total power draw for a setup is the sum of the laptop and dock's draw.
+            'setup_power_draw(?setup, ?total_draw) :- setup(?setup) has-laptop(?laptop) has-dock(?dock), laptop(?laptop) power-draw(?p1), dock(?dock) power-draw(?p2), ?total_draw is ?p1 + ?p2',
+
+            // -- Level 3 Rule: Final Validation --
+            // A setup is valid if its device chain is compatible AND its power supply can handle the total draw.
+            'is_valid_setup(?setup) :- is_setup(?setup), setup_chain_is_compatible(?setup), setup(?setup) has-psu(?psu), psu(?psu) provides-power(?provided_power), setup_power_draw(?setup, ?required_power), ?provided_power >= ?required_power',
+        ];
+
+        facts.forEach(fact => {
+            const err = mangleDefine(`${fact}.`);
+            expect(err).toBe(null);
+        });
+
+        rules.forEach(rule => {
+            const err = mangleDefine(`${rule}.`);
+            expect(err).toBe(null);
+        });
+
+        const query = 'is_valid_setup(?setup_id)';
+        const result = mangleQuery(query);
+        expect(JSON.parse(result.trim())).toEqual([{ setup_id: 'S1' }]);
+    });
+});
