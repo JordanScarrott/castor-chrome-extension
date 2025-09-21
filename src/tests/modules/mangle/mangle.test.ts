@@ -8,6 +8,12 @@ declare const Go: any;
 declare function mangleDefine(text: string): string | null;
 declare function mangleQuery(text: string): string;
 
+// Helper function to sort results for comparison.
+// This is necessary because the order of results from the mangle query is not guaranteed.
+function sortResults<T>(arr: T[]): T[] {
+    return arr.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const MANGLE_WASM_PATH = path.resolve(
@@ -54,10 +60,11 @@ describe("Mangle WASM Module", () => {
         mangleDefine('travels_to("Mia", "Paris").');
 
         const result1 = mangleQuery('lives_in(Name, "Paris")');
-        expect(JSON.parse(result1)).toEqual([
+        const parsedResult1 = JSON.parse(result1);
+        expect(sortResults(parsedResult1)).toEqual(sortResults([
             { Name: '"Leo"' },
             { Name: '"Zoe"' },
-        ]);
+        ]));
 
         const result2 = mangleQuery(
             'travels_to("Mia", Destination), lives_in(Name, Destination)'
@@ -70,9 +77,10 @@ describe("Mangle WASM Module", () => {
         const result3 = mangleQuery(
             'visitorAndLocal("Mia", Name, Destination)'
         );
-        expect(JSON.parse(result3)).toEqual([
+        const parsedResult3 = JSON.parse(result3);
+        expect(sortResults(parsedResult3)).toEqual(sortResults([
             { Destination: '"Paris"', Name: '"Leo"' },
             { Destination: '"Paris"', Name: '"Zoe"' },
-        ]);
+        ]));
     });
 });
