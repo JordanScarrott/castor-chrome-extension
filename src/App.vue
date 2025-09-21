@@ -3,13 +3,16 @@
         <h1>Mangle Extension</h1>
         <p>Hello, Mangle!</p>
 
-        <textarea v-model="newContent" placeholder="Enter content to process..."></textarea>
+        <textarea
+            v-model="newContent"
+            placeholder="Enter content to process..."
+        ></textarea>
         <button @click="handleSubmitContent">Submit Content</button>
-        <hr/>
+        <hr />
 
         isWasmLoaded: {{ isWasmLoaded }}
 
-        <input v-model="inputText" />
+        <!-- <input v-model="inputText" />
         <button @click="summarize">Summarize</button>
         <button @click="prompt">Prompt</button>
         <button @click="summarizeStreaming">Summarize (Streaming)</button>
@@ -21,36 +24,38 @@
         <div>Mangle output: {{ mangleOutput }}</div>
 
         <div>output: {{ output }}</div>
-        <div id="streaming-output"></div>
+        <div id="streaming-output"></div> -->
     </div>
 </template>
 
 <script setup lang="ts">
-import { usePrompt } from "@/modules/geminiNano/composables/geminiNanoComposable";
+import { usePrompt } from "@/service-worker/geminiNano/composables/geminiNanoComposable";
 import { useMangle } from "@/modules/mangle/composables/useMangle";
 import {
     manglePrompt,
     MangleSchemaProperties,
-} from "@/modules/geminiNano/utils/prompts";
+} from "@/service-worker/geminiNano/utils/prompts";
 import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
 import DOMPurify from "dompurify";
 import * as smd from "streaming-markdown";
 import { ref } from "vue";
 import { serviceWorkerApi } from "./popup/api";
 
-const newContent = ref('');
+const newContent = ref("");
 
 async function handleSubmitContent() {
-  if (!newContent.value) return;
-  try {
-    const response = await serviceWorkerApi.processNewContent(newContent.value);
-    console.log('API Response:', response); // Should log { status: 'QUEUED' }
-    alert('Content submitted for processing!');
-    newContent.value = '';
-  } catch (error) {
-    console.error('API Error:', error);
-    alert('Failed to submit content.');
-  }
+    if (!newContent.value) return;
+    try {
+        const response = await serviceWorkerApi.processNewContent(
+            newContent.value
+        );
+        console.log("API Response:", response); // Should log { status: 'QUEUED' }
+        alert("Content submitted for processing!");
+        newContent.value = "";
+    } catch (error) {
+        console.error("API Error:", error);
+        alert("Failed to submit content.");
+    }
 }
 
 // No script logic needed for this simple component yet.

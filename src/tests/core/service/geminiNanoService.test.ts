@@ -1,4 +1,4 @@
-import { usePrompt } from "@/modules/geminiNano/composables/geminiNanoComposable";
+import { usePrompt } from "@/service-worker/geminiNano/composables/geminiNanoComposable";
 import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
 import { exampleText } from "@/tests/core/service/exampleData";
 import { describe, expect, test, vi } from "vitest";
