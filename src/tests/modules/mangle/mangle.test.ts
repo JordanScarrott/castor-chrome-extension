@@ -141,6 +141,76 @@ describe("Mangle WASM Module", () => {
         const result = mangleQuery(query);
         expect(JSON.parse(result.trim())).toEqual([{ laptop: 'L4' }]);
     });
+
+    describe("Real-World Scenarios", () => {
+        test("should recommend a valid, diet-compatible meal that prioritizes using expiring ingredients", () => {
+            const facts = [
+                // -- Pantry Inventory (What I have) --
+                'pantry("pasta") has-quantity(500)', // in grams
+                'pantry("tomato_sauce") has-quantity(400)',
+                'pantry("pesto") has-quantity(200)',
+                'pantry("chicken_breast") has-quantity(2)',
+                'pantry("chicken_breast") expires-in-days(2)', // This is about to go bad!
+                'pantry("spinach") has-quantity(100)',
+                'pantry("spinach") expires-in-days(3)',
+                'pantry("chickpeas") has-quantity(1)', // can
+
+                // -- Ingredient Properties (Dietary Info) --
+                'ingredient("pasta") is("carb")',
+                'ingredient("tomato_sauce") is("vegan")',
+                'ingredient("pesto") is("vegetarian")', // Note: Pesto often has cheese, so not vegan
+                'ingredient("chicken_breast") is("protein")',
+                'ingredient("chicken_breast") is("meat")',
+                'ingredient("spinach") is("vegan")',
+                'ingredient("chickpeas") is("vegan")',
+                'ingredient("chickpeas") is("protein")',
+
+                // -- Recipes (The rules for making meals) --
+                'recipe("Chicken Pasta") requires("pasta")',
+                'recipe("Chicken Pasta") requires("tomato_sauce")',
+                'recipe("Chicken Pasta") requires("chicken_breast")',
+
+                'recipe("Pesto Pasta") requires("pasta")',
+                'recipe("Pesto Pasta") requires("pesto")',
+
+                'recipe("Chickpea Spinach Curry") requires("spinach")',
+                'recipe("Chickpea Spinach Curry") requires("chickpeas")',
+                'recipe("Chickpea Spinach Curry") requires("tomato_sauce")',
+            ];
+
+            const rules = [
+                // Rule: An ingredient is available if it exists in the pantry.
+                'is_available(?ing) :- pantry(?ing) has-quantity(?q), ?q > 0.',
+
+                // Rule: A recipe is "makable" if all of its required ingredients are available in the pantry.
+                'is_makable(?meal) :- recipe(?meal), not (recipe(?meal) requires(?ing), not is_available(?ing)).',
+
+                // Rule: A recipe is vegan if none of its required ingredients are meat.
+                'is_vegan_recipe(?meal) :- recipe(?meal), not (recipe(?meal) requires(?ing), ingredient(?ing) is("meat")).',
+
+                // Rule: A recipe uses "expiring food" if at least one of its ingredients expires in 3 days or less.
+                'uses_expiring_food(?meal) :- recipe(?meal) requires(?ing), pantry(?ing) expires-in-days(?days), ?days <= 3.',
+
+                // -- Final Decision Rule --
+                // A meal is an "optimal choice" if it is makable, fits the dietary goal, and uses expiring food.
+                'is_optimal_choice(?meal) :- is_makable(?meal), is_vegan_recipe(?meal), uses_expiring_food(?meal).',
+            ];
+
+            facts.forEach(fact => {
+                const err = mangleDefine(`${fact}.`);
+                expect(err).toBe(null);
+            });
+
+            rules.forEach(rule => {
+                const err = mangleDefine(rule);
+                expect(err).toBe(null);
+            });
+
+            const query = 'is_optimal_choice(?meal)';
+            const result = mangleQuery(query);
+            expect(JSON.parse(result.trim())).toEqual([{ meal: 'Chickpea Spinach Curry' }]);
+        });
+    });
 });
 
 describe("Complex Scenarios", () => {
