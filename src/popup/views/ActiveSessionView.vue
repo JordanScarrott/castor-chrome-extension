@@ -4,6 +4,7 @@
     <main>
       <GoalDisplay v-if="store.goal" :goal="store.goal" />
       <GuidingQuestions :questions="store.guidingQuestions" />
+      <ContentIngestForm @ingest-content="store.addManualSource" />
 
       <hr />
 
@@ -23,6 +24,7 @@ import GuidingQuestions from '../components/GuidingQuestions.vue';
 import KnowledgeBaseList from '../components/KnowledgeBaseList.vue';
 import ResultsDisplay from '../components/ResultsDisplay.vue';
 import QueryInput from '../components/QueryInput.vue';
+import ContentIngestForm from '../components/ContentIngestForm.vue';
 
 const store = useSessionStore();
 
