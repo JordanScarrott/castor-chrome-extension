@@ -80,6 +80,20 @@ export const useSessionStore = defineStore('session', {
       // this.knowledgeSources.push(source);
     },
 
+    addManualSource(content: string) {
+      console.log('addManualSource action called with:', content);
+      const newSource: Source = {
+        id: `manual-${Date.now()}`,
+        title: 'Manually Added Note',
+        faviconUrl: 'assets/note-icon.svg', // Placeholder icon
+        facts: [
+          'This is a manually added fact.',
+          'The user pasted this content directly.',
+        ],
+      };
+      this.knowledgeSources.push(newSource);
+    },
+
     async executeQuery(queryText: string) {
       this.isLoading = true;
       this.currentResult = null;
