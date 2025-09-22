@@ -1,7 +1,7 @@
 import {
     manglePrompt,
     MangleSchemaProperties,
-} from "@/service-worker/geminiNano/utils/prompts";
+} from "@/service-worker/geminiNano/utils/prompts/prompts";
 import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
 
 export function usePrompt() {

@@ -34,7 +34,7 @@ import { useMangle } from "@/modules/mangle/composables/useMangle";
 import {
     manglePrompt,
     MangleSchemaProperties,
-} from "@/service-worker/geminiNano/utils/prompts";
+} from "@/service-worker/geminiNano/utils/prompts/prompts";
 import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
 import DOMPurify from "dompurify";
 import * as smd from "streaming-markdown";
