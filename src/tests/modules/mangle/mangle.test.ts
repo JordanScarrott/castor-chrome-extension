@@ -142,3 +142,43 @@ describe("Mangle WASM Module", () => {
         expect(JSON.parse(result.trim())).toEqual([{ laptop: 'L4' }]);
     });
 });
+
+describe('Mangle Core Syntax Validation', () => {
+    test('should correctly filter facts by comparing a variable against a literal value in a rule', async () => {
+        // --- 1. The Facts ---
+        const facts = [
+            'item_cost("budget_mouse", 50).',
+            'item_cost("premium_keyboard", 150).',
+            'item_cost("mid_range_monitor", 100).',
+        ];
+
+        // --- 2. The Rule ---
+        const rules = [
+            'is_affordable(Item) :- item_cost(Item, Cost), Cost <= 100.',
+        ];
+
+        facts.forEach(fact => {
+            const err = mangleDefine(fact);
+            expect(err).toBe(null);
+        });
+
+        rules.forEach(rule => {
+            const err = mangleDefine(rule);
+            expect(err).toBe(null);
+        });
+
+
+        // --- 3. The Query ---
+        const query = 'is_affordable(Item)';
+        const result = JSON.parse(mangleQuery(query));
+
+        // --- 4. The Assertion ---
+        expect(sortResults(result)).toEqual(
+            sortResults([
+                { Item: '"budget_mouse"' },
+                { Item: '"mid_range_monitor"' },
+            ])
+        );
+        expect(result.length).toBe(2);
+    });
+});
