@@ -5,13 +5,41 @@ import { beforeAll, describe, expect, test } from "vitest";
 
 // Declare the globals that the WASM module will expose
 declare const Go: any;
-declare function mangleDefine(text: string): string | null;
-declare function mangleQuery(text: string): string;
+
+// A custom type for the Mangle query function
+type MangleQueryFn = (query: string) => string;
+type MangleDefineFn = (fact: string) => string | null;
+
+declare let mangleQuery: MangleQueryFn;
+declare let mangleDefine: MangleDefineFn;
 
 // Helper function to sort results for comparison.
 // This is necessary because the order of results from the mangle query is not guaranteed.
 function sortResults<T>(arr: T[]): T[] {
     return arr.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+}
+
+class Mangle {
+    constructor() {
+        // This class assumes that the Mangle WASM module has been initialized
+        // and that the mangleQuery and mangleDefine functions are available globally.
+    }
+
+    define(factOrRule: string): void {
+        // Facts in mangle need to be terminated by a period.
+        const err = mangleDefine(`${factOrRule}.`);
+        if (err) {
+            throw new Error(`Mangle define error: ${err}`);
+        }
+    }
+
+    query(queryString: string): any[] {
+        const rawResult = mangleQuery(queryString);
+        if (rawResult.startsWith("Error:")) {
+            throw new Error(`Mangle query error: ${rawResult}`);
+        }
+        return JSON.parse(rawResult.trim());
+    }
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,60 +59,60 @@ async function runMangleInstance(wasmPath: string) {
 }
 
 describe("Mangle WASM Module", () => {
+    let mangle: Mangle;
+
     beforeAll(async () => {
         await runMangleInstance(MANGLE_WASM_PATH);
+        mangle = new Mangle();
     });
 
     test("should define and query simple facts", () => {
-        let err = mangleDefine("foo(1, 2).");
-        expect(err).toBe(null);
-        err = mangleDefine('bar("baz").');
-        expect(err).toBe(null);
+        mangle.define("foo(1, 2)");
+        mangle.define('bar("baz")');
 
-        const result = mangleQuery("foo(X, Y)");
-        expect(JSON.parse(result.trim())).toEqual([{ X: "1", Y: "2" }]);
+        const result = mangle.query("foo(X, Y)");
+        expect(result).toEqual([{ X: "1", Y: "2" }]);
 
-        const result2 = mangleQuery("bar(X)");
-        expect(JSON.parse(result2.trim())).toEqual([{ X: '"baz"' }]);
+        const result2 = mangle.query("bar(X)");
+        expect(result2).toEqual([{ X: '"baz"' }]);
     });
 
     test("should return an error for invalid queries", () => {
-        const errResult = mangleQuery("foo(");
-        expect(errResult.startsWith("Error:")).toBe(true);
+        expect(() => mangle.query("foo(")).toThrow();
     });
 
     test("should handle more complex queries and rules", () => {
-        mangleDefine('lives_in("Leo", "Paris").');
-        mangleDefine('lives_in("Mia", "Tokyo").');
-        mangleDefine('lives_in("Zoe", "Paris").');
-        mangleDefine('travels_to("Mia", "Paris").');
+        const mangle = new Mangle();
+        mangle.define('lives_in("Leo", "Paris")');
+        mangle.define('lives_in("Mia", "Tokyo")');
+        mangle.define('lives_in("Zoe", "Paris")');
+        mangle.define('travels_to("Mia", "Paris")');
 
-        const result1 = mangleQuery('lives_in(Name, "Paris")');
-        const parsedResult1 = JSON.parse(result1);
-        expect(sortResults(parsedResult1)).toEqual(sortResults([
+        const result1 = mangle.query('lives_in(Name, "Paris")');
+        expect(sortResults(result1)).toEqual(sortResults([
             { Name: '"Leo"' },
             { Name: '"Zoe"' },
         ]));
 
-        const result2 = mangleQuery(
+        const result2 = mangle.query(
             'travels_to("Mia", Destination), lives_in(Name, Destination)'
         );
-        expect(JSON.parse(result2)).toEqual([{ Destination: '"Paris"' }]);
+        expect(result2).toEqual([{ Destination: '"Paris"' }]);
 
         const rule =
-            "visitorAndLocal(V, L, D) :- travels_to(V, D), lives_in(L, D).";
-        mangleDefine(rule);
-        const result3 = mangleQuery(
+            "visitorAndLocal(V, L, D) :- travels_to(V, D), lives_in(L, D)";
+        mangle.define(rule);
+        const result3 = mangle.query(
             'visitorAndLocal("Mia", Name, Destination)'
         );
-        const parsedResult3 = JSON.parse(result3);
-        expect(sortResults(parsedResult3)).toEqual(sortResults([
+        expect(sortResults(result3)).toEqual(sortResults([
             { Destination: '"Paris"', Name: '"Leo"' },
             { Destination: '"Paris"', Name: '"Zoe"' },
         ]));
     });
 
     test("should infer the best value powerful and portable laptop using complex rules", () => {
+        const mangle = new Mangle();
         const facts = [
           'laptop(L1) has-brand("Dell")',
           'laptop(L1) has-price(1200)',
@@ -126,24 +154,17 @@ describe("Mangle WASM Module", () => {
           'is_good_value(?laptop) :- laptop(?laptop) has-price(?price), ?price < 1500.',
         ];
 
-        facts.forEach(fact => {
-            // Facts in mangle need to be terminated by a period.
-            const err = mangleDefine(`${fact}.`);
-            expect(err).toBe(null);
-        });
-
-        rules.forEach(rule => {
-            const err = mangleDefine(rule);
-            expect(err).toBe(null);
-        });
+        facts.forEach(fact => mangle.define(fact));
+        rules.forEach(rule => mangle.define(rule));
 
         const query = 'is_powerful(?laptop), is_portable(?laptop), is_good_value(?laptop)';
-        const result = mangleQuery(query);
-        expect(JSON.parse(result.trim())).toEqual([{ laptop: 'L4' }]);
+        const result = mangle.query(query);
+        expect(result).toEqual([{ laptop: 'L4' }]);
     });
 
     describe("Real-World Scenarios", () => {
         test("should recommend a valid, diet-compatible meal that prioritizes using expiring ingredients", () => {
+            const mangle = new Mangle();
             const facts = [
                 // -- Pantry Inventory (What I have) --
                 'pantry("pasta") has-quantity(500)', // in grams
@@ -196,19 +217,12 @@ describe("Mangle WASM Module", () => {
                 'is_optimal_choice(?meal) :- is_makable(?meal), is_vegan_recipe(?meal), uses_expiring_food(?meal).',
             ];
 
-            facts.forEach(fact => {
-                const err = mangleDefine(`${fact}.`);
-                expect(err).toBe(null);
-            });
-
-            rules.forEach(rule => {
-                const err = mangleDefine(rule);
-                expect(err).toBe(null);
-            });
+            facts.forEach(fact => mangle.define(fact));
+            rules.forEach(rule => mangle.define(rule));
 
             const query = 'is_optimal_choice(?meal)';
-            const result = mangleQuery(query);
-            expect(JSON.parse(result.trim())).toEqual([{ meal: 'Chickpea Spinach Curry' }]);
+            const result = mangle.query(query);
+            expect(result).toEqual([{ meal: 'Chickpea Spinach Curry' }]);
         });
     });
 });
@@ -217,6 +231,7 @@ describe("Complex Scenarios", () => {
     test("should correctly validate a fully compatible desk setup by resolving chained dependencies and power constraints", async () => {
         // Re-initialize to ensure a clean slate, avoiding state from other tests.
         await runMangleInstance(MANGLE_WASM_PATH);
+        const mangle = new Mangle();
 
         const facts = [
             // -- Setups (Bundles of components) --
@@ -281,18 +296,77 @@ describe("Complex Scenarios", () => {
             'is_valid_setup(?setup) :- is_setup(?setup), setup_chain_is_compatible(?setup), setup(?setup) has-psu(?psu), psu(?psu) provides-power(?provided_power), setup_power_draw(?setup, ?required_power), ?provided_power >= ?required_power',
         ];
 
-        facts.forEach(fact => {
-            const err = mangleDefine(`${fact}.`);
-            expect(err).toBe(null);
-        });
-
-        rules.forEach(rule => {
-            const err = mangleDefine(`${rule}.`);
-            expect(err).toBe(null);
-        });
+        facts.forEach(fact => mangle.define(fact));
+        rules.forEach(rule => mangle.define(rule));
 
         const query = 'is_valid_setup(?setup_id)';
-        const result = mangleQuery(query);
-        expect(JSON.parse(result.trim())).toEqual([{ setup_id: 'S1' }]);
+        const result = mangle.query(query);
+        expect(result).toEqual([{ setup_id: 'S1' }]);
+    });
+});
+
+describe("Advanced Search Scenarios", () => {
+    test("should find a specific article from two weeks ago based on a conceptual topic search", async () => {
+        // Re-initialize to ensure a clean slate, avoiding state from other tests.
+        await runMangleInstance(MANGLE_WASM_PATH);
+        const mangle = new Mangle();
+
+        const facts = [
+          // -- System State --
+          'system_time("now", 1758555240)',
+
+          // -- Enriched History Data --
+          // The Target Article: Right topic, right time frame
+          'visit("v1", "https://coding-blog.com/nasty-memory-leak", 1757172840)', // Sept 6
+          'page_type("https://coding-blog.com/nasty-memory-leak", "article")',
+          'page_content_keyword("https://coding-blog.com/nasty-memory-leak", "memory_leak")',
+          'page_content_keyword("https://coding-blog.com/nasty-memory-leak", "debugging")',
+
+          // Wrong Topic, Right Time Frame
+          'visit("v2", "https://tech-news.com/new-gpu-release", 1757086440)', // Sept 5
+          'page_type("https://tech-news.com/new-gpu-release", "article")',
+          'page_content_keyword("https://tech-news.com/new-gpu-release", "hardware")',
+
+          // Right Topic, Wrong Time Frame (too recent)
+          'visit("v3", "https://dev-forum.net/question/123", 1758036840)', // Sept 16
+          'page_type("https://dev-forum.net/question/123", "forum_post")',
+          'page_content_keyword("https://dev-forum.net/question/123", "bug")',
+          'page_content_keyword("https://dev-forum.net/question/123", "error")',
+
+          // Right Topic, Right Time Frame, Wrong Type (not an article)
+          'visit("v4", "https://docs.project.com/api/errors", 1757259240)', // Sept 7
+          'page_type("https://docs.project.com/api/errors", "documentation")',
+          'page_content_keyword("https://docs.project.com/api/errors", "exception")',
+        ];
+
+        const rules = [
+          // -- Level 1 Rule: Time Constraint --
+          // An item is "in_search_period" if its timestamp is older than 14 days from the current time.
+          'in_search_period(?visit_id) :- visit(?visit_id, ?url, ?timestamp), system_time("now", ?now), ?cutoff is ?now - 1209600, ?timestamp < ?cutoff', // 1209600 seconds = 14 days
+
+          // -- Level 2 Rule: Topic Relevance (The "Somehow" Engine) --
+          // A URL is "about_debugging" if its content contains any keyword from a set of related terms.
+          // This allows the user to search for "bug" and find an article about a "memory_leak".
+          'is_about_debugging(?url) :- page_content_keyword(?url, "bug")',
+          'is_about_debugging(?url) :- page_content_keyword(?url, "error")',
+          'is_about_debugging(?url) :- page_content_keyword(?url, "exception")',
+          'is_about_debugging(?url) :- page_content_keyword(?url, "memory_leak")',
+
+          // -- Level 3 Rule: Content Type Filter --
+          'is_article(?url) :- page_type(?url, "article")',
+
+          // -- Level 4 Rule: The Final Synthesis --
+          // A URL is a "search_result" if it meets all three criteria: right time, right topic, and right type.
+          'is_search_result(?url) :- in_search_period(?visit_id), visit(?visit_id, ?url, ?ts), is_about_debugging(?url), is_article(?url)',
+        ];
+
+        facts.forEach(fact => mangle.define(fact));
+        rules.forEach(rule => mangle.define(rule));
+
+        const query = 'is_search_result(?url)';
+        const result = await mangle.query(query);
+        expect(result).toEqual([
+          { url: 'https://coding-blog.com/nasty-memory-leak' }
+        ]);
     });
 });
