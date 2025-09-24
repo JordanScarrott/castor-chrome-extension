@@ -2,9 +2,11 @@ import { Message, MessageType } from '../types';
 import { handleProcessNewContent } from './handlers/contentHandler';
 import { handleExecuteQuery } from './handlers/queryHandler';
 import { handleGetFactStore } from './handlers/stateHandler';
+import { handleGenerateMangleSchema } from './handlers/schemaHandler';
 
 // The router maps message types to their handler functions
 const handlers = {
+  'GENERATE_MANGLE_SCHEMA': handleGenerateMangleSchema,
   'PROCESS_NEW_CONTENT': handleProcessNewContent,
   'EXECUTE_MANGLE_QUERY': handleExecuteQuery,
   'GET_FACT_STORE_STATE': handleGetFactStore,

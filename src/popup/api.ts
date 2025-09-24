@@ -18,6 +18,9 @@ async function callApi<T extends MessageType>(
 }
 
 export const serviceWorkerApi = {
+  generateMangleSchema: (userGoal: string) => {
+    return callApi('GENERATE_MANGLE_SCHEMA', { userGoal });
+  },
   processNewContent: (content: string) => {
     return callApi('PROCESS_NEW_CONTENT', { content });
   },

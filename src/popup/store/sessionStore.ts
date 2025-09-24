@@ -72,14 +72,18 @@ export const useSessionStore = defineStore("session", {
 
         async setGoal(goalText: string) {
             this.isLoading = true;
-            await sleep(2000); // Mock 2-second delay
             this.goal = goalText;
-            this.guidingQuestions = [
-                "What are the key performance differences?",
-                "How does the battery life compare?",
-                "What is the starting price for each model?",
-            ];
-            this.isLoading = false;
+
+            try {
+                const { schema } = await serviceWorkerApi.generateMangleSchema(goalText);
+                console.log('Generated Mangle Schema:', schema);
+                this.guidingQuestions = schema.guiding_questions;
+            } catch (error) {
+                console.error('Failed to generate Mangle Schema:', error);
+                // Optionally, set an error state to display to the user
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         addSource(source: Source) {

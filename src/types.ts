@@ -1,6 +1,12 @@
+import { MangleSchema } from "./types/MangleSchema";
+
 // A mapping of all possible message types to their payload and response types
 export interface ApiContract {
   // Key: Message Type, Value: [Payload, Response]
+  'GENERATE_MANGLE_SCHEMA': [
+    { userGoal: string },
+    { schema: MangleSchema }
+  ];
   'PROCESS_NEW_CONTENT': [
     { content: string }, // Payload
     { status: 'QUEUED' | 'ERROR', message?: string } // Response

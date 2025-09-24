@@ -1,6 +1,32 @@
+import { MangleSchema } from '@/types/MangleSchema';
+import { createMangleSchemaPrompt } from '@/core/gprompt';
+
+/**
+ * A helper function to clean the raw output from the LLM.
+ * This function removes any non-JSON text and code block markers
+ * from the start and end of the string.
+ *
+ * @param rawOutput The raw string output from the LLM.
+ * @returns A clean, parseable JSON string.
+ */
+function cleanLlmOutput(rawOutput: string): string {
+  // Remove markdown code block markers
+  let cleaned = rawOutput.replace(/```json/g, '').replace(/```/g, '');
+  // Trim whitespace
+  cleaned = cleaned.trim();
+  return cleaned;
+}
+
 class GeminiNanoService {
     constructor() {
         // Reserved for future config
+    }
+
+    async generateMangleSchema(userGoal: string): Promise<MangleSchema> {
+        const prompt = createMangleSchemaPrompt(userGoal);
+        const rawOutput = await this.askPrompt<string>(prompt);
+        const cleanedOutput = cleanLlmOutput(rawOutput);
+        return JSON.parse(cleanedOutput);
     }
 
     async summarize(inputText: string): Promise<string> {
