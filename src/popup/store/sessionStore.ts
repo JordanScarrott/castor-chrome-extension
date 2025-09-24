@@ -1,7 +1,6 @@
 import { serviceWorkerApi } from "@/popup/api";
 import { defineStore } from "pinia";
 
-// 2. Data Types
 export interface Source {
     id: string;
     title: string;
@@ -21,50 +20,22 @@ export interface SessionState {
     knowledgeSources: Source[];
     currentResult: Result | null;
     isLoading: boolean;
+    hasActiveSession: boolean;
 }
 
-// Mock delay function
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useSessionStore = defineStore("session", {
-    // 1. Pinia Store (`src/store/sessionStore.ts`)
     state: (): SessionState => ({
         sessionTitle: "",
         goal: null,
         guidingQuestions: [],
-        knowledgeSources: [
-            // Mock data as requested
-            {
-                id: "1",
-                title: "Ars Technica: The new M3 MacBook Air.",
-                faviconUrl: "https://arstechnica.com/favicon.ico",
-                facts: [
-                    'Comes in 13" and 15" models.',
-                    "Supports two external displays (when lid is closed).",
-                ],
-            },
-            {
-                id: "2",
-                title: "The Verge: Apple’s new M3 MacBook Air is here.",
-                faviconUrl: "https://www.theverge.com/favicon.ico",
-                facts: [
-                    "Starting price is $1,099.",
-                    "Features a fanless design.",
-                ],
-            },
-        ],
+        knowledgeSources: [],
         currentResult: null,
         isLoading: false,
+        hasActiveSession: false,
     }),
 
-    // Getters
-    getters: {
-        hasActiveSession(state): boolean {
-            return state.goal !== null;
-        },
-    },
-
-    // Actions
     actions: {
         initSession(title: string) {
             this.sessionTitle = title;
@@ -76,70 +47,44 @@ export const useSessionStore = defineStore("session", {
 
             try {
                 const { schema } = await serviceWorkerApi.generateMangleSchema(goalText);
-                console.log('Generated Mangle Schema:', schema);
                 this.guidingQuestions = schema.guiding_questions;
+                this.hasActiveSession = true;
             } catch (error) {
                 console.error('Failed to generate Mangle Schema:', error);
-                // Optionally, set an error state to display to the user
             } finally {
                 this.isLoading = false;
             }
         },
 
-        addSource(source: Source) {
-            // Stubbed action
-            console.log("addSource action called with:", source);
-            // this.knowledgeSources.push(source);
-        },
-
         async addManualSource(content: string) {
-            console.log("addManualSource action called with:", content);
-
-            const response = await serviceWorkerApi.processNewContent(content);
-            console.log("alksdjaklsdljas", response);
-
-            const newSource: Source = {
-                id: `manual-${Date.now()}`,
-                title: "Manually Added Note",
-                faviconUrl: "assets/note-icon.svg", // Placeholder icon
-                facts: [
-                    "This is a manually added fact.",
-                    "The user pasted this content directly.",
-                ],
-            };
-            this.knowledgeSources.push(newSource);
+            this.isLoading = true;
+            try {
+                await serviceWorkerApi.processNewContent(content);
+                // Here you might want to refresh the knowledge sources
+                // or wait for a message from the service worker with updates.
+            } catch (error) {
+                console.error('Failed to process new content:', error);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         async executeQuery(queryText: string) {
             this.isLoading = true;
             this.currentResult = null;
-            await sleep(2000); // Mock 2-second delay
-
-            if (queryText.toLowerCase().includes("compare")) {
-                this.currentResult = {
-                    type: "table",
-                    data: {
-                        headers: [
-                            "Feature",
-                            "M3 MacBook Air",
-                            "M2 MacBook Air",
-                        ],
-                        rows: [
-                            ["Price", "$1,099", "$999"],
-                            ["External Displays", "2 (lid closed)", "1"],
-                            ["Wi-Fi", "Wi-Fi 6E", "Wi-Fi 6"],
-                        ],
-                    },
-                };
-            } else {
+            try {
+                const results = await serviceWorkerApi.executeQuery(queryText);
+                // This part needs to be adapted based on the actual
+                // structure of the query results from Mangle.
                 this.currentResult = {
                     type: "text",
-                    data: {
-                        answer: "The M3 MacBook Air offers significant performance improvements, support for an additional external display when the lid is closed, and faster Wi-Fi 6E connectivity compared to the M2 model.",
-                    },
+                    data: { answer: JSON.stringify(results, null, 2) },
                 };
+            } catch (error) {
+                console.error('Failed to execute query:', error);
+            } finally {
+                this.isLoading = false;
             }
-            this.isLoading = false;
         },
     },
 });
