@@ -1,27 +1,6 @@
 import { serviceWorkerApi } from "@/popup/api";
+import { SessionState, Source } from "@/types/session";
 import { defineStore } from "pinia";
-
-// 2. Data Types
-export interface Source {
-    id: string;
-    title: string;
-    faviconUrl: string;
-    facts: string[];
-}
-
-export interface Result {
-    type: "text" | "table";
-    data: any;
-}
-
-export interface SessionState {
-    sessionTitle: string;
-    goal: string | null;
-    guidingQuestions: string[];
-    knowledgeSources: Source[];
-    currentResult: Result | null;
-    isLoading: boolean;
-}
 
 // Mock delay function
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
