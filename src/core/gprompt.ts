@@ -6,7 +6,10 @@
  * @param userGoal The user's research goal as a natural language string.
  * @returns A structured prompt string ready to be sent to the LLM.
  */
-export function createMangleSchemaPrompt(userGoal: string): string {
+export function createMangleSchemaPrompt(
+  userGoal: string,
+  maxQuestions: number = 5
+): string {
   return `
 You are an expert "schema architect" for the Mangle rules engine.
 Your primary function is to take a user's high-level research goal and convert it into a structured Mangle Schema.
@@ -49,8 +52,8 @@ This schema will guide the data extraction process and define the logic for answ
 
 **Constraints for the Generated Schema**
   * **Relevance:** The schema must be directly relevant to the user's goal.
-  * **Insightful Questions:** The guiding questions should focus on the most critical factors for the user's decision.
-  * **Concise:** Keep the number of questions, facts, and rules small and focused (3-5 of each is ideal for the first version).
+  * **Insightful Questions:** The guiding questions should focus on the most critical factors for the user's decision. Generate no more than ${maxQuestions} questions.
+  * **Concise:** Keep the number of facts and rules small and focused (3-5 of each is ideal for the first version).
   * **Valid Syntax:** The generated Mangle facts and rules must use the correct \`predicate(subject, value)\` syntax.
 
 **User Goal:**
