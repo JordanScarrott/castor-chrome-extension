@@ -1,30 +1,13 @@
 import { serviceWorkerApi } from "@/popup/api";
 import { defineStore } from "pinia";
-
-// 2. Data Types
-export interface Source {
-    id: string;
-    title: string;
-    faviconUrl: string;
-    facts: string[];
-}
-
-export interface Result {
-    type: "text" | "table";
-    data: any;
-}
-
-export interface SessionState {
-    sessionTitle: string;
-    goal: string | null;
-    guidingQuestions: string[];
-    knowledgeSources: Source[];
-    currentResult: Result | null;
-    isLoading: boolean;
-}
+import { Result, SessionState, Source } from "./types";
 
 // Mock delay function
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const MANUAL_SOURCE_ID_PREFIX = "manual-";
+const MANUAL_SOURCE_TITLE = "Manually Added Note";
+const MANUAL_SOURCE_FAVICON_URL = "assets/note-icon.svg";
 
 export const useSessionStore = defineStore("session", {
     // 1. Pinia Store (`src/store/sessionStore.ts`)
@@ -32,27 +15,7 @@ export const useSessionStore = defineStore("session", {
         sessionTitle: "",
         goal: null,
         guidingQuestions: [],
-        knowledgeSources: [
-            // Mock data as requested
-            {
-                id: "1",
-                title: "Ars Technica: The new M3 MacBook Air.",
-                faviconUrl: "https://arstechnica.com/favicon.ico",
-                facts: [
-                    'Comes in 13" and 15" models.',
-                    "Supports two external displays (when lid is closed).",
-                ],
-            },
-            {
-                id: "2",
-                title: "The Verge: Apple’s new M3 MacBook Air is here.",
-                faviconUrl: "https://www.theverge.com/favicon.ico",
-                facts: [
-                    "Starting price is $1,099.",
-                    "Features a fanless design.",
-                ],
-            },
-        ],
+        knowledgeSources: [],
         currentResult: null,
         isLoading: false,
     }),
@@ -86,12 +49,6 @@ export const useSessionStore = defineStore("session", {
             }
         },
 
-        addSource(source: Source) {
-            // Stubbed action
-            console.log("addSource action called with:", source);
-            // this.knowledgeSources.push(source);
-        },
-
         async addManualSource(content: string) {
             console.log("addManualSource action called with:", content);
 
@@ -99,9 +56,9 @@ export const useSessionStore = defineStore("session", {
             console.log("alksdjaklsdljas", response);
 
             const newSource: Source = {
-                id: `manual-${Date.now()}`,
-                title: "Manually Added Note",
-                faviconUrl: "assets/note-icon.svg", // Placeholder icon
+                id: `${MANUAL_SOURCE_ID_PREFIX}${Date.now()}`,
+                title: MANUAL_SOURCE_TITLE,
+                faviconUrl: MANUAL_SOURCE_FAVICON_URL,
                 facts: [
                     "This is a manually added fact.",
                     "The user pasted this content directly.",
