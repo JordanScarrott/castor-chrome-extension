@@ -28,10 +28,10 @@ You are a specialized data extraction agent. Your task is to read the user's tex
 You MUST extract data that conforms to the following Mangle schema:
 
 **Fact Definitions:**
-${schema.fact_definitions.map(fact => `- \`${fact.predicate}(${fact.argument_types.join(', ')}).\` - ${fact.description}`).join('\n')}
+${schema.mangle_facts.map(fact => `- \`${fact}\``).join('\n')}
 
 **Rule Definitions:**
-${schema.rule_definitions.map(rule => `- \`${rule.head} :- ${rule.body}.\` - ${rule.description}`).join('\n')}
+${schema.mangle_rules.map(rule => `- \`${rule}\``).join('\n')}
 
 ### Your Task
 

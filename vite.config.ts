@@ -12,6 +12,7 @@ export default defineConfig({
     build: {
         outDir: "dist",
         rollupOptions: {
+            external: ["mangle-utils"],
             input: {
                 popup: resolve(__dirname, "index.html"),
                 content: resolve(__dirname, "src/content-script.ts"),
