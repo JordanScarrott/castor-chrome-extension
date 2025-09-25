@@ -42,7 +42,13 @@ async function ingestContent(content: string): Promise<void> {
     console.log(
         `Beginnning Manglification of summary ${content.substring(0, 50)}...`
     );
-    const mangledData = await usePrompt().prompt(summary);
+    const { mangleSchema } = await storageAdapter.get("mangleSchema");
+    if (!mangleSchema) {
+        throw new Error(
+            "Mangle schema not found in storage. Please generate one first."
+        );
+    }
+    const mangledData = await usePrompt().prompt(summary, mangleSchema);
     console.log("🚀 ~ ingestContent ~ mangledData:", mangledData);
     console.log(`Mangled Data: ${JSON.stringify(mangledData)}`);
 }

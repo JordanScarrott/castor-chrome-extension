@@ -1,14 +1,16 @@
 import {
-    manglePrompt,
+    createManglePrompt,
     MangleSchemaProperties,
 } from "@/service-worker/geminiNano/utils/prompts/prompts";
-import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
+import { geminiNanoService } from "../geminiNanoService";
+import { MangleSchema } from "@/types/MangleSchema";
 
 export function usePrompt() {
     async function prompt(
-        inputText: string
+        inputText: string,
+        schema: MangleSchema
     ): Promise<string | MangleSchemaProperties> {
-        const { systemPrompt, schema } = manglePrompt();
+        const systemPrompt = createManglePrompt(schema);
 
         // Assuming 'articleText' contains the text from Readability.js
         const result =
