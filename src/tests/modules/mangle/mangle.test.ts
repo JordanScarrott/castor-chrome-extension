@@ -11,7 +11,9 @@ declare function mangleQuery(text: string): string;
 // Helper function to sort results for comparison.
 // This is necessary because the order of results from the mangle query is not guaranteed.
 function sortResults<T>(arr: T[]): T[] {
-    return arr.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    return arr.sort((a, b) =>
+        JSON.stringify(a).localeCompare(JSON.stringify(b))
+    );
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -61,10 +63,9 @@ describe("Mangle WASM Module", () => {
 
         const result1 = mangleQuery('lives_in(Name, "Paris")');
         const parsedResult1 = JSON.parse(result1);
-        expect(sortResults(parsedResult1)).toEqual(sortResults([
-            { Name: '"Leo"' },
-            { Name: '"Zoe"' },
-        ]));
+        expect(sortResults(parsedResult1)).toEqual(
+            sortResults([{ Name: '"Leo"' }, { Name: '"Zoe"' }])
+        );
 
         const result2 = mangleQuery(
             'travels_to("Mia", Destination), lives_in(Name, Destination)'
@@ -78,68 +79,71 @@ describe("Mangle WASM Module", () => {
             'visitorAndLocal("Mia", Name, Destination)'
         );
         const parsedResult3 = JSON.parse(result3);
-        expect(sortResults(parsedResult3)).toEqual(sortResults([
-            { Destination: '"Paris"', Name: '"Leo"' },
-            { Destination: '"Paris"', Name: '"Zoe"' },
-        ]));
+        expect(sortResults(parsedResult3)).toEqual(
+            sortResults([
+                { Destination: '"Paris"', Name: '"Leo"' },
+                { Destination: '"Paris"', Name: '"Zoe"' },
+            ])
+        );
     });
 
     test("should infer the best value powerful and portable laptop using complex rules", () => {
         const facts = [
-          'laptop(L1) has-brand("Dell")',
-          'laptop(L1) has-price(1200)',
-          'laptop(L1) has-ram(16)',
-          'laptop(L1) has-storage-type("SSD")',
-          'laptop(L1) has-screen-size(15.6)',
-          'laptop(L1) has-battery(6)', // in hours
+            'laptop(L1) has-brand("Dell")',
+            "laptop(L1) has-price(1200)",
+            "laptop(L1) has-ram(16)",
+            'laptop(L1) has-storage-type("SSD")',
+            "laptop(L1) has-screen-size(15.6)",
+            "laptop(L1) has-battery(6)", // in hours
 
-          'laptop(L2) has-brand("Apple")',
-          'laptop(L2) has-price(1800)',
-          'laptop(L2) has-ram(16)',
-          'laptop(L2) has-storage-type("SSD")',
-          'laptop(L2) has-screen-size(13.3)',
-          'laptop(L2) has-battery(12)',
+            'laptop(L2) has-brand("Apple")',
+            "laptop(L2) has-price(1800)",
+            "laptop(L2) has-ram(16)",
+            'laptop(L2) has-storage-type("SSD")',
+            "laptop(L2) has-screen-size(13.3)",
+            "laptop(L2) has-battery(12)",
 
-          'laptop(L3) has-brand("HP")',
-          'laptop(L3) has-price(950)',
-          'laptop(L3) has-ram(8)',
-          'laptop(L3) has-storage-type("SSD")',
-          'laptop(L3) has-screen-size(14)',
-          'laptop(L3) has-battery(8)',
+            'laptop(L3) has-brand("HP")',
+            "laptop(L3) has-price(950)",
+            "laptop(L3) has-ram(8)",
+            'laptop(L3) has-storage-type("SSD")',
+            "laptop(L3) has-screen-size(14)",
+            "laptop(L3) has-battery(8)",
 
-          'laptop(L4) has-brand("Dell")',
-          'laptop(L4) has-price(1450)',
-          'laptop(L4) has-ram(32)',
-          'laptop(L4) has-storage-type("SSD")',
-          'laptop(L4) has-screen-size(14)',
-          'laptop(L4) has-battery(9)',
+            'laptop(L4) has-brand("Dell")',
+            "laptop(L4) has-price(1450)",
+            "laptop(L4) has-ram(32)",
+            'laptop(L4) has-storage-type("SSD")',
+            "laptop(L4) has-screen-size(14)",
+            "laptop(L4) has-battery(9)",
         ];
 
         const rules = [
-          // Rule: A laptop is "powerful" if it has 16GB of RAM or more AND an SSD.
-          'is_powerful(?laptop) :- laptop(?laptop) has-ram(?ram) has-storage-type("SSD"), ?ram >= 16.',
+            // Rule: A laptop is "powerful" if it has 16GB of RAM or more AND an SSD.
+            'is_powerful(?laptop) :- laptop(?laptop) has-ram(?ram) has-storage-type("SSD"), ?ram >= 16.',
 
-          // Rule: A laptop is "portable" if its screen size is 14 inches or less AND its battery lasts 8 hours or more.
-          'is_portable(?laptop) :- laptop(?laptop) has-screen-size(?size) has-battery(?battery), ?size <= 14, ?battery >= 8.',
+            // Rule: A laptop is "portable" if its screen size is 14 inches or less AND its battery lasts 8 hours or more.
+            "is_portable(?laptop) :- laptop(?laptop) has-screen-size(?size) has-battery(?battery), ?size <= 14, ?battery >= 8.",
 
-          // Rule: A laptop is "good_value" if its price is under 1500.
-          'is_good_value(?laptop) :- laptop(?laptop) has-price(?price), ?price < 1500.',
+            // Rule: A laptop is "good_value" if its price is under 1500.
+            "is_good_value(?laptop) :- laptop(?laptop) has-price(?price), ?price < 1500.",
         ];
 
-        facts.forEach(fact => {
+        facts.forEach((fact) => {
             // Facts in mangle need to be terminated by a period.
             const err = mangleDefine(`${fact}.`);
             expect(err).toBe(null);
         });
 
-        rules.forEach(rule => {
+        rules.forEach((rule) => {
             const err = mangleDefine(rule);
             expect(err).toBe(null);
         });
 
-        const query = 'is_powerful(?laptop), is_portable(?laptop), is_good_value(?laptop)';
+        const query =
+            "is_powerful(?laptop), is_portable(?laptop), is_good_value(?laptop)";
         const result = mangleQuery(query);
-        expect(JSON.parse(result.trim())).toEqual([{ laptop: 'L4' }]);
+        expect(JSON.parse(result.trim())).toEqual([{ laptop: "L4" }]);
     });
 
     describe("Real-World Scenarios", () => {
@@ -180,35 +184,37 @@ describe("Mangle WASM Module", () => {
 
             const rules = [
                 // Rule: An ingredient is available if it exists in the pantry.
-                'is_available(?ing) :- pantry(?ing) has-quantity(?q), ?q > 0.',
+                "is_available(?ing) :- pantry(?ing) has-quantity(?q), ?q > 0.",
 
                 // Rule: A recipe is "makable" if all of its required ingredients are available in the pantry.
-                'is_makable(?meal) :- recipe(?meal), not (recipe(?meal) requires(?ing), not is_available(?ing)).',
+                "is_makable(?meal) :- recipe(?meal), not (recipe(?meal) requires(?ing), not is_available(?ing)).",
 
                 // Rule: A recipe is vegan if none of its required ingredients are meat.
                 'is_vegan_recipe(?meal) :- recipe(?meal), not (recipe(?meal) requires(?ing), ingredient(?ing) is("meat")).',
 
                 // Rule: A recipe uses "expiring food" if at least one of its ingredients expires in 3 days or less.
-                'uses_expiring_food(?meal) :- recipe(?meal) requires(?ing), pantry(?ing) expires-in-days(?days), ?days <= 3.',
+                "uses_expiring_food(?meal) :- recipe(?meal) requires(?ing), pantry(?ing) expires-in-days(?days), ?days <= 3.",
 
                 // -- Final Decision Rule --
                 // A meal is an "optimal choice" if it is makable, fits the dietary goal, and uses expiring food.
-                'is_optimal_choice(?meal) :- is_makable(?meal), is_vegan_recipe(?meal), uses_expiring_food(?meal).',
+                "is_optimal_choice(?meal) :- is_makable(?meal), is_vegan_recipe(?meal), uses_expiring_food(?meal).",
             ];
 
-            facts.forEach(fact => {
+            facts.forEach((fact) => {
                 const err = mangleDefine(`${fact}.`);
                 expect(err).toBe(null);
             });
 
-            rules.forEach(rule => {
+            rules.forEach((rule) => {
                 const err = mangleDefine(rule);
                 expect(err).toBe(null);
             });
 
-            const query = 'is_optimal_choice(?meal)';
+            const query = "is_optimal_choice(?meal)";
             const result = mangleQuery(query);
-            expect(JSON.parse(result.trim())).toEqual([{ meal: 'Chickpea Spinach Curry' }]);
+            expect(JSON.parse(result.trim())).toEqual([
+                { meal: "Chickpea Spinach Curry" },
+            ]);
         });
     });
 });
@@ -264,35 +270,35 @@ describe("Complex Scenarios", () => {
         const rules = [
             // -- Level 1 Rule: Port Compatibility --
             // A dock is compatible with a laptop if their connecting ports match.
-            'dock_compatible_with_laptop(?dock, ?laptop) :- dock(?dock) provides-laptop-port(?port), laptop(?laptop) requires-port(?port)',
+            "dock_compatible_with_laptop(?dock, ?laptop) :- dock(?dock) provides-laptop-port(?port), laptop(?laptop) requires-port(?port)",
             // A monitor is compatible with a dock if their connecting ports match.
-            'monitor_compatible_with_dock(?monitor, ?dock) :- monitor(?monitor) requires-port(?port), dock(?dock) provides-monitor-port(?port)',
+            "monitor_compatible_with_dock(?monitor, ?dock) :- monitor(?monitor) requires-port(?port), dock(?dock) provides-monitor-port(?port)",
 
             // -- Level 2 Rule: Full Device Chain Compatibility --
             // A setup's device chain is valid if all adjacent devices are compatible.
-            'setup_chain_is_compatible(?setup) :- setup(?setup) has-laptop(?laptop) has-dock(?dock) has-monitor(?monitor), dock_compatible_with_laptop(?dock, ?laptop), monitor_compatible_with_dock(?monitor, ?dock)',
+            "setup_chain_is_compatible(?setup) :- setup(?setup) has-laptop(?laptop) has-dock(?dock) has-monitor(?monitor), dock_compatible_with_laptop(?dock, ?laptop), monitor_compatible_with_dock(?monitor, ?dock)",
 
             // -- Level 2 Rule: Power Calculation --
             // The total power draw for a setup is the sum of the laptop and dock's draw.
-            'setup_power_draw(?setup, ?total_draw) :- setup(?setup) has-laptop(?laptop) has-dock(?dock), laptop(?laptop) power-draw(?p1), dock(?dock) power-draw(?p2), ?total_draw is ?p1 + ?p2',
+            "setup_power_draw(?setup, ?total_draw) :- setup(?setup) has-laptop(?laptop) has-dock(?dock), laptop(?laptop) power-draw(?p1), dock(?dock) power-draw(?p2), ?total_draw is ?p1 + ?p2",
 
             // -- Level 3 Rule: Final Validation --
             // A setup is valid if its device chain is compatible AND its power supply can handle the total draw.
-            'is_valid_setup(?setup) :- is_setup(?setup), setup_chain_is_compatible(?setup), setup(?setup) has-psu(?psu), psu(?psu) provides-power(?provided_power), setup_power_draw(?setup, ?required_power), ?provided_power >= ?required_power',
+            "is_valid_setup(?setup) :- is_setup(?setup), setup_chain_is_compatible(?setup), setup(?setup) has-psu(?psu), psu(?psu) provides-power(?provided_power), setup_power_draw(?setup, ?required_power), ?provided_power >= ?required_power",
         ];
 
-        facts.forEach(fact => {
+        facts.forEach((fact) => {
             const err = mangleDefine(`${fact}.`);
             expect(err).toBe(null);
         });
 
-        rules.forEach(rule => {
+        rules.forEach((rule) => {
             const err = mangleDefine(`${rule}.`);
             expect(err).toBe(null);
         });
 
-        const query = 'is_valid_setup(?setup_id)';
+        const query = "is_valid_setup(?setup_id)";
         const result = mangleQuery(query);
-        expect(JSON.parse(result.trim())).toEqual([{ setup_id: 'S1' }]);
+        expect(JSON.parse(result.trim())).toEqual([{ setup_id: "S1" }]);
     });
 });

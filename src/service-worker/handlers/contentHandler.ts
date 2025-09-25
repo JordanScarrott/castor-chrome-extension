@@ -35,12 +35,14 @@ export async function handleProcessNewContent(
 // TODO: Move to another file
 async function ingestContent(content: string): Promise<void> {
     console.log("Summarising content...");
-    const summary = await geminiNanoService.summarize(content);
+    // const summary = await geminiNanoService.summarize(content);
+    const summary = content;
     console.log(`Summary: ${summary}`);
 
     console.log(
         `Beginnning Manglification of summary ${content.substring(0, 50)}...`
     );
     const mangledData = await usePrompt().prompt(summary);
+    console.log("🚀 ~ ingestContent ~ mangledData:", mangledData);
     console.log(`Mangled Data: ${JSON.stringify(mangledData)}`);
 }

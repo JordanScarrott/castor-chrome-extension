@@ -1,5 +1,5 @@
-import { MangleSchema } from '@/types/MangleSchema';
-import { createMangleSchemaPrompt } from '@/core/gprompt';
+import { MangleSchema } from "@/types/MangleSchema";
+import { createMangleSchemaPrompt } from "@/core/gprompt";
 
 /**
  * A helper function to clean the raw output from the LLM.
@@ -10,11 +10,11 @@ import { createMangleSchemaPrompt } from '@/core/gprompt';
  * @returns A clean, parseable JSON string.
  */
 function cleanLlmOutput(rawOutput: string): string {
-  // Remove markdown code block markers
-  let cleaned = rawOutput.replace(/```json/g, '').replace(/```/g, '');
-  // Trim whitespace
-  cleaned = cleaned.trim();
-  return cleaned;
+    // Remove markdown code block markers
+    let cleaned = rawOutput.replace(/```json/g, "").replace(/```/g, "");
+    // Trim whitespace
+    cleaned = cleaned.trim();
+    return cleaned;
 }
 
 class GeminiNanoService {
