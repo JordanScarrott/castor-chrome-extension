@@ -1,9 +1,13 @@
-import { usePrompt } from "@/service-worker/geminiNano/composables/geminiNanoComposable";
+import { usePrompt } from "@/service-worker-2/geminiNano/composables/geminiNanoComposable";
 import { ApiContract } from "../../types";
+import { MangleSchema } from "@/types/MangleSchema";
 
 const queue: string[] = [];
 // Placeholder for your actual processing logic
-async function processContent(content: string): Promise<void> {
+async function processContent(
+    content: string,
+    schema: MangleSchema
+): Promise<void> {
     console.log(
         `Queueing content for processing: ${content.substring(0, 50)}...`
     );
@@ -16,14 +20,14 @@ async function processContent(content: string): Promise<void> {
             50
         )}...`
     );
-    await ingestContent(nextTaskContent);
+    await ingestContent(nextTaskContent, schema);
 }
 
 export async function handleProcessNewContent(
     payload: ApiContract["PROCESS_NEW_CONTENT"][0]
 ): Promise<ApiContract["PROCESS_NEW_CONTENT"][1]> {
     try {
-        await processContent(payload.content);
+        await processContent(payload.content, payload.schema);
         return { status: "QUEUED" };
     } catch (error) {
         return { status: "ERROR", message: (error as Error).message };
@@ -31,11 +35,15 @@ export async function handleProcessNewContent(
 }
 
 // TODO: Move to another file
-async function ingestContent(content: string): Promise<void> {
+async function ingestContent(
+    content: string,
+    schema: MangleSchema
+): Promise<void> {
+    console.log("🚀 ~ ingestContent ~ schema:", schema);
     console.log("Summarising content...");
     // const summary = await geminiNanoService.summarize(content);
     const summary = content;
-    console.log(`Summary: ${summary}`);
+    // console.log(`Summary: ${summary}`);
 
     console.log(
         `Beginnning Manglification of summary ${content.substring(0, 50)}...`

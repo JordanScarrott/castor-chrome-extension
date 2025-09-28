@@ -1,4 +1,5 @@
 import { serviceWorkerApi } from "@/popup/api";
+import { MangleSchema } from "@/types/MangleSchema";
 import { defineStore } from "pinia";
 
 // 2. Data Types
@@ -17,6 +18,7 @@ export interface Result {
 export interface SessionState {
     sessionTitle: string;
     goal: string | null;
+    schema: MangleSchema;
     guidingQuestions: string[];
     knowledgeSources: Source[];
     currentResult: Result | null;
@@ -32,6 +34,11 @@ export const useSessionStore = defineStore("session", {
         sessionTitle: "",
         goal: null,
         guidingQuestions: [],
+        schema: {
+            guiding_questions: [],
+            mangle_facts: [],
+            mangle_rules: [],
+        } as MangleSchema,
         knowledgeSources: [
             // Mock data as requested
             {
@@ -75,11 +82,14 @@ export const useSessionStore = defineStore("session", {
             this.goal = goalText;
 
             try {
-                const { schema } = await serviceWorkerApi.generateMangleSchema(goalText);
-                console.log('Generated Mangle Schema:', schema);
+                const { schema } = await serviceWorkerApi.generateMangleSchema(
+                    goalText
+                );
+                console.log("Generated Mangle Schema:", schema);
                 this.guidingQuestions = schema.guiding_questions;
+                this.schema = schema;
             } catch (error) {
-                console.error('Failed to generate Mangle Schema:', error);
+                console.error("Failed to generate Mangle Schema:", error);
                 // Optionally, set an error state to display to the user
             } finally {
                 this.isLoading = false;
@@ -95,7 +105,10 @@ export const useSessionStore = defineStore("session", {
         async addManualSource(content: string) {
             console.log("addManualSource action called with:", content);
 
-            const response = await serviceWorkerApi.processNewContent(content);
+            const response = await serviceWorkerApi.processNewContent(
+                content,
+                this.schema
+            );
             console.log("alksdjaklsdljas", response);
 
             const newSource: Source = {
