@@ -1,12 +1,9 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import {
+    mangleDefine,
+    mangleQuery,
+    runMangleInstance,
+} from "@/tests/modules/mangle/mangleTestUtils";
 import { beforeAll, describe, expect, test } from "vitest";
-
-// Declare the globals that the WASM module will expose
-declare const Go: any;
-declare function mangleDefine(text: string): string | null;
-declare function mangleQuery(text: string): string;
 
 // Helper function to sort results for comparison.
 // This is necessary because the order of results from the mangle query is not guaranteed.
@@ -16,25 +13,9 @@ function sortResults<T>(arr: T[]): T[] {
     );
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const MANGLE_WASM_PATH = path.resolve(
-    __dirname,
-    "../../../../public/mangle/mangle.wasm"
-);
-
-async function runMangleInstance(wasmPath: string) {
-    const go = new Go();
-    const wasmBytes = fs.readFileSync(wasmPath);
-    const wasmModule = await WebAssembly.compile(wasmBytes);
-    const instance = await WebAssembly.instantiate(wasmModule, go.importObject);
-    go.run(instance);
-    return instance;
-}
-
 describe("Mangle WASM Module", () => {
     beforeAll(async () => {
-        await runMangleInstance(MANGLE_WASM_PATH);
+        await runMangleInstance();
     });
 
     test("should define and query simple facts", () => {
@@ -222,7 +203,7 @@ describe("Mangle WASM Module", () => {
 describe("Complex Scenarios", () => {
     test("should correctly validate a fully compatible desk setup by resolving chained dependencies and power constraints", async () => {
         // Re-initialize to ensure a clean slate, avoiding state from other tests.
-        await runMangleInstance(MANGLE_WASM_PATH);
+        await runMangleInstance();
 
         const facts = [
             // -- Setups (Bundles of components) --
