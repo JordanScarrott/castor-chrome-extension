@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Nano Test</title>
+</head>
+<body>
+    <h1>Gemini Nano Test Page</h1>
+    <p>Check the browser console for output. The final Mangle query will be in the 'output' div.</p>
+    <pre id="output"></pre>
+
+    <script type="module">
+        // This function is for Playwright to call.
+        // It checks for the model and runs the prompt.
+        window.runGeminiTest = async (prompt) => {
+            if (!window.ai) {
+                const errorMessage = "The Gemini Nano API (window.ai) is not available.";
+                console.error(errorMessage);
+                document.getElementById('output').textContent = errorMessage;
+                return;
+            }
+
+            try {
+                const modelAvailability = await window.ai.canCreateGenericSession();
+                if (modelAvailability === "no") {
+                    const errorMessage = "Gemini Nano model is not available.";
+                    console.error(errorMessage);
+                    document.getElementById('output').textContent = errorMessage;
+                    // In a real scenario, you might want to guide the user to chrome://components
+                    // to trigger a download. For an automated test, we fail fast.
+                    return;
+                }
+
+                if (modelAvailability === "after-download") {
+                    console.log("Model needs to be downloaded. This might take a moment.");
+                    // For automation, we can't easily click the download button.
+                    // We will just wait and hope the browser handles it.
+                    // A more robust solution might involve a longer timeout in the Playwright script.
+                }
+
+                console.log("Creating a generic session...");
+                const session = await window.ai.createGenericSession();
+                console.log("Session created. Prompting model...");
+
+                const result = await session.prompt(prompt);
+                console.log("Model raw response:", result);
+
+                // Assuming the model returns a JSON string in a code block.
+                const jsonMatch = result.match(/```json\n([\s\S]*?)\n```/);
+                const output = jsonMatch ? JSON.parse(jsonMatch[1]) : { error: "Failed to parse Mangle query from response." };
+
+                const outputElement = document.getElementById('output');
+                outputElement.textContent = JSON.stringify(output, null, 2);
+
+            } catch (error) {
+                const errorMessage = `An error occurred: ${error.message}`;
+                console.error(errorMessage, error);
+                document.getElementById('output').textContent = errorMessage;
+            }
+        };
+    </script>
+</body>
+</html>

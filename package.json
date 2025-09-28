@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "test": "vitest"
+    "test": "vitest",
+    "test:gemini": "node gemini-nano-test/run-test.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
@@ -18,6 +19,7 @@
     "@vitejs/plugin-vue": "^5.1.0",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.1",
+    "playwright": "^1.55.1",
     "typescript": "^5.9.2",
     "vite": "^5.3.5",
     "vitest": "^2.0.4",
