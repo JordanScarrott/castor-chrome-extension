@@ -3,60 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Nano Test</title>
+    <title>Gemini Nano Modern API Test</title>
 </head>
 <body>
-    <h1>Gemini Nano Test Page</h1>
-    <p>Check the browser console for output. The final Mangle query will be in the 'output' div.</p>
+    <h1>Gemini Nano Modern API Test Page</h1>
+    <p>Check the browser console for detailed output, including download progress and the final Mangle query.</p>
+    <div id="status">STATUS: Idle</div>
     <pre id="output"></pre>
 
     <script type="module">
-        // This function is for Playwright to call.
-        // It checks for the model and runs the prompt.
-        window.runGeminiTest = async (prompt) => {
-            if (!window.ai) {
-                const errorMessage = "The Gemini Nano API (window.ai) is not available.";
-                console.error(errorMessage);
-                document.getElementById('output').textContent = errorMessage;
-                return;
+        /**
+         * runGeminiTest - Prompts the Gemini Nano model using the modern LanguageModel API.
+         * This function is designed to be called by a Playwright script.
+         *
+         * @param {string} promptText The user's goal to be sent to the model.
+         * @returns {Promise<object>} A promise that resolves with the parsed JSON output from the model.
+         */
+        window.runGeminiTest = async (promptText) => {
+            const statusDiv = document.getElementById('status');
+            const outputDiv = document.getElementById('output');
+
+            // 1. Check for the LanguageModel API on the navigator object.
+            if (!navigator.ml || !navigator.ml.languageModel) {
+                const errorMsg = "The LanguageModel API is not available.";
+                statusDiv.textContent = `ERROR: ${errorMsg}`;
+                console.error(errorMsg);
+                throw new Error(errorMsg);
             }
 
             try {
-                const modelAvailability = await window.ai.canCreateGenericSession();
-                if (modelAvailability === "no") {
-                    const errorMessage = "Gemini Nano model is not available.";
-                    console.error(errorMessage);
-                    document.getElementById('output').textContent = errorMessage;
-                    // In a real scenario, you might want to guide the user to chrome://components
-                    // to trigger a download. For an automated test, we fail fast.
-                    return;
+                // 2. Check the availability of the on-device model.
+                statusDiv.textContent = 'STATUS: Checking model availability...';
+                const availability = await navigator.ml.languageModel.availability();
+                console.log(`Model availability: ${availability}`);
+
+                if (availability === 'unavailable') {
+                    const errorMsg = "The on-device model is unavailable.";
+                    statusDiv.textContent = `ERROR: ${errorMsg}`;
+                    throw new Error(errorMsg);
                 }
 
-                if (modelAvailability === "after-download") {
-                    console.log("Model needs to be downloaded. This might take a moment.");
-                    // For automation, we can't easily click the download button.
-                    // We will just wait and hope the browser handles it.
-                    // A more robust solution might involve a longer timeout in the Playwright script.
+                // 3. Create a model session.
+                // If the model is 'downloadable', this will trigger a download.
+                // We use a monitor to log the progress.
+                statusDiv.textContent = 'STATUS: Creating model session...';
+                const session = await navigator.ml.languageModel.create({
+                    monitor: (progress) => {
+                        const percentage = (progress.downloaded / progress.total) * 100;
+                        const progressMsg = `Downloading model: ${percentage.toFixed(2)}%`;
+                        statusDiv.textContent = `STATUS: ${progressMsg}`;
+                        console.log(progressMsg);
+                    },
+                });
+                statusDiv.textContent = 'STATUS: Model session created.';
+
+                // 4. Prompt the model with streaming for a more responsive interaction.
+                statusDiv.textContent = `STATUS: Prompting model with: "${promptText}"`;
+                const stream = await session.promptStreaming([
+                    { type: 'text', value: promptText }
+                ]);
+
+                let fullResponse = "";
+                // Read from the stream until it's done.
+                for await (const chunk of stream) {
+                    fullResponse += chunk;
+                    outputDiv.textContent = fullResponse; // Show raw stream output
                 }
+                statusDiv.textContent = 'STATUS: Model response received.';
+                console.log("Model raw response:", fullResponse);
 
-                console.log("Creating a generic session...");
-                const session = await window.ai.createGenericSession();
-                console.log("Session created. Prompting model...");
+                // 5. Parse the JSON from the markdown code block in the response.
+                const jsonMatch = fullResponse.match(/```json\n([\s\S]*?)\n```/);
+                if (!jsonMatch || !jsonMatch[1]) {
+                    throw new Error("Failed to find or parse JSON block in model response.");
+                }
+                const parsedJson = JSON.parse(jsonMatch[1]);
+                outputDiv.textContent = JSON.stringify(parsedJson, null, 2);
 
-                const result = await session.prompt(prompt);
-                console.log("Model raw response:", result);
-
-                // Assuming the model returns a JSON string in a code block.
-                const jsonMatch = result.match(/```json\n([\s\S]*?)\n```/);
-                const output = jsonMatch ? JSON.parse(jsonMatch[1]) : { error: "Failed to parse Mangle query from response." };
-
-                const outputElement = document.getElementById('output');
-                outputElement.textContent = JSON.stringify(output, null, 2);
+                statusDiv.textContent = 'STATUS: Test complete. Returning result.';
+                return parsedJson; // Resolve the promise with the final object
 
             } catch (error) {
                 const errorMessage = `An error occurred: ${error.message}`;
+                statusDiv.textContent = `ERROR: ${errorMessage}`;
                 console.error(errorMessage, error);
-                document.getElementById('output').textContent = errorMessage;
+                throw error; // Reject the promise
             }
         };
     </script>

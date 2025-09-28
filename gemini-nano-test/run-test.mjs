@@ -1,7 +1,7 @@
 // Recommendation: For the most stable experience with experimental features,
-// it's best to run this script against Chrome Canary. You can do this by
-// changing 'chromium' to 'chrome' and setting the 'channel' to 'chrome-canary'.
-// Make sure you have Chrome Canary installed.
+// it's best to run this script against Chrome Canary. This script is configured
+// to use the 'chrome' browser type with the 'chrome-canary' channel.
+// Make sure you have Chrome Canary installed on your system.
 
 import { chromium } from 'playwright';
 import path from 'path';
@@ -13,12 +13,19 @@ const __dirname = path.dirname(__filename);
 const SHOPPING_GOAL = 'find cheapest laptop under $500';
 
 async function runTest() {
-    console.log('Launching browser with Gemini Nano feature flags...');
+    console.log('Launching browser with updated Gemini Nano feature flags...');
 
+    // Use the 'chrome' browser type to allow specifying the 'chrome-canary' channel.
+    // This is more likely to have the latest experimental APIs.
     const browser = await chromium.launch({
-        headless: true, // Set to false to see the browser UI
+        channel: 'chrome-canary', // Use Chrome Canary
+        headless: true, // Headless is often required in CI/CD environments
         args: [
-            '--enable-features=prompt-api-for-gemini-nano,optimization-guide-on-device-model'
+            '--enable-features=PromptApiForGeminiNano,OptimizationGuideOnDeviceModel',
+            // The following flags can help in some environments.
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
         ],
     });
 
@@ -30,23 +37,16 @@ async function runTest() {
 
     try {
         const htmlPath = path.resolve(__dirname, 'index.html');
-        console.log(`Navigating to local page: ${htmlPath}`);
+        console.log(`Navigating to local page: file://${htmlPath}`);
         await page.goto(`file://${htmlPath}`);
 
         console.log(`Prompting model with goal: "${SHOPPING_GOAL}"`);
-        await page.evaluate((goal) => window.runGeminiTest(goal), SHOPPING_GOAL);
 
-        // Wait for the output to be populated
-        await page.waitForSelector('#output:not(:empty)', { timeout: 60000 }); // 60s timeout for model download
-
-        const mangleQueryString = await page.textContent('#output');
-
-        if (mangleQueryString.includes("error") || mangleQueryString.includes("not available")) {
-             throw new Error(`Test failed. Output from page: ${mangleQueryString}`);
-        }
+        // The updated runGeminiTest function will now return a promise with the result.
+        const mangleQuery = await page.evaluate((goal) => window.runGeminiTest(goal), SHOPPING_GOAL);
 
         console.log('\n--- Generated Mangle Query ---');
-        console.log(mangleQueryString);
+        console.log(JSON.stringify(mangleQuery, null, 2));
         console.log('----------------------------\n');
 
     } catch (error) {
