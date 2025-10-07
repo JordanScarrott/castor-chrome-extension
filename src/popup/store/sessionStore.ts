@@ -32,7 +32,7 @@ export const useSessionStore = defineStore("session", {
     // 1. Pinia Store (`src/store/sessionStore.ts`)
     state: (): SessionState => ({
         sessionTitle: "",
-        goal: null,
+        goal: localStorage.getItem("goal"),
         guidingQuestions: [],
         schema: {
             guiding_questions: [],
@@ -75,6 +75,7 @@ export const useSessionStore = defineStore("session", {
     actions: {
         initSession(title: string) {
             this.sessionTitle = title;
+            localStorage.setItem("goal", title);
         },
 
         async setGoal(goalText: string) {

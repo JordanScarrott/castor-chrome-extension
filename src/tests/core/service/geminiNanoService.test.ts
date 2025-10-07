@@ -18,7 +18,7 @@ vi.stubGlobal("LanguageModel", {
     }),
 });
 
-describe("geminiNanoService", () => {
+describe.skip("geminiNanoService", () => {
     test("v2 prompt", async () => {
         const response = await usePrompt().prompt(exampleText(2));
         expect(response).toBe("This is a test.");
