@@ -17,3 +17,19 @@ export async function runMangleInstance() {
     go.run(instance);
     return instance;
 }
+
+export async function runMangleInstanceTest() {
+    const relativeWASMPath = "../../../../public/mangle/mangle.wasm";
+    return await runMangleInstanceRelative(relativeWASMPath);
+}
+
+export async function runMangleInstanceRelative(relativeWasmPath: string) {
+    const realtivePath = path.resolve(__dirname, relativeWasmPath);
+
+    const go = new Go();
+    const wasmBytes = fs.readFileSync(realtivePath);
+    const wasmModule = await WebAssembly.compile(wasmBytes);
+    const instance = await WebAssembly.instantiate(wasmModule, go.importObject);
+    go.run(instance);
+    return instance;
+}

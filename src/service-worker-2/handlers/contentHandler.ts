@@ -1,6 +1,6 @@
 import { usePrompt } from "@/service-worker-2/geminiNano/composables/geminiNanoComposable";
-import { ApiContract } from "../../types";
 import { MangleSchema } from "@/types/MangleSchema";
+import { ApiContract } from "../../types";
 
 const queue: string[] = [];
 // Placeholder for your actual processing logic

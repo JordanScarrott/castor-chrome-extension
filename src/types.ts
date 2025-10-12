@@ -1,3 +1,4 @@
+import { QandA } from "@/service-worker-2/handlers/hotelDataHandler";
 import { MangleSchema } from "./types/MangleSchema";
 
 // A mapping of all possible message types to their payload and response types
@@ -16,6 +17,7 @@ export interface ApiContract {
         undefined, // No payload for this request
         { factStore: Record<string, any> }
     ];
+    HOTEL_DATA_EXTRACTED: [{ hotelData: HotelInfo[] }, { result: QandA[] }];
 }
 
 // Generic types to make working with the contract easier

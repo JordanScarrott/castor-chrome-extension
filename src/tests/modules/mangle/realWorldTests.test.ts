@@ -1,5 +1,5 @@
-import { runMangleInstance } from "@/tests/modules/mangle/mangleTestUtils";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { runMangleInstanceTest } from "@/tests/modules/mangle/mangleTestUtils";
+import { beforeEach, describe, expect, test } from "vitest";
 
 // Declare the globals that the WASM module will expose
 declare const Go: any;
@@ -17,7 +17,7 @@ function sortResults<T>(arr: T[]): T[] {
 describe("Travel Planner Schema Tests", () => {
     beforeEach(async () => {
         // Reset the Mangle instance before each test to ensure a clean state
-        await runMangleInstance();
+        await runMangleInstanceTest();
     });
 
     // Test the intermediate rule: attraction_is_bus_accessible
@@ -220,7 +220,7 @@ describe("Travel Planner Schema Tests", () => {
 describe("Gift Planner Schema Tests", () => {
     beforeEach(async () => {
         // Reset the Mangle instance before each test to ensure a clean state
-        await runMangleInstance();
+        await runMangleInstanceTest();
     });
 
     // Mock facts simulating what Gemini Nano would extract from product pages.
