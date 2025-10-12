@@ -78,6 +78,7 @@ export const hotelQueries: Record<string, string> = {
     "Which hotel has the best location score?":
         "best_location_hotel(Name, Score)",
 };
+export const hotelNaturalLanguageQuestions = Object.keys(hotelQueries);
 
 export type QandA = {
     question: string;
@@ -139,13 +140,22 @@ export async function runQueryAndFormatResponse(
     questionText: string
 ): Promise<string> {
     const mangleQueryString = hotelQueries[questionText];
+    console.log(
+        "🚀 ~ runQueryAndFormatResponse ~ mangleQueryString:",
+        mangleQueryString
+    );
 
     let mangleResult: any = null;
     if (mangleQueryString) {
         const rawResult = mangleQuery(mangleQueryString);
+        console.log("🚀 ~ runQueryAndFormatResponse ~ rawResult:", rawResult);
         if (rawResult) {
             try {
                 mangleResult = JSON.parse(rawResult.trim());
+                console.log(
+                    "🚀 ~ runQueryAndFormatResponse ~ mangleResult:",
+                    mangleResult
+                );
             } catch (error) {
                 console.error("Failed to parse Mangle result:", error);
                 // Result remains null

@@ -220,26 +220,29 @@ export async function formatResponseWithAI(
     question: string,
     mangleResult: any
 ): Promise<string> {
+    console.log("🚀 ~ formatResponseWithAI ~ question:", question);
     // 1. Check for Writer API availability
     if (typeof Writer === "undefined") {
         console.warn("Writer API is not supported in this browser.");
         return "The AI writer feature is not available in your browser.";
     }
-    const availability = await Writer.availability();
-    if (availability !== "readily") {
-        console.warn(
-            `Writer API is not readily available. State: ${availability}`
-        );
-        return "The AI writer is currently unavailable.";
-    }
+    // const availability = await Writer.availability();
+    // if (availability !== "readily") {
+    //     console.warn(
+    //         `Writer API is not readily available. State: ${availability}`
+    //     );
+    //     return "The AI writer is currently unavailable.";
+    // }
 
     // 2. Generate a high-quality prompt based on the mangle result
     let prompt: string;
     const hasResults =
-        mangleResult && (!Array.isArray(mangleResult) || mangleResult.length > 0);
+        mangleResult &&
+        (!Array.isArray(mangleResult) || mangleResult.length > 0);
 
     if (hasResults) {
         const jsonResult = JSON.stringify(mangleResult, null, 2);
+        console.log("🚀 ~ formatResponseWithAI ~ jsonResult:", jsonResult);
         prompt = `You are a helpful assistant. The user asked: "${question}". The following JSON data was retrieved to answer the question: ${jsonResult}. Please format this data into a friendly, conversational sentence that directly answers the user's question.`;
     } else {
         prompt = `You are a helpful assistant. The user asked: "${question}". Unfortunately, no relevant information was found to answer this. Please inform the user of this in a polite and conversational way.`;
@@ -247,11 +250,44 @@ export async function formatResponseWithAI(
 
     // 3. Use the Writer API to generate the final response
     try {
-        const writer = await Writer.create();
-        const finalResponse = await writer.write(prompt);
+        const finalResponse = await geminiNanoWrite(prompt);
+        console.log(
+            "🚀 ~ formatResponseWithAI ~ finalResponse:",
+            finalResponse
+        );
         return finalResponse;
     } catch (error) {
         console.error("Error using the Writer API:", error);
         return "I'm sorry, I encountered an error while trying to generate a response.";
     }
+}
+
+async function geminiNanoWrite(prompt: string): Promise<string> {
+    const options = {
+        sharedContext: undefined,
+        tone: "neutral",
+        format: "plain-text",
+        length: "medium",
+    };
+
+    const available = await Writer.availability();
+    let writer;
+
+    if (available === "available") {
+        // The Writer API can be used immediately .
+        writer = await Writer.create(options);
+    } else {
+        // The Writer can be used after the model is downloaded.
+        writer = await Writer.create({
+            ...options,
+            monitor(m) {
+                m.addEventListener("downloadprogress", (e) => {
+                    console.log(`Downloaded ${e.loaded * 100}%`);
+                });
+            },
+        });
+    }
+
+    const response = (await writer.write(prompt)) as string;
+    return response;
 }
