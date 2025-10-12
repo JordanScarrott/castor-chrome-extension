@@ -1,6 +1,6 @@
 <template>
     <div id="app-container">
-        <!-- <component :is="activeView" /> -->
+        <component :is="activeView" />
     </div>
 </template>
 

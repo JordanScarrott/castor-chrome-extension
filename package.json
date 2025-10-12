@@ -1,32 +1,31 @@
 {
-  "name": "mangle-chrome-extension",
-  "version": "1.0.0",
-  "description": "A Chrome extension to mangle web pages.",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "vite build",
-    "lint": "biome lint .",
-    "format": "biome format --write .",
-    "test": "vitest"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.8.3",
-    "@mozilla/readability": "^0.5.0",
-    "@types/chrome": "^0.1.12",
-    "@types/node": "^24.5.1",
-    "@vitejs/plugin-vue": "^5.1.0",
-    "@vue/test-utils": "^2.4.6",
-    "jsdom": "^24.1.1",
-    "typescript": "^5.9.2",
-    "vite": "^5.3.5",
-    "vitest": "^2.0.4",
-    "vue": "^3.4.34"
-  },
-  "dependencies": {
-    "@types/dompurify": "^3.0.5",
-    "dompurify": "^3.2.7",
-    "pinia": "^3.0.3",
-    "streaming-markdown": "^0.2.15"
-  }
+    "name": "mangle-chrome-extension",
+    "version": "1.0.0",
+    "description": "A Chrome extension to mangle web pages.",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "lint": "biome lint .",
+        "format": "biome format --write .",
+        "test": "vitest"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^1.8.3",
+        "@types/chrome": "^0.1.12",
+        "@types/node": "^24.5.1",
+        "@vitejs/plugin-vue": "^5.1.0",
+        "@vue/test-utils": "^2.4.6",
+        "jsdom": "^24.1.1",
+        "typescript": "^5.9.2",
+        "vite": "^5.3.5",
+        "vitest": "^2.0.4",
+        "vue": "^3.4.34"
+    },
+    "dependencies": {
+        "@types/dompurify": "^3.0.5",
+        "dompurify": "^3.2.7",
+        "pinia": "^3.0.3",
+        "streaming-markdown": "^0.2.15"
+    }
 }
