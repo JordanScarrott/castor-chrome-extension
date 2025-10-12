@@ -1,5 +1,5 @@
 <template>
-    <Chat> </Chat>
+    <ChatContainer> </ChatContainer>
     <!-- <div class="active-session-view">
         <SessionHeader :title="store.sessionTitle" />
         <main>
@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import Chat from "@/popup/components/Chat.vue";
+import ChatContainer from "@/popup/components/ChatContainer.vue";
 </script>
 
 <style scoped></style>
