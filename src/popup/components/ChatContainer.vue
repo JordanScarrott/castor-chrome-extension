@@ -10,6 +10,7 @@
 
 <script setup lang="ts">
 import Chat from "@/popup/components/Chat.vue";
+import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
 import { ref } from "vue";
 
 // 1. Give the component a name so you can call its methods
@@ -19,11 +20,7 @@ const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 const isLoading = ref(false);
 
 // 3. Define the question chips directly
-const currentQuestions = ref([
-    "Which hotels have the highest rating?",
-    "What are the best value options?",
-    "Which hotel has the best location?",
-]);
+const currentQuestions = ref(hotelNaturalLanguageQuestions);
 
 // 4. Listen for when the user asks a question
 async function handleQuestion(questionText: string) {
@@ -31,6 +28,7 @@ async function handleQuestion(questionText: string) {
 
     // Send the full question text to the service worker for processing
     const aiResponseText = await getResponse(questionText);
+    isLoading.value = false;
 
     const streamUpdater = chatComponent.value?.streamAiResponse(Date.now());
     if (streamUpdater) {
@@ -39,8 +37,6 @@ async function handleQuestion(questionText: string) {
             await new Promise((r) => setTimeout(r, 20)); // Simulate stream delay
         }
     }
-
-    isLoading.value = false;
 }
 
 // Unified function to get a response from the service worker
@@ -56,6 +52,7 @@ async function getResponse(question: string): Promise<string> {
                 type: "PROCESS_QUESTION", // A single, clear message type
                 payload: question,
             });
+            console.log("🚀 ~ getResponse ~ response:", response);
 
             if (!response) {
                 console.error(
@@ -69,7 +66,7 @@ async function getResponse(question: string): Promise<string> {
                 return "Sorry, I encountered an error while analyzing the data.";
             }
 
-            return response.result || "I couldn't find an answer for that.";
+            return response.response || "I couldn't find an answer for that.";
         } catch (error) {
             console.error("Failed to send message to service worker:", error);
             return "There was a communication error with the background service.";
