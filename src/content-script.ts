@@ -1,3 +1,12 @@
+import { ElementSelector } from "@/element-selector";
+
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === "ACTIVATE_SELECTION_MODE") {
+        const elementSelector = new ElementSelector();
+        elementSelector.start();
+    }
+});
+
 function extract(): void {
     // 1. Select all the list items that represent a hotel property.
     //    Booking.com seems to use a `data-testid` for the list container.
