@@ -18,7 +18,7 @@ const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 // 2. Control the loading state
 const isLoading = ref(false);
 
-// 3. Control the question chips
+// 3. Define the question chips directly
 const currentQuestions = ref([
     "Which hotels have the highest rating?",
     "What are the best value options?",
@@ -27,34 +27,60 @@ const currentQuestions = ref([
 
 // 4. Listen for when the user asks a question
 async function handleQuestion(questionText: string) {
-    // A. Show the loading indicator
     isLoading.value = true;
 
-    // B. Send the question to your background script for processing
-    //    (This is where you'd call your Mangle/Gemini logic)
-    const aiResponseText = await getAiResponse(questionText);
+    // Send the full question text to the service worker for processing
+    const aiResponseText = await getResponse(questionText);
 
-    // C. Turn off the loading indicator
-    isLoading.value = false;
-
-    // D. Start streaming the AI's response back to the component
     const streamUpdater = chatComponent.value?.streamAiResponse(Date.now());
     if (streamUpdater) {
-        // Simulate streaming by feeding chunks of the response
         for (const char of aiResponseText) {
             streamUpdater(char);
-            await new Promise((r) => setTimeout(r, 20)); // fake delay
+            await new Promise((r) => setTimeout(r, 20)); // Simulate stream delay
         }
+    }
+
+    isLoading.value = false;
+}
+
+// Unified function to get a response from the service worker
+async function getResponse(question: string): Promise<string> {
+    const isMangleQuestion = !!currentQuestions.value.find(
+        (q) => q === question
+    );
+
+    if (isMangleQuestion) {
+        // This is a known question, send it to the service worker
+        try {
+            const response = await chrome.runtime.sendMessage({
+                type: "PROCESS_QUESTION", // A single, clear message type
+                payload: question,
+            });
+
+            if (!response) {
+                console.error(
+                    "No response from service worker. It may not have sent one."
+                );
+                return "Sorry, I'm having trouble connecting to my brain right now.";
+            }
+
+            if (response.error) {
+                console.error("Error from service worker:", response.error);
+                return "Sorry, I encountered an error while analyzing the data.";
+            }
+
+            return response.result || "I couldn't find an answer for that.";
+        } catch (error) {
+            console.error("Failed to send message to service worker:", error);
+            return "There was a communication error with the background service.";
+        }
+    } else {
+        // This is a custom question, return the learning message
+        await new Promise((r) => setTimeout(r, 750)); // Simulate thinking
+        return "Sorry, I'm still learning how to answer that at the moment.";
     }
 }
 
-// Dummy function to simulate getting a response
-async function getAiResponse(question: string): Promise<string> {
-    await new Promise((r) => setTimeout(r, 1500));
-    return `You asked: "${question}". Here is a simulated response from the AI.`;
-}
-
-// You can also call the component's public methods whenever you want
 function resetChat() {
     chatComponent.value?.clearChat();
 }
