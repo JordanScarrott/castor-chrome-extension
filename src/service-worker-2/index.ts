@@ -10,6 +10,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     routeMessage(message)
         .then(sendResponse)
         .catch((error) => sendResponse({ error: error.message }));
+    return true; // Keep the message channel open for async response
 });
 
 console.log("Mangle service worker loaded with API router.");

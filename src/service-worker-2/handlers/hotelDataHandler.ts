@@ -1,5 +1,6 @@
 import { initializeMangleInstance } from "@/tests/modules/mangle/mangleRunTimeUtils";
 import { ApiContract } from "@/types";
+import { formatResponseWithAI } from "../geminiNano/geminiNanoService";
 
 export async function handleHotelDataExtraction(
     payload: ApiContract["HOTEL_DATA_EXTRACTED"][0]
@@ -132,4 +133,26 @@ export async function analyzeHotelData(hotelData: HotelInfo[]) {
     }
 
     return analysisResults;
+}
+
+export async function runQueryAndFormatResponse(
+    questionText: string
+): Promise<string> {
+    const mangleQueryString = hotelQueries[questionText];
+
+    let mangleResult: any = null;
+    if (mangleQueryString) {
+        const rawResult = mangleQuery(mangleQueryString);
+        if (rawResult) {
+            try {
+                mangleResult = JSON.parse(rawResult.trim());
+            } catch (error) {
+                console.error("Failed to parse Mangle result:", error);
+                // Result remains null
+            }
+        }
+    }
+
+    // Always call the AI to format the response, even if the result is null
+    return await formatResponseWithAI(questionText, mangleResult);
 }

@@ -17,6 +17,7 @@ export interface ApiContract {
         undefined, // No payload for this request
         { factStore: Record<string, any> }
     ];
+    PROCESS_QUESTION: [string, { response: string }];
     HOTEL_DATA_EXTRACTED: [{ hotelData: HotelInfo[] }, { result: QandA[] }];
 }
 
