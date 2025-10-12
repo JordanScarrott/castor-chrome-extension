@@ -76,6 +76,27 @@
 
             <!-- Text Input and Send Button -->
             <form @submit.prevent="handleSubmit" class="input-form">
+                <button
+                    type="button"
+                    @click="handleAttachClick"
+                    :disabled="props.isLoading"
+                    class="send-btn"
+                >
+                    <svg
+                        class="send-icon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        ></path>
+                    </svg>
+                </button>
                 <input
                     v-model="userInput"
                     type="text"
@@ -110,6 +131,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
+import { usePageAttachment } from "../composables/usePageAttachment";
 
 // --- TYPE DEFINITIONS ---
 interface Message {
@@ -143,7 +165,13 @@ const userInput = ref("");
 const messageContainer = ref<HTMLElement | null>(null);
 const nextId = ref(0);
 
+// --- COMPOSABLES ---
+const { attachFromPage } = usePageAttachment();
+
 // --- METHODS ---
+const handleAttachClick = () => {
+    attachFromPage();
+};
 const scrollToBottom = () => {
     nextTick(() => {
         if (messageContainer.value) {
@@ -380,6 +408,9 @@ defineExpose({
     width: 24px;
     height: 24px;
     transform: rotate(90deg);
+}
+.input-form .send-btn[type="button"] .send-icon {
+    transform: rotate(0deg);
 }
 
 /* Typing Indicator Styles */
