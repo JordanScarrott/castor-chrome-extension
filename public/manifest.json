@@ -13,7 +13,7 @@
     },
     "content_scripts": [
         {
-            "matches": ["*://*.booking.com/*"],
+            "matches": ["<all_urls>"],
             "js": ["content.js"]
         }
     ],
