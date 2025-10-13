@@ -219,20 +219,23 @@ declare const Writer: any;
 export async function formatResponseWithAI(
     question: string,
     mangleResult: any
-): Promise<string> {
+): Promise<void> {
     console.log("🚀 ~ formatResponseWithAI ~ question:", question);
+    const messageId = crypto.randomUUID();
+
     // 1. Check for Writer API availability
     if (typeof Writer === "undefined") {
         console.warn("Writer API is not supported in this browser.");
-        return "The AI writer feature is not available in your browser.";
+        chrome.runtime.sendMessage({
+            type: "STREAM_UPDATE",
+            payload: {
+                messageId,
+                chunk: "The AI writer feature is not available in your browser.",
+                isLast: true,
+            },
+        });
+        return;
     }
-    // const availability = await Writer.availability();
-    // if (availability !== "readily") {
-    //     console.warn(
-    //         `Writer API is not readily available. State: ${availability}`
-    //     );
-    //     return "The AI writer is currently unavailable.";
-    // }
 
     // 2. Generate a high-quality prompt based on the mangle result
     let prompt: string;
@@ -250,19 +253,24 @@ export async function formatResponseWithAI(
 
     // 3. Use the Writer API to generate the final response
     try {
-        const finalResponse = await geminiNanoWrite(prompt);
-        console.log(
-            "🚀 ~ formatResponseWithAI ~ finalResponse:",
-            finalResponse
-        );
-        return finalResponse;
+        await geminiNanoWriteStreaming(prompt, messageId);
     } catch (error) {
         console.error("Error using the Writer API:", error);
-        return "I'm sorry, I encountered an error while trying to generate a response.";
+        chrome.runtime.sendMessage({
+            type: "STREAM_UPDATE",
+            payload: {
+                messageId,
+                chunk: "I'm sorry, I encountered an error while trying to generate a response.",
+                isLast: true,
+            },
+        });
     }
 }
 
-async function geminiNanoWrite(prompt: string): Promise<string> {
+async function geminiNanoWriteStreaming(
+    prompt: string,
+    messageId: string
+): Promise<void> {
     const options = {
         sharedContext: undefined,
         tone: "neutral",
@@ -280,14 +288,25 @@ async function geminiNanoWrite(prompt: string): Promise<string> {
         // The Writer can be used after the model is downloaded.
         writer = await Writer.create({
             ...options,
-            monitor(m) {
-                m.addEventListener("downloadprogress", (e) => {
+            monitor(m: any) {
+                m.addEventListener("downloadprogress", (e: any) => {
                     console.log(`Downloaded ${e.loaded * 100}%`);
                 });
             },
         });
     }
 
-    const response = (await writer.write(prompt)) as string;
-    return response;
+    const stream = await writer.writeStreaming(prompt);
+    for await (const chunk of stream) {
+        chrome.runtime.sendMessage({
+            type: "STREAM_UPDATE",
+            payload: { messageId, chunk, isLast: false },
+        });
+    }
+
+    // Send the final message
+    chrome.runtime.sendMessage({
+        type: "STREAM_UPDATE",
+        payload: { messageId, chunk: "", isLast: true },
+    });
 }
