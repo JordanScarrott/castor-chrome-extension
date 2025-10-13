@@ -310,3 +310,38 @@ async function geminiNanoWriteStreaming(
         payload: { messageId, chunk: "", isLast: true },
     });
 }
+
+async function geminiNanoSummariseStreaming(): Promise<void> {
+    const options = {
+        sharedContext: "This is a scientific article",
+        type: "key-points",
+        format: "markdown",
+        length: "medium",
+        monitor(m: any) {
+            m.addEventListener("downloadprogress", (e) => {
+                console.log(`Downloaded ${e.loaded * 100}%`);
+            });
+        },
+    };
+
+    const availability = await Summarizer.availability();
+    if (availability === "unavailable") {
+        // The Summarizer API isn't usable.
+        console.log("The Summarizer API isn't usable.");
+    } else {
+        // Check for user activation before creating the summarizer
+        if (navigator.userActivation.isActive) {
+            const summarizer = await Summarizer.create(options);
+            const longText = ``;
+            const stream = summarizer.summarizeStreaming(longText, {
+                context: "This is a travel website about wine tours",
+            });
+
+            let outputSummary = "";
+            for await (const chunk of stream) {
+                outputSummary = outputSummary + chunk;
+                console.log(outputSummary);
+            }
+        }
+    }
+}
