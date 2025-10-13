@@ -19,6 +19,7 @@ export interface ApiContract {
     ];
     PROCESS_QUESTION: [string, { response: string }];
     HOTEL_DATA_EXTRACTED: [{ hotelData: HotelInfo[] }, { result: QandA[] }];
+    ELEMENT_TEXT_SELECTED: [string, void];
 }
 
 // Generic types to make working with the contract easier

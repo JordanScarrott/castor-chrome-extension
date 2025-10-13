@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
+import { ref, nextTick, onMounted, onUnmounted } from "vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
 
 // --- TYPE DEFINITIONS ---
@@ -239,6 +239,19 @@ const streamAiResponse = (messageId: number) => {
 defineExpose({
     streamAiResponse,
     clearChat,
+});
+
+onMounted(() => {
+    const messageListener = (message: { type: string; payload: any; }) => {
+        if (message.type === "DISPLAY_SELECTED_TEXT") {
+            addMessage(message.payload, "ai");
+        }
+    };
+    chrome.runtime.onMessage.addListener(messageListener);
+
+    onUnmounted(() => {
+        chrome.runtime.onMessage.removeListener(messageListener);
+    });
 });
 </script>
 
