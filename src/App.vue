@@ -1,217 +1,171 @@
 <template>
-    <div class="chat-container">
-        <div class="header">
-            <h1>Mangle AI Assistant</h1>
-        </div>
-        <div class="message-list" ref="messageList">
-            <div
-                v-for="(message, index) in messages"
-                :key="index"
-                class="message"
-                :class="['message', `message--${message.author}`]"
-            >
-                <div class="message-content">{{ message.content }}</div>
-            </div>
-        </div>
-        <div class="input-area">
-            <textarea
-                v-model="userInput"
-                @keydown.enter.prevent="handleAsk"
-                placeholder="Ask a question..."
-                class="input-box"
-                :disabled="isThinking"
-            ></textarea>
-            <button @click="handleAsk" class="send-button" :disabled="isThinking">
-                {{ isThinking ? "Thinking..." : "Ask" }}
-            </button>
-        </div>
+    <div class="container">
+        <h1>Mangle Extension</h1>
+        <p>Hello, Mangle!</p>
+
+        <textarea
+            v-model="newContent"
+            placeholder="Enter content to process..."
+        ></textarea>
+        <button @click="handleSubmitContent">Submit Content</button>
+        <hr />
+
+        isWasmLoaded: {{ isWasmLoaded }}
+
+        <!-- <input v-model="inputText" />
+        <button @click="summarize">Summarize</button>
+        <button @click="prompt">Prompt</button>
+        <button @click="summarizeStreaming">Summarize (Streaming)</button>
+        <button @click="promptStreaming">Prompt (Streaming)</button>
+        <button @click="ingestIntoMangle">Ingest</button>
+
+        <input v-model="mangleInput" />
+        <button @click="executeMangleQuery">Execute Mangle Query</button>
+        <div>Mangle output: {{ mangleOutput }}</div>
+
+        <div>output: {{ output }}</div>
+        <div id="streaming-output"></div> -->
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { usePrompt } from "@/service-worker/geminiNano/composables/geminiNanoComposable";
+import { useMangle } from "@/modules/mangle/composables/useMangle";
+import {
+    manglePrompt,
+    MangleSchemaProperties,
+} from "@/service-worker/geminiNano/utils/prompts/prompts";
+import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
+import DOMPurify from "dompurify";
+import * as smd from "streaming-markdown";
+import { ref } from "vue";
 import { serviceWorkerApi } from "./popup/api";
 
-interface Message {
-    author: "user" | "ai";
-    content: string;
-}
+const newContent = ref("");
 
-const userInput = ref("");
-const messages = ref<Message[]>([]);
-const isThinking = ref(false);
-const messageList = ref<HTMLElement | null>(null);
-
-// Map to store chunk handlers for active streams
-const streamHandlers = new Map<string, (chunk: string) => void>();
-
-/**
- * Creates a new, empty AI message bubble in the chat history and returns a
- * function for appending text chunks to it.
- * @returns A function that takes a string chunk and appends it to the new message.
- */
-function createAiMessage(): (chunk: string) => void {
-    const messageIndex = messages.value.length;
-    messages.value.push({ author: "ai", content: "" });
-
-    return (chunk: string) => {
-        messages.value[messageIndex].content += chunk;
-        scrollToBottom();
-    };
-}
-
-const handleStreamUpdate = (message: any) => {
-    if (message.type !== "STREAM_UPDATE") {
-        return;
-    }
-    const { messageId, chunk, isLast } = message.payload;
-
-    let handler = streamHandlers.get(messageId);
-
-    // If it's the first chunk for this messageId, create a new message bubble
-    if (!handler) {
-        handler = createAiMessage();
-        streamHandlers.set(messageId, handler);
-        isThinking.value = false;
-    }
-
-    // Append the new chunk
-    if (chunk) {
-        handler(chunk);
-    }
-
-    // If it's the last chunk, clean up the handler
-    if (isLast) {
-        streamHandlers.delete(messageId);
-    }
-};
-
-onMounted(() => {
-    chrome.runtime.onMessage.addListener(handleStreamUpdate);
-});
-
-onUnmounted(() => {
-    chrome.runtime.onMessage.removeListener(handleStreamUpdate);
-});
-
-async function handleAsk() {
-    if (!userInput.value.trim() || isThinking.value) return;
-
-    const question = userInput.value.trim();
-    messages.value.push({ author: "user", content: question });
-    isThinking.value = true;
-    userInput.value = "";
-    scrollToBottom();
-
+async function handleSubmitContent() {
+    if (!newContent.value) return;
     try {
-        // This is now a fire-and-forget call; the response will be handled by the stream listener
-        await serviceWorkerApi.processNewContent(question);
+        const response = await serviceWorkerApi.processNewContent(
+            newContent.value
+        );
+        console.log("API Response:", response); // Should log { status: 'QUEUED' }
+        alert("Content submitted for processing!");
+        newContent.value = "";
     } catch (error) {
-        console.error("Failed to send question to service worker:", error);
-        // Optionally add an error message to the UI
-        messages.value.push({
-            author: "ai",
-            content: "Sorry, I was unable to process your question.",
-        });
-        isThinking.value = false;
+        console.error("API Error:", error);
+        alert("Failed to submit content.");
     }
 }
 
-function scrollToBottom() {
-    nextTick(() => {
-        if (messageList.value) {
-            messageList.value.scrollTop = messageList.value.scrollHeight;
+// No script logic needed for this simple component yet.
+
+const count = ref(0);
+
+const inputText = ref("");
+const output = ref("");
+const jsonFacts = ref<string | MangleSchemaProperties>({
+    facts: [],
+    rules: [],
+});
+
+const { isWasmLoaded, mangle, mangledText } = useMangle();
+
+async function summarize() {
+    output.value = await geminiNanoService.summarize(inputText.value);
+}
+
+async function prompt() {
+    jsonFacts.value = await usePrompt().prompt(inputText.value);
+
+    output.value = JSON.stringify(jsonFacts.value);
+}
+
+async function summarizeStreaming() {
+    const streamingOutput = document.getElementById("streaming-output");
+    if (streamingOutput) {
+        streamingOutput.innerHTML = "";
+        const renderer = smd.default_renderer(streamingOutput);
+        const parser = smd.parser(renderer);
+        await geminiNanoService.summarizeStreaming(inputText.value, (chunk) => {
+            const sanitizedChunk = DOMPurify.sanitize(chunk);
+            smd.parser_write(parser, sanitizedChunk);
+        });
+        smd.parser_end(parser);
+    }
+}
+
+async function promptStreaming() {
+    const streamingOutput = document.getElementById("streaming-output");
+    if (streamingOutput) {
+        streamingOutput.innerHTML = "";
+        const renderer = smd.default_renderer(streamingOutput);
+        const parser = smd.parser(renderer);
+        await geminiNanoService.askPromptStreaming(
+            inputText.value,
+            manglePrompt().systemPrompt,
+            (chunk) => {
+                const sanitizedChunk = DOMPurify.sanitize(chunk);
+                smd.parser_write(parser, sanitizedChunk);
+            }
+        );
+        smd.parser_end(parser);
+    }
+}
+
+async function ingestIntoMangle() {
+    console.log("Mangle facts: ", jsonFacts.value);
+
+    const parsedMangleData = parseMangleQuery(jsonFacts.value);
+
+    const factToWriteToMangle = parsedMangleData.facts.at(0) || "";
+    console.log(
+        "🚀 ~ ingestIntoMangle ~ factToWriteToMangle:",
+        factToWriteToMangle
+    );
+    mangle(factToWriteToMangle);
+}
+
+function parseMangleQuery(
+    mangleData: string | MangleSchemaProperties
+): MangleSchemaProperties {
+    let parsedMangleData: MangleSchemaProperties = {
+        facts: [],
+        rules: [],
+    };
+
+    if (typeof mangleData === "string") {
+        try {
+            parsedMangleData = JSON.parse(mangleData);
+        } catch (e) {
+            throw new Error(
+                "Failed to parse gemini-generated mangle facts: " + e
+            );
         }
-    });
+    } else {
+        return mangleData;
+    }
+
+    return parsedMangleData;
+}
+
+const mangleInput = ref("");
+const mangleOutput = ref("");
+function executeMangleQuery(): void {
+    console.log("🚀 ~ mangleInput:", mangleInput);
+
+    mangleOutput.value = mangle(mangleInput.value);
+
+    console.log("🚀 ~ mangleOutput:", mangleOutput);
 }
 </script>
 
 <style scoped>
-.chat-container {
-    width: 400px;
-    height: 500px;
-    display: flex;
-    flex-direction: column;
-    font-family: sans-serif;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.header {
-    background-color: #f5f5f5;
+.container {
+    overflow: auto;
+    width: 300px;
     padding: 1rem;
     text-align: center;
-    border-bottom: 1px solid #ccc;
-}
-
-.message-list {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    background-color: #fff;
-}
-
-.message {
-    display: flex;
-    margin-bottom: 0.75rem;
-}
-
-.message-content {
-    max-width: 80%;
-    padding: 0.5rem 1rem;
-    border-radius: 18px;
-    word-wrap: break-word;
-}
-
-.message--user {
-    justify-content: flex-end;
-}
-
-.message--user .message-content {
-    background-color: #007bff;
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.message--ai {
-    justify-content: flex-start;
-}
-
-.message--ai .message-content {
-    background-color: #e9e9eb;
-    color: #333;
-    border-bottom-left-radius: 4px;
-}
-
-.input-area {
-    display: flex;
-    padding: 0.5rem;
-    border-top: 1px solid #ccc;
-    background-color: #f5f5f5;
-}
-
-.input-box {
-    flex-grow: 1;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: none;
-    font-family: inherit;
-}
-
-.send-button {
-    margin-left: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.send-button:disabled {
-    background-color: #a0c7ff;
-    cursor: not-allowed;
+    font-family: sans-serif;
 }
 </style>
