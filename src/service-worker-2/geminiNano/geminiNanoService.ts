@@ -127,12 +127,14 @@ class GeminiNanoService {
      * @param userPrompt The user's question or prompt.
      * @param systemPrompt Optional system-level context (e.g. "You are a helpful assistant")
      * @param onChunk Callback function to handle each chunk of the response.
+     * @param schema Optional JSON Schema to constrain the output.
      * @param abortSignal Optional AbortSignal to cancel the request.
      */
     async askPromptStreaming(
         userPrompt: string,
         systemPrompt: string | undefined,
         onChunk: (chunk: string) => void,
+        schema?: object,
         abortSignal?: AbortSignal
     ): Promise<void> {
         // Feature detect
@@ -161,10 +163,13 @@ class GeminiNanoService {
         });
 
         try {
+            const options: any = { signal: abortSignal };
+            if (schema) {
+                options.responseConstraint = schema;
+            }
+
             // Get a streaming response
-            const stream = await session.promptStreaming(userPrompt, {
-                signal: abortSignal,
-            });
+            const stream = await session.promptStreaming(userPrompt, options);
 
             // Read from the stream and call the callback for each chunk
             for await (const chunk of stream) {

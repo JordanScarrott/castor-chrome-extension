@@ -12,7 +12,6 @@ export function usePageAttachment() {
                     await chrome.tabs.sendMessage(tabId, {
                         type: "ACTIVATE_SELECTION_MODE",
                     });
-                    window.close();
                 }
             }
         } catch (error) {
