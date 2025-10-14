@@ -48,10 +48,10 @@ export class ElementSelector {
 
         const target = event.target as HTMLElement;
         if (target) {
-            const text = target.innerText;
+            const html = target.innerHTML;
             chrome.runtime.sendMessage({
                 type: "ELEMENT_TEXT_SELECTED",
-                payload: text,
+                payload: html,
             });
         }
 
