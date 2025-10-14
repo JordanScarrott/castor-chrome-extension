@@ -137,6 +137,10 @@ class GeminiNanoService {
         schema?: object,
         abortSignal?: AbortSignal
     ): Promise<void> {
+        console.log(
+            "🚀 ~ GeminiNanoService ~ askPromptStreaming ~ userPrompt:",
+            userPrompt
+        );
         // Feature detect
         if (typeof LanguageModel === "undefined") {
             console.warn("Prompt API not supported in this browser.");

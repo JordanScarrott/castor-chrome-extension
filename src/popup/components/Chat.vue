@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
-import { useMessageStreamer } from '../composables/useMessageStreamer';
+import { useMessageStreamer } from "../composables/useMessageStreamer";
 
 // --- TYPE DEFINITIONS ---
 interface Message {
@@ -240,8 +240,7 @@ const streamAiResponse = (messageId: string) => {
 // --- COMPONENT API and STREAMING LOGIC ---
 const chatApi = { streamAiResponse };
 const chatApiRef = ref(chatApi);
-useMessageStreamer(chatApiRef);
-
+// useMessageStreamer(chatApiRef);
 
 defineExpose({
     streamAiResponse,
