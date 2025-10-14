@@ -5,6 +5,7 @@ import { handleGetFactStore } from "./handlers/stateHandler";
 import { handleGenerateMangleSchema } from "./handlers/schemaHandler";
 import { handleHotelDataExtraction } from "@/service-worker-2/handlers/hotelDataHandler";
 import { handleProcessQuestion } from "./handlers/questionHandler";
+import { handleElementSelection } from "./handlers/elementSelectionHandler";
 
 // The router maps message types to their handler functions
 const handlers = {
@@ -13,7 +14,7 @@ const handlers = {
     EXECUTE_MANGLE_QUERY: handleExecuteQuery,
     GET_FACT_STORE_STATE: handleGetFactStore,
     PROCESS_QUESTION: handleProcessQuestion,
-
+    ELEMENT_TEXT_SELECTED: handleElementSelection,
     HOTEL_DATA_EXTRACTED: handleHotelDataExtraction,
 };
 

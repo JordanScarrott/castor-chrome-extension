@@ -132,10 +132,11 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
+import { useMessageStreamer } from "../composables/useMessageStreamer";
 
 // --- TYPE DEFINITIONS ---
 interface Message {
-    id: number;
+    id: number | string;
     text: string;
     sender: "user" | "ai";
 }
@@ -214,7 +215,7 @@ const clearChat = () => {
 };
 
 // --- EXPOSED METHOD for STREAMING AI RESPONSE ---
-const streamAiResponse = (messageId: number) => {
+const streamAiResponse = (messageId: string) => {
     const newMessage: Message = {
         id: messageId,
         text: "", // Start with empty text
@@ -235,6 +236,11 @@ const streamAiResponse = (messageId: number) => {
 
     return updateFunction;
 };
+
+// --- COMPONENT API and STREAMING LOGIC ---
+const chatApi = { streamAiResponse };
+const chatApiRef = ref(chatApi);
+// useMessageStreamer(chatApiRef);
 
 defineExpose({
     streamAiResponse,

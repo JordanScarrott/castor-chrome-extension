@@ -25,7 +25,6 @@ const { isLoading, startLoading, stopLoading } = useAiMessageStream(
     (messageId) => chatComponent.value?.streamAiResponse(messageId)
 );
 
-
 // 4. Listen for when the user asks a question
 async function handleQuestion(questionText: string) {
     startLoading();

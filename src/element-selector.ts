@@ -8,14 +8,21 @@ export class ElementSelector {
 
     public start(): void {
         document.addEventListener("mouseover", this.handleMouseOver);
-        document.addEventListener("click", this.handleClick, { capture: true, once: true });
+        document.addEventListener("click", this.handleClick, {
+            capture: true,
+            once: true,
+        });
     }
 
     public stop(): void {
         document.removeEventListener("mouseover", this.handleMouseOver);
-        document.removeEventListener("click", this.handleClick, { capture: true });
+        document.removeEventListener("click", this.handleClick, {
+            capture: true,
+        });
         if (this.lastHoveredElement) {
-            this.lastHoveredElement.classList.remove(ElementSelector.HIGHLIGHT_CLASS);
+            this.lastHoveredElement.classList.remove(
+                ElementSelector.HIGHLIGHT_CLASS
+            );
         }
     }
 
@@ -32,7 +39,9 @@ export class ElementSelector {
 
     private handleMouseOver = (event: MouseEvent): void => {
         if (this.lastHoveredElement) {
-            this.lastHoveredElement.classList.remove(ElementSelector.HIGHLIGHT_CLASS);
+            this.lastHoveredElement.classList.remove(
+                ElementSelector.HIGHLIGHT_CLASS
+            );
         }
 
         const target = event.target as HTMLElement;
@@ -48,10 +57,10 @@ export class ElementSelector {
 
         const target = event.target as HTMLElement;
         if (target) {
-            const text = target.innerText;
+            const html = target.innerText;
             chrome.runtime.sendMessage({
                 type: "ELEMENT_TEXT_SELECTED",
-                payload: text,
+                payload: html,
             });
         }
 
