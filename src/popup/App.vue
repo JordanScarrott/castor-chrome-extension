@@ -30,6 +30,8 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
         Helvetica, Arial, sans-serif;
     width: 400px; /* Typical width for a Chrome extension popup */
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 #app-container {
