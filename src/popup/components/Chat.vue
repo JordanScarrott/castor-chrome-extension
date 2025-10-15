@@ -41,7 +41,11 @@
                 "
             >
                 <div class="message-bubble">
-                    <p>{{ message.text }}</p>
+                    <MarkdownStream
+                        v-if="message.sender === 'ai'"
+                        :stream="message.text"
+                    />
+                    <p v-else>{{ message.text }}</p>
                 </div>
             </div>
             <!-- Loading Indicator -->
@@ -131,6 +135,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
+import MarkdownStream from "./MarkdownStream.vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
 import { useMessageStreamer } from "../composables/useMessageStreamer";
 import HorizontalScroller from "./HorizontalScroller.vue";
@@ -329,7 +334,7 @@ defineExpose({
     color: #3c4043;
     border-bottom-left-radius: 4px;
 }
-.message-bubble p {
+.user-message-wrapper .message-bubble p {
     margin: 0;
     white-space: pre-wrap;
 }

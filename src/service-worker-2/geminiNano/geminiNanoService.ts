@@ -281,10 +281,11 @@ async function geminiNanoWriteStreaming(
     messageId: string
 ): Promise<void> {
     const options = {
-        sharedContext: undefined,
+        sharedContext:
+            "The user is expecting a well formatted markdown response.",
         tone: "neutral",
-        format: "plain-text",
-        length: "medium",
+        format: "markdown",
+        length: "short",
     };
 
     const available = await Writer.availability();
