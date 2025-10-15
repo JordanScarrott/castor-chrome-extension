@@ -36,7 +36,10 @@ function runAnalysisDemo() {
     let ideaIndex = 0;
     const interval = setInterval(() => {
         if (ideaIndex < ideas.length) {
-            chatComponent.value?.updateAnalysisCard(analysisId, ideas[ideaIndex]);
+            chatComponent.value?.updateAnalysisCard(
+                analysisId,
+                ideas[ideaIndex]
+            );
             ideaIndex++;
         } else {
             // 3. Complete the analysis
