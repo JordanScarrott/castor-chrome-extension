@@ -192,7 +192,6 @@ class GeminiNanoService {
      */
     async summarizeStreaming(
         inputText: string,
-        sharedContext: string,
         onChunk: (chunk: string) => void
     ): Promise<void> {
         // Feature detect
@@ -207,24 +206,12 @@ class GeminiNanoService {
             return;
         }
 
-        const options = {
-            sharedContext: sharedContext,
-            type: "key-points",
-            format: "markdown",
-            length: "short",
-            monitor(m: any) {
-                m.addEventListener("downloadprogress", (e) => {
-                    console.log(`Downloaded summarizer ${e.loaded * 100}%`);
-                });
-            },
-        };
-
         // if (!navigator.userActivation.isActive) {
         //     console.warn("User interaction required before summarization.");
         //     return;
         // }
 
-        const summarizer = await Summarizer.create(options);
+        const summarizer = await Summarizer.create();
         const stream = await summarizer.summarizeStreaming(inputText);
 
         for await (const chunk of stream) {
