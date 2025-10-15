@@ -5,6 +5,8 @@ import { geminiNanoService } from "../geminiNano/geminiNanoService";
 import { createStreamingJsonExtractor } from "@/utils/jsonStreamParser";
 
 export async function handleElementSelection(html: string) {
+    summariseKeyPoints(html);
+
     const messageId = crypto.randomUUID();
     // const schema = {
     //     entities: [
@@ -204,4 +206,18 @@ export async function handleElementSelection(html: string) {
             payload: { messageId, chunk: "", isLast: true },
         });
     }
+}
+
+async function summariseKeyPoints(html: string): Promise<void> {
+    const messageId = crypto.randomUUID();
+
+    const context =
+        "Summarise the content into between 3 and 7 points that name the topics involved in the text.";
+    geminiNanoService.summarizeStreaming(html, context, (rawChunk: string) => {
+        console.log("summarizing ", rawChunk);
+        chrome.runtime.sendMessage({
+            type: "STREAM_UPDATE",
+            payload: { messageId, chunk: rawChunk, isLast: false },
+        });
+    });
 }
