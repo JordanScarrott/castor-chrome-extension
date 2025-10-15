@@ -11,15 +11,49 @@
 <script setup lang="ts">
 import Chat from "@/popup/components/Chat.vue";
 import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 // 1. Give the component a name so you can call its methods
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
+
+// --- DEMO LIFECYCLE FOR ANALYSIS CARD ---
+// This is a stand-in for a real data stream from the service worker
+function runAnalysisDemo() {
+    const analysisId = `analysis-${Date.now()}`;
+    const topic = "Hotels near the Eiffel Tower";
+
+    // 1. Add the card
+    chatComponent.value?.addAnalysisCard(analysisId, topic);
+
+    // 2. Update it with "ideas"
+    const ideas = [
+        "Pullman Paris Tour Eiffel",
+        "Mercure Paris Centre Tour Eiffel",
+        "Shangri-La Hotel Paris",
+        "Hôtel Le Derby Alma",
+    ];
+
+    let ideaIndex = 0;
+    const interval = setInterval(() => {
+        if (ideaIndex < ideas.length) {
+            chatComponent.value?.updateAnalysisCard(analysisId, ideas[ideaIndex]);
+            ideaIndex++;
+        } else {
+            // 3. Complete the analysis
+            clearInterval(interval);
+            chatComponent.value?.completeAnalysisCard(analysisId);
+        }
+    }, 1000);
+}
 
 // 2. Control the loading state
 const currentQuestions = ref(hotelNaturalLanguageQuestions);
 
 import { useAiMessageStream } from "@/popup/composables/useAiMessageStream";
+
+onMounted(() => {
+    runAnalysisDemo();
+});
 
 const { isLoading, startLoading, stopLoading } = useAiMessageStream(
     (messageId) => chatComponent.value?.streamAiResponse(messageId)

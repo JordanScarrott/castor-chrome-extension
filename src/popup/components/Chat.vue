@@ -30,22 +30,29 @@
         <!-- Message History -->
         <div ref="messageContainer" class="message-history">
             <!-- Existing Messages -->
-            <div
-                v-for="message in messages"
-                :key="message.id"
-                class="message-wrapper"
-                :class="
-                    message.sender === 'user'
-                        ? 'user-message-wrapper'
-                        : 'ai-message-wrapper'
-                "
-            >
-                <div class="message-bubble">
-                    <MarkdownStream
-                        v-if="message.sender === 'ai'"
-                        :stream="message.text"
-                    />
-                    <p v-else>{{ message.text }}</p>
+            <div v-for="message in messages" :key="message.id">
+                <div
+                    v-if="message.type === 'analysis'"
+                    class="message-wrapper ai-message-wrapper"
+                >
+                    <AnalysisCard :data="message.analysisData!" />
+                </div>
+                <div
+                    v-else
+                    class="message-wrapper"
+                    :class="
+                        message.sender === 'user'
+                            ? 'user-message-wrapper'
+                            : 'ai-message-wrapper'
+                    "
+                >
+                    <div class="message-bubble">
+                        <MarkdownStream
+                            v-if="message.sender === 'ai'"
+                            :stream="message.text!"
+                        />
+                        <p v-else>{{ message.text }}</p>
+                    </div>
                 </div>
             </div>
             <!-- Loading Indicator -->
@@ -139,12 +146,19 @@ import MarkdownStream from "./MarkdownStream.vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
 import { useMessageStreamer } from "../composables/useMessageStreamer";
 import HorizontalScroller from "./HorizontalScroller.vue";
+import AnalysisCard from "./AnalysisCard.vue";
 
 // --- TYPE DEFINITIONS ---
 interface Message {
     id: number | string;
-    text: string;
     sender: "user" | "ai";
+    type: "text" | "analysis";
+    text?: string; // For standard messages
+    analysisData?: {
+        topic: string;
+        status: "analyzing" | "complete";
+        ideas: string[];
+    };
 }
 
 interface Props {
@@ -193,6 +207,7 @@ const addMessage = (text: string, sender: "user" | "ai") => {
         id: nextId.value++,
         text,
         sender,
+        type: "text",
     };
     messages.value.push(newMessage);
     scrollToBottom();
@@ -226,6 +241,7 @@ const streamAiResponse = (messageId: string) => {
         id: messageId,
         text: "", // Start with empty text
         sender: "ai",
+        type: "text",
     };
     messages.value.push(newMessage);
     scrollToBottom();
@@ -248,9 +264,43 @@ const chatApi = { streamAiResponse };
 const chatApiRef = ref(chatApi);
 // useMessageStreamer(chatApiRef);
 
+// --- ANALYSIS CARD METHODS ---
+const addAnalysisCard = (id: string, topic: string) => {
+    const newMessage: Message = {
+        id,
+        sender: "ai",
+        type: "analysis",
+        analysisData: {
+            topic,
+            status: "analyzing",
+            ideas: [],
+        },
+    };
+    messages.value.push(newMessage);
+    scrollToBottom();
+};
+
+const updateAnalysisCard = (id: string, newIdea: string) => {
+    const message = messages.value.find((m) => m.id === id);
+    if (message?.analysisData) {
+        message.analysisData.ideas.push(newIdea);
+        scrollToBottom();
+    }
+};
+
+const completeAnalysisCard = (id: string) => {
+    const message = messages.value.find((m) => m.id === id);
+    if (message?.analysisData) {
+        message.analysisData.status = "complete";
+    }
+};
+
 defineExpose({
     streamAiResponse,
     clearChat,
+    addAnalysisCard,
+    updateAnalysisCard,
+    completeAnalysisCard,
 });
 </script>
 
