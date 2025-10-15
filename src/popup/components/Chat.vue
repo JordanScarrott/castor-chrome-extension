@@ -2,50 +2,36 @@
     <div class="chat-container">
         <!-- Header -->
         <div class="chat-header">
-            <div class="header-logo-container">
-                <svg
-                    class="header-logo"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        d="M12,1L9,9L1,12L9,15L12,23L15,15L23,12L15,9L12,1Z"
-                    />
-                </svg>
-                <svg
-                    class="header-logo small"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        d="M12,6.5L13.5,10L17,11.5L13.5,13L12,16.5L10.5,13L7,11.5L10.5,10L12,6.5Z"
-                    />
-                </svg>
-            </div>
+            <CastorIcon />
             <h1 class="header-title">Castor</h1>
         </div>
 
         <!-- Message History -->
         <div ref="messageContainer" class="message-history">
             <!-- Existing Messages -->
-            <div
-                v-for="message in messages"
-                :key="message.id"
-                class="message-wrapper"
-                :class="
-                    message.sender === 'user'
-                        ? 'user-message-wrapper'
-                        : 'ai-message-wrapper'
-                "
-            >
-                <div class="message-bubble">
-                    <MarkdownStream
-                        v-if="message.sender === 'ai'"
-                        :stream="message.text"
-                    />
-                    <p v-else>{{ message.text }}</p>
+            <div v-for="message in messages" :key="message.id">
+                <div
+                    v-if="message.type === 'analysis'"
+                    class="message-wrapper ai-message-wrapper"
+                >
+                    <AnalysisCard :data="message.analysisData!" />
+                </div>
+                <div
+                    v-else
+                    class="message-wrapper"
+                    :class="
+                        message.sender === 'user'
+                            ? 'user-message-wrapper'
+                            : 'ai-message-wrapper'
+                    "
+                >
+                    <div class="message-bubble">
+                        <MarkdownStream
+                            v-if="message.sender === 'ai'"
+                            :stream="message.text!"
+                        />
+                        <p v-else>{{ message.text }}</p>
+                    </div>
                 </div>
             </div>
             <!-- Loading Indicator -->
@@ -139,12 +125,20 @@ import MarkdownStream from "./MarkdownStream.vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
 import { useMessageStreamer } from "../composables/useMessageStreamer";
 import HorizontalScroller from "./HorizontalScroller.vue";
+import AnalysisCard from "./AnalysisCard.vue";
+import CastorIcon from "./CastorIcon.vue";
 
 // --- TYPE DEFINITIONS ---
 interface Message {
     id: number | string;
-    text: string;
     sender: "user" | "ai";
+    type: "text" | "analysis";
+    text?: string; // For standard messages
+    analysisData?: {
+        topic: string;
+        status: "analyzing" | "complete";
+        ideas: string[];
+    };
 }
 
 interface Props {
@@ -193,6 +187,7 @@ const addMessage = (text: string, sender: "user" | "ai") => {
         id: nextId.value++,
         text,
         sender,
+        type: "text",
     };
     messages.value.push(newMessage);
     scrollToBottom();
@@ -226,6 +221,7 @@ const streamAiResponse = (messageId: string) => {
         id: messageId,
         text: "", // Start with empty text
         sender: "ai",
+        type: "text",
     };
     messages.value.push(newMessage);
     scrollToBottom();
@@ -248,9 +244,43 @@ const chatApi = { streamAiResponse };
 const chatApiRef = ref(chatApi);
 // useMessageStreamer(chatApiRef);
 
+// --- ANALYSIS CARD METHODS ---
+const addAnalysisCard = (id: string, topic: string) => {
+    const newMessage: Message = {
+        id,
+        sender: "ai",
+        type: "analysis",
+        analysisData: {
+            topic,
+            status: "analyzing",
+            ideas: [],
+        },
+    };
+    messages.value.push(newMessage);
+    scrollToBottom();
+};
+
+const updateAnalysisCard = (id: string, newIdea: string) => {
+    const message = messages.value.find((m) => m.id === id);
+    if (message?.analysisData) {
+        message.analysisData.ideas.push(newIdea);
+        scrollToBottom();
+    }
+};
+
+const completeAnalysisCard = (id: string) => {
+    const message = messages.value.find((m) => m.id === id);
+    if (message?.analysisData) {
+        message.analysisData.status = "complete";
+    }
+};
+
 defineExpose({
     streamAiResponse,
     clearChat,
+    addAnalysisCard,
+    updateAnalysisCard,
+    completeAnalysisCard,
 });
 </script>
 
@@ -277,22 +307,9 @@ defineExpose({
     border-bottom: 1px solid #dcdfe2;
     flex-shrink: 0;
 }
-.header-logo-container {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-.header-logo {
-    width: 24px;
-    height: 24px;
-    color: #0b57d0;
-}
-.header-logo.small {
-    width: 22px; /* Increased size by ~35% */
-    height: 22px;
-}
+
 .header-title {
-    margin-left: 10px;
+    margin-left: 8px;
     font-size: 18px;
     font-weight: 600;
 }
