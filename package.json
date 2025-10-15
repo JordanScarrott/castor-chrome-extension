@@ -17,6 +17,7 @@
         "@vitejs/plugin-vue": "^5.1.0",
         "@vue/test-utils": "^2.4.6",
         "jsdom": "^24.1.1",
+        "knip": "^5.65.0",
         "typescript": "^5.9.2",
         "vite": "^5.3.5",
         "vitest": "^2.0.4",

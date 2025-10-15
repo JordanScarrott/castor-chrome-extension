@@ -1,0 +1,7 @@
+{
+  "entry": [
+    "src/service-worker-2/index.ts",
+    "src/main.ts",
+    "src/content-script.ts"
+  ]
+}
