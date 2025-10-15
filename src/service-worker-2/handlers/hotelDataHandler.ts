@@ -30,6 +30,32 @@ interface HotelInfo {
 
 // 2. Function to convert scraped data into Mangle facts
 /**
+ * Creates a Mangle fact for hotel_info if the necessary data is present.
+ * @param hotel - A HotelInfo object.
+ * @returns A Mangle fact string or null if data is missing.
+ */
+function createHotelInfoFact(hotel: HotelInfo): string | null {
+    if (hotel.name && hotel.rating && hotel.price) {
+        const integerRating = Math.round(hotel.rating * 10);
+        return `hotel_info("${hotel.name}", ${integerRating}, ${hotel.price}).`;
+    }
+    return null;
+}
+
+/**
+ * Creates a Mangle fact for hotel_location_score if the necessary data is present.
+ * @param hotel - A HotelInfo object.
+ * @returns A Mangle fact string or null if data is missing.
+ */
+function createHotelLocationScoreFact(hotel: HotelInfo): string | null {
+    if (hotel.name && hotel.locationScore) {
+        const integerLocationScore = Math.round(hotel.locationScore * 10);
+        return `hotel_location_score("${hotel.name}", ${integerLocationScore}).`;
+    }
+    return null;
+}
+
+/**
  * Converts an array of HotelInfo objects into Mangle fact strings.
  * Ratings are multiplied by 10 to be stored as integers.
  * @param hotels - The array of hotel data objects.
@@ -37,21 +63,15 @@ interface HotelInfo {
  */
 export function convertHotelDataToFacts(hotels: HotelInfo[]): string[] {
     const facts: string[] = [];
-
     for (const hotel of hotels) {
-        console.log("🚀 ~ convertHotelDataToFacts ~ hotel:", hotel);
-        // Ensure we have the essential data before creating facts
-        if (hotel.name && hotel.rating && hotel.price) {
-            const integerRating = Math.round(hotel.rating * 10);
-            facts.push(
-                `hotel_info("${hotel.name}", ${integerRating}, ${hotel.price}).`
-            );
+        const infoFact = createHotelInfoFact(hotel);
+        if (infoFact) {
+            facts.push(infoFact);
         }
-        if (hotel.name && hotel.locationScore) {
-            const integerLocationScore = Math.round(hotel.locationScore * 10);
-            facts.push(
-                `hotel_location_score("${hotel.name}", ${integerLocationScore}).`
-            );
+
+        const locationScoreFact = createHotelLocationScoreFact(hotel);
+        if (locationScoreFact) {
+            facts.push(locationScoreFact);
         }
     }
     return facts;
