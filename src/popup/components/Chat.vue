@@ -62,7 +62,7 @@
         <!-- Action Toolbar & Input Area -->
         <div class="input-area" :class="{ 'disabled-input': props.isLoading }">
             <!-- Guiding Question Chips -->
-            <div class="chip-container">
+            <HorizontalScroller class="chip-container">
                 <button
                     v-for="question in props.sampleQuestions"
                     :key="question"
@@ -72,7 +72,7 @@
                 >
                     {{ question }}
                 </button>
-            </div>
+            </HorizontalScroller>
 
             <!-- Text Input and Send Button -->
             <form @submit.prevent="handleSubmit" class="input-form">
@@ -133,6 +133,7 @@
 import { ref, nextTick } from "vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
 import { useMessageStreamer } from "../composables/useMessageStreamer";
+import HorizontalScroller from "./HorizontalScroller.vue";
 
 // --- TYPE DEFINITIONS ---
 interface Message {
@@ -349,12 +350,10 @@ defineExpose({
 
 .chip-container {
     margin-bottom: 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
 }
 
 .chip {
+    flex-shrink: 0;
     background-color: #ffffff;
     border: 1px solid #c0c6cc; /* Increased border contrast */
     color: #3c4043;
