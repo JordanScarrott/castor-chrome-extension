@@ -8,8 +8,9 @@ export function useHorizontalScroll() {
     const checkScrollability = () => {
         if (!scrollContainer.value) return;
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainer.value;
-        canScrollLeft.value = scrollLeft > 0;
-        canScrollRight.value = scrollLeft < scrollWidth - clientWidth;
+        // Add a tolerance of 1px to account for floating point inaccuracies
+        canScrollLeft.value = scrollLeft > 1;
+        canScrollRight.value = scrollWidth - clientWidth - scrollLeft > 1;
     };
 
     const scrollLeft = () => {
