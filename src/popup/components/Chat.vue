@@ -2,28 +2,7 @@
     <div class="chat-container">
         <!-- Header -->
         <div class="chat-header">
-            <div class="header-logo-container">
-                <svg
-                    class="header-logo"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        d="M12,1L9,9L1,12L9,15L12,23L15,15L23,12L15,9L12,1Z"
-                    />
-                </svg>
-                <svg
-                    class="header-logo small"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        d="M12,6.5L13.5,10L17,11.5L13.5,13L12,16.5L10.5,13L7,11.5L10.5,10L12,6.5Z"
-                    />
-                </svg>
-            </div>
+            <CastorIcon />
             <h1 class="header-title">Castor</h1>
         </div>
 
@@ -147,6 +126,7 @@ import { usePageAttachment } from "../composables/usePageAttachment";
 import { useMessageStreamer } from "../composables/useMessageStreamer";
 import HorizontalScroller from "./HorizontalScroller.vue";
 import AnalysisCard from "./AnalysisCard.vue";
+import CastorIcon from "./CastorIcon.vue";
 
 // --- TYPE DEFINITIONS ---
 interface Message {
@@ -327,22 +307,9 @@ defineExpose({
     border-bottom: 1px solid #dcdfe2;
     flex-shrink: 0;
 }
-.header-logo-container {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-.header-logo {
-    width: 24px;
-    height: 24px;
-    color: #0b57d0;
-}
-.header-logo.small {
-    width: 22px; /* Increased size by ~35% */
-    height: 22px;
-}
+
 .header-title {
-    margin-left: 10px;
+    margin-left: 8px;
     font-size: 18px;
     font-weight: 600;
 }

@@ -1,36 +1,36 @@
 <template>
-  <div class="analysis-card">
-    <div class="card-header">
-      <h2 class="topic">{{ data.topic }}</h2>
-      <div class="status">
-        <div v-if="data.status === 'analyzing'" class="loading-spinner"></div>
-        <span v-if="data.status === 'analyzing'">Analyzing...</span>
-        <svg v-if="data.status === 'complete'" class="checkmark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-        </svg>
-        <span v-if="data.status === 'complete'">Complete</span>
-      </div>
+    <div class="analysis-card">
+        <div class="card-header">
+            <CastorIcon class="card-icon" :loading="data.status === 'analyzing'" />
+            <h3 class="topic">{{ data.topic }}</h3>
+            <span v-if="data.status === 'analyzing'" class="status-text">Analyzing...</span>
+        </div>
+        <div class="ideas-container">
+            <TransitionGroup name="idea-list" tag="ul">
+                <li v-for="idea in displayedIdeas" :key="idea" class="idea-item">
+                    {{ idea }}
+                </li>
+            </TransitionGroup>
+        </div>
     </div>
-    <ul class="ideas-list">
-      <li v-for="(idea, index) in data.ideas" :key="index" class="idea-item">
-        {{ idea }}
-      </li>
-    </ul>
-  </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import CastorIcon from './CastorIcon.vue';
+
 interface AnalysisData {
   topic: string;
   status: 'analyzing' | 'complete';
   ideas: string[];
 }
 
-interface Props {
+const props = defineProps<{
   data: AnalysisData;
-}
+}>();
 
-const props = defineProps<Props>();
+const displayedIdeas = computed(() => props.data.ideas.slice(-3));
+
 </script>
 
 <style scoped>
@@ -40,12 +40,13 @@ const props = defineProps<Props>();
   padding: 16px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border: 1px solid #e0e0e0;
+  overflow: hidden; /* Prevents animated items from overflowing */
 }
 
 .card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
   margin-bottom: 12px;
 }
 
@@ -53,32 +54,19 @@ const props = defineProps<Props>();
   font-size: 16px;
   font-weight: 600;
   margin: 0;
+  flex: 1; /* Allow topic to take available space */
 }
 
-.status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.status-text {
   font-size: 14px;
   color: #5f6368;
 }
 
-.loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #d1e3ff;
-  border-top-color: #0b57d0;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.ideas-container {
+  position: relative; /* Needed for absolute positioning of leaving items */
 }
 
-.checkmark-icon {
-  width: 20px;
-  height: 20px;
-  fill: #34a853;
-}
-
-.ideas-list {
+ul {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -92,23 +80,21 @@ const props = defineProps<Props>();
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
-  animation: fadeIn 0.5s ease-out;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+/* TransitionGroup Animations */
+.idea-list-move,
+.idea-list-enter-active,
+.idea-list-leave-active {
+    transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
 }
-
-@keyframes fadeIn {
-  from {
+.idea-list-enter-from,
+.idea-list-leave-to {
     opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    transform: scale(0.9) translateY(20px);
+}
+.idea-list-leave-active {
+    position: absolute;
+    width: 100%; /* Ensure leaving item doesn't collapse */
 }
 </style>
