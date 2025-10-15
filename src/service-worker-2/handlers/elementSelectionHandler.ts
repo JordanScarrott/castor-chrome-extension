@@ -1,8 +1,8 @@
 // src/service-worker-2/handlers/elementSelectionHandler.ts
 
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
+import { StreamingMangleFactory } from "@/service-worker-2/mangle/StreamingMangleFactory";
 import { geminiNanoService } from "../geminiNano/geminiNanoService";
-import { createStreamingJsonExtractor } from "@/utils/jsonStreamParser";
 
 export async function handleElementSelection(html: string) {
     const messageId = crypto.randomUUID();
@@ -24,30 +24,90 @@ export async function handleElementSelection(html: string) {
             tour_name: {
                 type: "string",
                 description:
-                    "The official name of the tour, e.g., 'Winelands Tour'.",
+                    "The official name of the tour, used as a primary identifier. e.g., 'Winelands Tour'.",
+            },
+            departure_days: {
+                type: "string",
+                description:
+                    "The days of the week the tour operates, e.g., 'Daily (excluding Sunday)'",
+            },
+            duration_hours: {
+                type: "number",
+                description: "The total duration of the tour in hours.",
             },
             meeting_points: {
                 type: "array",
-                description: "A list of meeting points.",
+                description:
+                    "A list of all specified meeting points for the tour.",
                 items: {
                     type: "object",
                     properties: {
-                        time: { type: "string" },
-                        location_name: { type: "string" },
+                        time: {
+                            type: "string",
+                            description:
+                                "The meeting time at this location, e.g., '08h30'.",
+                        },
+                        location_name: {
+                            type: "string",
+                            description:
+                                "The name of the meeting point, e.g., 'V&A Waterfront: Aquarium Tour office'.",
+                        },
+                        address_details: {
+                            type: "string",
+                            description:
+                                "Specific location details, e.g., 'outside the Two Oceans Aquarium' or '81 Long Street'.",
+                        },
                     },
                 },
             },
+            end_point: {
+                type: "object",
+                description: "Details on where and when the tour concludes.",
+                properties: {
+                    location: {
+                        type: "string",
+                        description: "The final drop-off location.",
+                    },
+                    time: {
+                        type: "string",
+                        description: "The approximate time the tour ends.",
+                    },
+                },
+            },
+            inclusions: {
+                type: "array",
+                description:
+                    "A list of all items, services, or fees included in the tour price.",
+                items: { type: "string" },
+            },
+            exclusions: {
+                type: "array",
+                description:
+                    "A list of all items or services explicitly not included.",
+                items: { type: "string" },
+            },
         },
-        required: ["tour_name"],
+        required: ["tour_name"], // We need the name to link everything
     };
 
     const userPrompt = `Please extract all relevant information from the following text:\n${html}`;
     const systemPrompt = `You are a highly accurate data extraction AI. Analyze the user-provided text and populate the given JSON schema with all relevant information. Be precise. If information for a field cannot be found, omit it from the output.`;
     const goalSchema = tourLogisticsSchema;
 
+    const streamMangleTranslator = new StreamingMangleFactory(
+        new MangleTranslator(),
+        (newFacts: string[]) => {
+            console.log("new fact translated, ", newFacts);
+        }
+    );
+
     let fullJsonResponse = "";
     const onRawChunk = (rawChunk: string) => {
         fullJsonResponse += rawChunk;
+
+        // Translate json chunk to mangle facts
+        streamMangleTranslator.processChunk(rawChunk);
+
         chrome.runtime.sendMessage({
             type: "STREAM_UPDATE",
             payload: { messageId, chunk: rawChunk, isLast: false },
@@ -76,7 +136,10 @@ export async function handleElementSelection(html: string) {
         const translator = new MangleTranslator();
         try {
             const parsedData = JSON.parse(fullJsonResponse);
-            console.log("🚀 ~ handleElementSelection ~ parsedData:", parsedData);
+            console.log(
+                "🚀 ~ handleElementSelection ~ parsedData:",
+                parsedData
+            );
             console.log(
                 "Translated Mangle:",
                 translator.translate(parsedData, "tour-12345")
