@@ -120,26 +120,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
-import MarkdownStream from "./MarkdownStream.vue";
+import { Message, usePersistedChat } from "@/popup/composables/usePersistChat";
+import { nextTick, onMounted, ref } from "vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
-import { useMessageStreamer } from "../composables/useMessageStreamer";
-import HorizontalScroller from "./HorizontalScroller.vue";
 import AnalysisCard from "./AnalysisCard.vue";
 import CastorIcon from "./CastorIcon.vue";
+import HorizontalScroller from "./HorizontalScroller.vue";
+import MarkdownStream from "./MarkdownStream.vue";
 
 // --- TYPE DEFINITIONS ---
-interface Message {
-    id: number | string;
-    sender: "user" | "ai";
-    type: "text" | "analysis";
-    text?: string; // For standard messages
-    analysisData?: {
-        topic: string;
-        status: "analyzing" | "complete";
-        ideas: string[];
-    };
-}
 
 interface Props {
     sampleQuestions?: string[];
@@ -161,10 +150,9 @@ const emit = defineEmits<{
 }>();
 
 // --- STATE MANAGEMENT ---
-const messages = ref<Message[]>([]);
+const { messages, nextId } = usePersistedChat();
 const userInput = ref("");
 const messageContainer = ref<HTMLElement | null>(null);
-const nextId = ref(0);
 
 // --- COMPOSABLES ---
 const { attachFromPage } = usePageAttachment();
@@ -274,6 +262,10 @@ const completeAnalysisCard = (id: string) => {
         message.analysisData.status = "complete";
     }
 };
+
+onMounted(() => {
+    scrollToBottom();
+});
 
 defineExpose({
     streamAiResponse,
