@@ -157,8 +157,9 @@ export async function analyzeHotelData(hotelData: HotelInfo[]) {
 }
 
 export async function runQueryAndFormatResponse(
-    questionText: string
-): Promise<string> {
+    questionText: string,
+    conversationId: number
+): Promise<void> {
     const mangleQueryString = hotelQueries[questionText];
     console.log(
         "🚀 ~ runQueryAndFormatResponse ~ mangleQueryString:",
@@ -184,5 +185,5 @@ export async function runQueryAndFormatResponse(
     }
 
     // Always call the AI to format the response, even if the result is null
-    return await formatResponseWithAI(questionText, mangleResult);
+    await formatResponseWithAI(questionText, mangleResult, conversationId);
 }

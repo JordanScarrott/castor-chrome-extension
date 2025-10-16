@@ -1,120 +1,84 @@
-<!-- In your App.vue -->
 <template>
-    <Chat
-        ref="chatComponent"
-        :is-loading="isLoading"
-        :sample-questions="currentQuestions"
-        @submit-question="handleQuestion"
-    />
+  <div class="chat-container">
+    <Chat :messages="combinedMessages" />
+    <MessageInput v-if="conversationId" :conversation-id="conversationId" @sent="onUserSent" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import Chat from "@/popup/components/Chat.vue";
-import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
-import { onMounted, ref, onUnmounted } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
+import { useObservable } from "@vueuse/rxjs";
+import { liveQuery } from "dexie";
+import { db, ensureConversation } from "@/db";
+import Chat from "./Chat.vue";
+import MessageInput from "./MessageInput.vue";
 
-// --- DEMO LIFECYCLE FOR ANALYSIS CARD ---
-// This is a stand-in for a real data stream from the service worker
-function runAnalysisDemo() {
-    const analysisId = `analysis-${Date.now()}`;
-    const topic = "Hotels near the Eiffel Tower";
+const conversationId = ref<number | null>(null);
 
-    // 1. Add the card
-    chatComponent.value?.addAnalysisCard(analysisId, topic);
-
-    // 2. Update it with "ideas"
-    const ideas = [
-        "Pullman Paris Tour Eiffel",
-        "Mercure Paris Centre Tour Eiffel",
-        "Shangri-La Hotel Paris",
-        "Hôtel Le Derby Alma",
-    ];
-
-    let ideaIndex = 0;
-    const interval = setInterval(() => {
-        if (ideaIndex < ideas.length) {
-            chatComponent.value?.updateAnalysisCard(
-                analysisId,
-                ideas[ideaIndex]
-            );
-            ideaIndex++;
-        } else {
-            // 3. Complete the analysis
-            clearInterval(interval);
-            chatComponent.value?.completeAnalysisCard(analysisId);
-        }
-    }, 1000);
-}
-
-onMounted(() => {
-    runAnalysisDemo();
+// Create a conversation on mount
+onMounted(async () => {
+  const conversation = await ensureConversation({ title: "New Conversation" });
+  conversationId.value = conversation.id;
 });
 
-// 1. Give the component a name so you can call its methods
-const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
+const messages = useObservable(
+  liveQuery(() => {
+    if (!conversationId.value) return [];
+    return db.messages
+      .where({ conversationId: conversationId.value })
+      .sortBy("timestamp");
+  }),
+  { initialValue: [] }
+);
 
-const handleMessage = (message: any) => {
-    if (!message.type || !message.payload || !message.payload.analysisId)
-        return;
+const analysis = useObservable(
+  liveQuery(() => {
+    if (!conversationId.value) return [];
+    return db.analysis
+      .where({ conversationId: conversationId.value })
+      .sortBy("id");
+  }),
+  { initialValue: [] }
+);
 
-    switch (message.type) {
-        case "START_ANALYSIS":
-            chatComponent.value?.addAnalysisCard(
-                message.payload.analysisId,
-                message.payload.topic
-            );
-            break;
-        case "ADD_ANALYSIS_IDEA":
-            chatComponent.value?.updateAnalysisCard(
-                message.payload.analysisId,
-                message.payload.idea
-            );
-            break;
-        case "COMPLETE_ANALYSIS":
-            chatComponent.value?.completeAnalysisCard(
-                message.payload.analysisId
-            );
-            break;
+const combinedMessages = computed(() => {
+  const allMessages = [
+    ...(messages.value || []).map((m) => ({ ...m, type: "text" })),
+    ...(analysis.value || []).map((a) => ({ ...a, type: "analysis" })),
+  ];
+  return allMessages.sort((a, b) => (a.timestamp || a.id) - (b.timestamp || b.id));
+});
+
+function onUserSent() {
+  // optional: scroll to bottom or other UI tasks after user message
+}
+
+const handleElementSelection = (message: any) => {
+    if (message.type === 'ELEMENT_TEXT_SELECTED' && conversationId.value) {
+        chrome.runtime.sendMessage({
+            type: 'ELEMENT_TEXT_SELECTED',
+            payload: {
+                html: message.payload,
+                conversationId: conversationId.value,
+            },
+        });
     }
 };
 
 onMounted(() => {
-    chrome.runtime.onMessage.addListener(handleMessage);
+    chrome.runtime.onMessage.addListener(handleElementSelection);
 });
 
 onUnmounted(() => {
-    chrome.runtime.onMessage.removeListener(handleMessage);
+    chrome.runtime.onMessage.removeListener(handleElementSelection);
 });
 
-// 2. Control the loading state
-const currentQuestions = ref(hotelNaturalLanguageQuestions);
-
-import { useAiMessageStream } from "@/popup/composables/useAiMessageStream";
-
-const { isLoading, startLoading, stopLoading } = useAiMessageStream(
-    (messageId) => chatComponent.value?.streamAiResponse(messageId)
-);
-
-// 4. Listen for when the user asks a question
-async function handleQuestion(questionText: string) {
-    startLoading();
-    try {
-        // This is now a fire-and-forget call; the response will be handled by the stream listener
-        await chrome.runtime.sendMessage({
-            type: "PROCESS_QUESTION",
-            payload: questionText,
-        });
-    } catch (error) {
-        console.error("Failed to send question to service worker:", error);
-        stopLoading();
-        // Optionally add an error message to the UI
-        chatComponent.value?.streamAiResponse(Date.now() + "")(
-            "Sorry, I was unable to process your question."
-        );
-    }
-}
-
-function resetChat() {
-    chatComponent.value?.clearChat();
-}
 </script>
+
+<style scoped>
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+</style>

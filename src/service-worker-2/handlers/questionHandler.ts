@@ -1,8 +1,10 @@
 import { runQueryAndFormatResponse } from "./hotelDataHandler";
 
-export async function handleProcessQuestion(
-    question: string
-): Promise<{ response: string }> {
+export async function handleProcessQuestion(payload: {
+    question: string;
+    conversationId: number;
+}): Promise<void> {
+    const { question, conversationId } = payload;
     console.log("🚀 ~ handleProcessQuestion ~ question:", question);
 
     if (!question || typeof question !== "string") {
@@ -10,17 +12,9 @@ export async function handleProcessQuestion(
     }
 
     try {
-        const formattedResponse = await runQueryAndFormatResponse(question);
-        console.log(
-            "🚀 ~ handleProcessQuestion ~ formattedResponse:",
-            formattedResponse
-        );
-        return { response: formattedResponse };
+        await runQueryAndFormatResponse(question, conversationId);
     } catch (error) {
         console.error("Error processing question:", error);
-        return {
-            response:
-                "I'm sorry, I encountered an error while trying to answer your question.",
-        };
+        // The error is already handled and stored in the DB by the callee
     }
 }

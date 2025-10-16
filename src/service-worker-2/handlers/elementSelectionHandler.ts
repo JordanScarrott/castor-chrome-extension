@@ -1,17 +1,20 @@
+import { db } from "@/db";
 import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
 
-export async function handleElementSelection(html: string) {
+export async function handleElementSelection(payload: {
+    html: string;
+    conversationId: number;
+}) {
+    const { html, conversationId } = payload;
     const messageId = crypto.randomUUID();
-    const analysisId = `analysis-${Date.now()}`;
 
     // --- Start Analysis Card ---
-    chrome.runtime.sendMessage({
-        type: "START_ANALYSIS",
-        payload: {
-            analysisId: analysisId,
-            topic: "Analyzing selected content...",
-        },
+    const analysisId = await db.analysis.add({
+        conversationId,
+        topic: "Analyzing selected content...",
+        status: "analyzing",
+        ideas: [],
     });
 
     // A simplified schema for this example
@@ -133,35 +136,21 @@ export async function handleElementSelection(html: string) {
             );
 
             // --- Add Analysis Ideas ---
+            const ideas: string[] = [];
             if (parsedData.tour_name) {
-                chrome.runtime.sendMessage({
-                    type: "ADD_ANALYSIS_IDEA",
-                    payload: {
-                        analysisId: analysisId,
-                        idea: `Extracted Tour: ${parsedData.tour_name}`,
-                    },
-                });
+                ideas.push(`Extracted Tour: ${parsedData.tour_name}`);
             }
             if (
                 parsedData.meeting_points &&
                 parsedData.meeting_points.length > 0
             ) {
-                chrome.runtime.sendMessage({
-                    type: "ADD_ANALYSIS_IDEA",
-                    payload: {
-                        analysisId: analysisId,
-                        idea: `Found ${parsedData.meeting_points.length} meeting point(s).`,
-                    },
-                });
+                ideas.push(`Found ${parsedData.meeting_points.length} meeting point(s).`);
             }
+            await db.analysis.update(analysisId, { ideas });
         } catch (e) {
             console.error("Failed to parse JSON from AI response:", e);
-            chrome.runtime.sendMessage({
-                type: "ADD_ANALYSIS_IDEA",
-                payload: {
-                    analysisId: analysisId,
-                    idea: `Error: Could not parse the extracted data.`,
-                },
+            await db.analysis.update(analysisId, {
+                ideas: ["Error: Could not parse the extracted data."],
             });
         }
 
@@ -171,11 +160,6 @@ export async function handleElementSelection(html: string) {
         });
 
         // --- Complete Analysis Card ---
-        chrome.runtime.sendMessage({
-            type: "COMPLETE_ANALYSIS",
-            payload: {
-                analysisId: analysisId,
-            },
-        });
+        await db.analysis.update(analysisId, { status: "complete" });
     }
 }
