@@ -63,23 +63,37 @@ onMounted(() => {
 
 <style scoped>
 .welcome-container {
-  @apply bg-transparent h-full w-full flex items-center justify-center relative overflow-hidden;
+  background-color: transparent;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
   transition: background-color 0.5s ease;
 }
 
 .spark-icon-wrapper {
-  @apply absolute inset-0 flex items-center justify-center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transform-origin: center;
   animation: pulse 1s ease-in-out;
 }
 
 .spark-icon {
-  @apply text-4xl;
+  font-size: 2.25rem; /* 36px */
   animation: pulse-inner 1s ease-in-out;
 }
 
 .welcome-container.animate-start {
-  @apply bg-gray-900;
+  background-color: #111827; /* bg-gray-900 */
 }
 
 .welcome-container.animate-start .spark-icon-wrapper {
@@ -91,42 +105,65 @@ onMounted(() => {
 }
 
 .content {
-  @apply flex flex-col items-center justify-center text-center opacity-0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
   transition: opacity 0.8s ease-in-out;
 }
 
 .content.fade-in {
-  @apply opacity-100;
+  opacity: 1;
 }
 
 h1 {
-  @apply text-2xl font-bold text-gray-100 mb-6;
+  font-size: 1.5rem; /* 24px */
+  font-weight: 700;
+  color: #F3F4F6; /* text-gray-100 */
+  margin-bottom: 1.5rem; /* 24px */
 }
 
 .input-wrapper {
-  @apply relative w-full max-w-md;
+  position: relative;
+  width: 100%;
+  max-width: 28rem; /* 448px */
 }
 
 .goal-input {
-  @apply w-full bg-gray-800 text-white rounded-full px-6 py-4;
-  @apply border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+  width: 100%;
+  background-color: #1F2937; /* bg-gray-800 */
+  color: white;
+  border-radius: 9999px;
+  padding: 1rem 1.5rem;
+  border: 1px solid transparent;
   transition: all 0.2s ease-in-out;
 }
 
+.goal-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 */
+}
+
 .goal-input::placeholder {
-  @apply text-gray-500;
+  color: #6B7280; /* text-gray-500 */
 }
 
 .cursor {
-  @apply absolute right-6 top-1/2 -translate-y-1/2 text-blue-400 opacity-0;
+  position: absolute;
+  right: 1.5rem; /* 24px */
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
   width: 1.5px;
   height: 24px;
-  background-color: theme('colors.blue.400');
+  background-color: #60A5FA; /* text-blue-400 */
   animation: blink 1s infinite;
 }
 
 .cursor.blink-end {
-  @apply opacity-100;
+  opacity: 1;
   animation: none;
 }
 
@@ -145,10 +182,10 @@ h1 {
 @keyframes pulse-inner {
   0%,
   100% {
-    filter: drop-shadow(0 0 2px theme('colors.yellow.300'));
+    filter: drop-shadow(0 0 2px #FBBF24); /* yellow-300 */
   }
   50% {
-    filter: drop-shadow(0 0 10px theme('colors.yellow.300'));
+    filter: drop-shadow(0 0 10px #FBBF24);
   }
 }
 
