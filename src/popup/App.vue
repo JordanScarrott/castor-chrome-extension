@@ -15,6 +15,7 @@ const store = useSessionStore();
 // Conditionally render the view based on whether a goal has been set
 const activeView = computed(() => {
     return store.hasActiveSession ? ActiveSessionView : NewSessionView;
+    // return NewSessionView;
 });
 
 // Initialize the session title when the component mounts
