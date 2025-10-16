@@ -17,7 +17,6 @@
         />
         <span
           class="cursor"
-          :class="{ 'blink-end': animatedPlaceholder.length > 0 && goalInput.length === 0 }"
         ></span>
       </form>
     </div>
@@ -112,6 +111,8 @@ onMounted(() => {
   text-align: center;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
+  width: 100%;
+  height: 100%;
 }
 
 .content.fade-in {
@@ -129,6 +130,7 @@ h1 {
   position: relative;
   width: 100%;
   max-width: 28rem; /* 448px */
+  margin: 0;
 }
 
 .goal-input {
@@ -139,6 +141,9 @@ h1 {
   padding: 1rem 1.5rem;
   border: 1px solid transparent;
   transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  height: 3.5rem;
+  font-size: 1rem;
 }
 
 .goal-input:focus {
@@ -152,19 +157,13 @@ h1 {
 
 .cursor {
   position: absolute;
-  right: 1.5rem; /* 24px */
+  left: 1.5rem;
   top: 50%;
   transform: translateY(-50%);
-  opacity: 0;
   width: 1.5px;
   height: 24px;
   background-color: #60A5FA; /* text-blue-400 */
   animation: blink 1s infinite;
-}
-
-.cursor.blink-end {
-  opacity: 1;
-  animation: none;
 }
 
 @keyframes pulse {
