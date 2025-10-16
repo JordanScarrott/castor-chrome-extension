@@ -1,6 +1,7 @@
 import { serviceWorkerApi } from "@/popup/api";
 import { MangleSchema } from "@/types/MangleSchema";
 import { defineStore } from "pinia";
+import { db } from "@/db";
 
 // 2. Data Types
 export interface Source {
@@ -23,6 +24,7 @@ export interface SessionState {
     knowledgeSources: Source[];
     currentResult: Result | null;
     isLoading: boolean;
+    currentConversationId: number | null;
 }
 
 // Mock delay function
@@ -62,6 +64,7 @@ export const useSessionStore = defineStore("session", {
         ],
         currentResult: null,
         isLoading: false,
+        currentConversationId: null,
     }),
 
     // Getters
@@ -76,6 +79,18 @@ export const useSessionStore = defineStore("session", {
         initSession(title: string) {
             this.sessionTitle = title;
             localStorage.setItem("goal", title);
+        },
+
+        async createConversation(title: string) {
+            const id = await db.conversations.add({
+                title,
+                timestamp: new Date(),
+            });
+            this.currentConversationId = id;
+        },
+
+        setCurrentConversation(id: number) {
+            this.currentConversationId = id;
         },
 
         async setGoal(goalText: string) {

@@ -9,7 +9,7 @@
         <!-- Message History -->
         <div ref="messageContainer" class="message-history">
             <!-- Existing Messages -->
-            <div v-for="message in messages" :key="message.id">
+            <div v-for="message in props.messages" :key="message.id">
                 <div
                     v-if="message.type === 'analysis'"
                     class="message-wrapper ai-message-wrapper"
@@ -120,28 +120,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
+import { ref, nextTick, watch } from "vue";
 import MarkdownStream from "./MarkdownStream.vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
-import { useMessageStreamer } from "../composables/useMessageStreamer";
 import HorizontalScroller from "./HorizontalScroller.vue";
 import AnalysisCard from "./AnalysisCard.vue";
 import CastorIcon from "./CastorIcon.vue";
+import type { Message } from "@/db";
 
 // --- TYPE DEFINITIONS ---
-interface Message {
-    id: number | string;
-    sender: "user" | "ai";
-    type: "text" | "analysis";
-    text?: string; // For standard messages
-    analysisData?: {
-        topic: string;
-        status: "analyzing" | "complete";
-        ideas: string[];
-    };
-}
-
 interface Props {
+    messages: Message[];
     sampleQuestions?: string[];
     isLoading?: boolean;
 }
@@ -161,10 +150,8 @@ const emit = defineEmits<{
 }>();
 
 // --- STATE MANAGEMENT ---
-const messages = ref<Message[]>([]);
 const userInput = ref("");
 const messageContainer = ref<HTMLElement | null>(null);
-const nextId = ref(0);
 
 // --- COMPOSABLES ---
 const { attachFromPage } = usePageAttachment();
@@ -182,106 +169,28 @@ const scrollToBottom = () => {
     });
 };
 
-const addMessage = (text: string, sender: "user" | "ai") => {
-    const newMessage: Message = {
-        id: nextId.value++,
-        text,
-        sender,
-        type: "text",
-    };
-    messages.value.push(newMessage);
-    scrollToBottom();
-    return newMessage;
-};
+watch(
+    () => props.messages,
+    () => {
+        scrollToBottom();
+    },
+    { deep: true }
+);
 
 const handleSubmit = () => {
     if (props.isLoading) return;
     const text = userInput.value.trim();
     if (!text) return;
 
-    addMessage(text, "user");
     emit("submit-question", text);
     userInput.value = "";
 };
 
 const handleQuestionChipClick = (question: string) => {
     if (props.isLoading) return;
-    addMessage(question, "user");
     emit("submit-question", question);
 };
 
-const clearChat = () => {
-    messages.value = [];
-    nextId.value = 0;
-};
-
-// --- EXPOSED METHOD for STREAMING AI RESPONSE ---
-const streamAiResponse = (messageId: string) => {
-    const newMessage: Message = {
-        id: messageId,
-        text: "", // Start with empty text
-        sender: "ai",
-        type: "text",
-    };
-    messages.value.push(newMessage);
-    // scrollToBottom();
-
-    const updateFunction = (textChunk: string) => {
-        const messageIndex = messages.value.findIndex(
-            (m) => m.id === messageId
-        );
-        if (messageIndex !== -1) {
-            messages.value[messageIndex].text += textChunk;
-            // scrollToBottom();
-        }
-    };
-
-    return updateFunction;
-};
-
-// --- COMPONENT API and STREAMING LOGIC ---
-const chatApi = { streamAiResponse };
-const chatApiRef = ref(chatApi);
-// useMessageStreamer(chatApiRef);
-
-// --- ANALYSIS CARD METHODS ---
-const addAnalysisCard = (id: string, topic: string) => {
-    const newMessage: Message = {
-        id,
-        sender: "ai",
-        type: "analysis",
-        analysisData: {
-            topic,
-            status: "analyzing",
-            ideas: [],
-        },
-    };
-    messages.value.push(newMessage);
-    scrollToBottom();
-};
-
-const updateAnalysisCard = (id: string, newIdea: string) => {
-    const message = messages.value.find((m) => m.id === id);
-    if (message?.analysisData) {
-        message.analysisData.ideas.push(newIdea);
-        scrollToBottom();
-    }
-};
-
-const completeAnalysisCard = (id: string) => {
-    const message = messages.value.find((m) => m.id === id);
-    if (message?.analysisData) {
-        message.analysisData.status = "complete";
-    }
-};
-
-defineExpose({
-    streamAiResponse,
-    clearChat,
-    addAnalysisCard,
-    updateAnalysisCard,
-    completeAnalysisCard,
-});
 </script>
 
 <style scoped>

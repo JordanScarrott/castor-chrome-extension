@@ -1,26 +1,26 @@
 import { runQueryAndFormatResponse } from "./hotelDataHandler";
 
-export async function handleProcessQuestion(
-    question: string
-): Promise<{ response: string }> {
-    console.log("🚀 ~ handleProcessQuestion ~ question:", question);
+export async function handleProcessQuestion(payload: {
+    question: string;
+    conversationId: number;
+}): Promise<void> {
+    console.log("🚀 ~ handleProcessQuestion ~ payload:", payload);
+
+    const { question, conversationId } = payload;
 
     if (!question || typeof question !== "string") {
         throw new Error("Invalid question provided.");
     }
 
+    if (!conversationId || typeof conversationId !== "number") {
+        throw new Error("Invalid conversationId provided.");
+    }
+
     try {
-        const formattedResponse = await runQueryAndFormatResponse(question);
-        console.log(
-            "🚀 ~ handleProcessQuestion ~ formattedResponse:",
-            formattedResponse
-        );
-        return { response: formattedResponse };
+        await runQueryAndFormatResponse(question, conversationId);
     } catch (error) {
         console.error("Error processing question:", error);
-        return {
-            response:
-                "I'm sorry, I encountered an error while trying to answer your question.",
-        };
+        // We can't return a response here anymore, as the streaming is handled in the gemini service.
+        // We could potentially write an error message to the database.
     }
 }

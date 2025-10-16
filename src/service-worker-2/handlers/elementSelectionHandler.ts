@@ -1,9 +1,22 @@
+import { db } from '@/db';
 import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
 
 export async function handleElementSelection(html: string) {
-    const messageId = crypto.randomUUID();
     const analysisId = `analysis-${Date.now()}`;
+
+    const conversationId = await db.conversations.add({
+        title: 'Element Analysis',
+        timestamp: new Date(),
+    });
+
+    const messageId = await db.messages.add({
+        conversationId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true,
+    });
 
     // --- Start Analysis Card ---
     chrome.runtime.sendMessage({
@@ -92,13 +105,9 @@ export async function handleElementSelection(html: string) {
     const goalSchema = tourLogisticsSchema;
 
     let fullJsonResponse = "";
-    const onRawChunk = (rawChunk: string) => {
+    const onRawChunk = async (rawChunk: string) => {
         fullJsonResponse += rawChunk;
-
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: { messageId, chunk: rawChunk, isLast: false },
-        });
+        await db.messages.update(messageId, { content: fullJsonResponse });
     };
 
     try {
@@ -111,14 +120,8 @@ export async function handleElementSelection(html: string) {
         );
     } catch (error) {
         console.error("Error during streaming:", error);
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: {
-                messageId,
-                chunk: "I'm sorry, I encountered an error while trying to extract the text.",
-                isLast: true,
-            },
-        });
+        const errorMessage = "I'm sorry, I encountered an error while trying to extract the text.";
+        await db.messages.update(messageId, { content: errorMessage, isStreaming: false });
     } finally {
         const translator = new MangleTranslator();
         try {
@@ -165,10 +168,7 @@ export async function handleElementSelection(html: string) {
             });
         }
 
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: { messageId, chunk: "", isLast: true },
-        });
+        await db.messages.update(messageId, { isStreaming: false });
 
         // --- Complete Analysis Card ---
         chrome.runtime.sendMessage({

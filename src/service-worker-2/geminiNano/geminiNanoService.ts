@@ -1,3 +1,5 @@
+import { db } from '@/db';
+
 class GeminiNanoService {
     constructor() {
         // Reserved for future config
@@ -227,22 +229,24 @@ declare const Writer: any;
 
 export async function formatResponseWithAI(
     question: string,
-    mangleResult: any
+    mangleResult: any,
+    conversationId: number
 ): Promise<void> {
     console.log("🚀 ~ formatResponseWithAI ~ question:", question);
-    const messageId = crypto.randomUUID();
+
+    const assistantMessageId = await db.messages.add({
+        conversationId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true,
+    });
 
     // 1. Check for Writer API availability
     if (typeof Writer === "undefined") {
         console.warn("Writer API is not supported in this browser.");
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: {
-                messageId,
-                chunk: "The AI writer feature is not available in your browser.",
-                isLast: true,
-            },
-        });
+        const errorMessage = "The AI writer feature is not available in your browser.";
+        await db.messages.update(assistantMessageId, { content: errorMessage, isStreaming: false });
         return;
     }
 
@@ -262,23 +266,17 @@ export async function formatResponseWithAI(
 
     // 3. Use the Writer API to generate the final response
     try {
-        await geminiNanoWriteStreaming(prompt, messageId);
+        await geminiNanoWriteStreaming(prompt, assistantMessageId);
     } catch (error) {
         console.error("Error using the Writer API:", error);
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: {
-                messageId,
-                chunk: "I'm sorry, I encountered an error while trying to generate a response.",
-                isLast: true,
-            },
-        });
+        const errorMessage = "I'm sorry, I encountered an error while trying to generate a response.";
+        await db.messages.update(assistantMessageId, { content: errorMessage, isStreaming: false });
     }
 }
 
 async function geminiNanoWriteStreaming(
     prompt: string,
-    messageId: string
+    messageId: number
 ): Promise<void> {
     const options = {
         sharedContext:
@@ -307,18 +305,13 @@ async function geminiNanoWriteStreaming(
     }
 
     const stream = await writer.writeStreaming(prompt);
+    let fullContent = '';
     for await (const chunk of stream) {
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: { messageId, chunk, isLast: false },
-        });
+        fullContent += chunk;
+        await db.messages.update(messageId, { content: fullContent });
     }
 
-    // Send the final message
-    chrome.runtime.sendMessage({
-        type: "STREAM_UPDATE",
-        payload: { messageId, chunk: "", isLast: true },
-    });
+    await db.messages.update(messageId, { isStreaming: false });
 }
 
 async function geminiNanoSummariseStreaming(): Promise<void> {

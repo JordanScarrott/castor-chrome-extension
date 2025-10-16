@@ -3,6 +3,7 @@
     <Chat
         ref="chatComponent"
         :is-loading="isLoading"
+        :messages="messages"
         :sample-questions="currentQuestions"
         @submit-question="handleQuestion"
     />
@@ -11,7 +12,13 @@
 <script setup lang="ts">
 import Chat from "@/popup/components/Chat.vue";
 import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
-import { onMounted, ref, onUnmounted } from "vue";
+import { onMounted, ref, onUnmounted, computed } from "vue";
+import { db } from "@/db";
+import { useObservable } from "@vueuse/rxjs";
+import { liveQuery } from "dexie";
+import { useSessionStore } from "@/popup/store/sessionStore";
+
+const store = useSessionStore();
 
 // --- DEMO LIFECYCLE FOR ANALYSIS CARD ---
 // This is a stand-in for a real data stream from the service worker
@@ -53,6 +60,18 @@ onMounted(() => {
 // 1. Give the component a name so you can call its methods
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 
+const messages = useObservable(
+  liveQuery(() => {
+    if (store.currentConversationId) {
+      return db.messages
+        .where("conversationId")
+        .equals(store.currentConversationId)
+        .toArray();
+    }
+    return [];
+  })
+);
+
 const handleMessage = (message: any) => {
     if (!message.type || !message.payload || !message.payload.analysisId)
         return;
@@ -92,29 +111,36 @@ const currentQuestions = ref(hotelNaturalLanguageQuestions);
 import { useAiMessageStream } from "@/popup/composables/useAiMessageStream";
 
 const { isLoading, startLoading, stopLoading } = useAiMessageStream(
-    (messageId) => chatComponent.value?.streamAiResponse(messageId)
+    () => {} // This is now handled by the database
 );
 
 // 4. Listen for when the user asks a question
 async function handleQuestion(questionText: string) {
     startLoading();
     try {
+        if (!store.currentConversationId) {
+            await store.createConversation(questionText);
+        }
+
+        await db.messages.add({
+            conversationId: store.currentConversationId!,
+            role: 'user',
+            content: questionText,
+            timestamp: new Date(),
+            isStreaming: false,
+        });
+
         // This is now a fire-and-forget call; the response will be handled by the stream listener
         await chrome.runtime.sendMessage({
             type: "PROCESS_QUESTION",
-            payload: questionText,
+            payload: {
+                question: questionText,
+                conversationId: store.currentConversationId!,
+            },
         });
     } catch (error) {
         console.error("Failed to send question to service worker:", error);
         stopLoading();
-        // Optionally add an error message to the UI
-        chatComponent.value?.streamAiResponse(Date.now() + "")(
-            "Sorry, I was unable to process your question."
-        );
     }
-}
-
-function resetChat() {
-    chatComponent.value?.clearChat();
 }
 </script>

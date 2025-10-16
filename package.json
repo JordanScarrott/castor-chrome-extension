@@ -26,9 +26,12 @@
         "vue": "^3.4.34"
     },
     "dependencies": {
+        "@vueuse/rxjs": "^13.9.0",
+        "dexie": "^4.2.1",
         "dompurify": "^3.3.0",
         "markdown-it": "^14.1.0",
         "pinia": "^3.0.3",
+        "rxjs": "^7.8.2",
         "streaming-markdown": "^0.2.15"
     }
 }
