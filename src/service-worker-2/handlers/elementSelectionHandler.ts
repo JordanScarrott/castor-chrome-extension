@@ -1,8 +1,5 @@
-// src/service-worker-2/handlers/elementSelectionHandler.ts
-
+import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
-import { StreamingMangleFactory } from "@/service-worker-2/mangle/StreamingMangleFactory";
-import { geminiNanoService } from "../geminiNano/geminiNanoService";
 
 export async function handleElementSelection(html: string) {
     const messageId = crypto.randomUUID();
@@ -94,19 +91,9 @@ export async function handleElementSelection(html: string) {
     const systemPrompt = `You are a highly accurate data extraction AI. Analyze the user-provided text and populate the given JSON schema with all relevant information. Be precise. If information for a field cannot be found, omit it from the output.`;
     const goalSchema = tourLogisticsSchema;
 
-    const streamMangleTranslator = new StreamingMangleFactory(
-        new MangleTranslator(),
-        (newFacts: string[]) => {
-            console.log("new fact translated, ", newFacts);
-        }
-    );
-
     let fullJsonResponse = "";
     const onRawChunk = (rawChunk: string) => {
         fullJsonResponse += rawChunk;
-
-        // Translate json chunk to mangle facts
-        streamMangleTranslator.processChunk(rawChunk);
 
         chrome.runtime.sendMessage({
             type: "STREAM_UPDATE",

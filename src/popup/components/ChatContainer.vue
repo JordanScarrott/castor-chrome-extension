@@ -13,26 +13,64 @@ import Chat from "@/popup/components/Chat.vue";
 import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
 import { onMounted, ref, onUnmounted } from "vue";
 
+// --- DEMO LIFECYCLE FOR ANALYSIS CARD ---
+// This is a stand-in for a real data stream from the service worker
+function runAnalysisDemo() {
+    const analysisId = `analysis-${Date.now()}`;
+    const topic = "Hotels near the Eiffel Tower";
+
+    // 1. Add the card
+    chatComponent.value?.addAnalysisCard(analysisId, topic);
+
+    // 2. Update it with "ideas"
+    const ideas = [
+        "Pullman Paris Tour Eiffel",
+        "Mercure Paris Centre Tour Eiffel",
+        "Shangri-La Hotel Paris",
+        "Hôtel Le Derby Alma",
+    ];
+
+    let ideaIndex = 0;
+    const interval = setInterval(() => {
+        if (ideaIndex < ideas.length) {
+            chatComponent.value?.updateAnalysisCard(
+                analysisId,
+                ideas[ideaIndex]
+            );
+            ideaIndex++;
+        } else {
+            // 3. Complete the analysis
+            clearInterval(interval);
+            chatComponent.value?.completeAnalysisCard(analysisId);
+        }
+    }, 1000);
+}
+
+onMounted(() => {
+    runAnalysisDemo();
+});
+
 // 1. Give the component a name so you can call its methods
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 
 const handleMessage = (message: any) => {
-    if (!message.type || !message.payload || !message.payload.analysisId) return;
+    if (!message.type || !message.payload || !message.payload.analysisId)
+        return;
 
     switch (message.type) {
-        case 'START_ANALYSIS':
+        case "START_ANALYSIS":
             chatComponent.value?.addAnalysisCard(
                 message.payload.analysisId,
                 message.payload.topic
             );
             break;
-        case 'ADD_ANALYSIS_IDEA':
+        case "ADD_ANALYSIS_IDEA":
             chatComponent.value?.updateAnalysisCard(
                 message.payload.analysisId,
                 message.payload.idea
             );
             break;
-        case 'COMPLETE_ANALYSIS':
+        case "COMPLETE_ANALYSIS":
             chatComponent.value?.completeAnalysisCard(
                 message.payload.analysisId
             );
@@ -70,7 +108,7 @@ async function handleQuestion(questionText: string) {
         console.error("Failed to send question to service worker:", error);
         stopLoading();
         // Optionally add an error message to the UI
-        chatComponent.value?.streamAiResponse(Date.now())(
+        chatComponent.value?.streamAiResponse(Date.now() + "")(
             "Sorry, I was unable to process your question."
         );
     }
