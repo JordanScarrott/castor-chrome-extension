@@ -11,10 +11,7 @@
 <script setup lang="ts">
 import Chat from "@/popup/components/Chat.vue";
 import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
-import { onMounted, ref } from "vue";
-
-// 1. Give the component a name so you can call its methods
-const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
+import { onMounted, ref, onUnmounted } from "vue";
 
 // --- DEMO LIFECYCLE FOR ANALYSIS CARD ---
 // This is a stand-in for a real data stream from the service worker
@@ -53,6 +50,42 @@ onMounted(() => {
     runAnalysisDemo();
 });
 
+// 1. Give the component a name so you can call its methods
+const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
+
+const handleMessage = (message: any) => {
+    if (!message.type || !message.payload || !message.payload.analysisId)
+        return;
+
+    switch (message.type) {
+        case "START_ANALYSIS":
+            chatComponent.value?.addAnalysisCard(
+                message.payload.analysisId,
+                message.payload.topic
+            );
+            break;
+        case "ADD_ANALYSIS_IDEA":
+            chatComponent.value?.updateAnalysisCard(
+                message.payload.analysisId,
+                message.payload.idea
+            );
+            break;
+        case "COMPLETE_ANALYSIS":
+            chatComponent.value?.completeAnalysisCard(
+                message.payload.analysisId
+            );
+            break;
+    }
+};
+
+onMounted(() => {
+    chrome.runtime.onMessage.addListener(handleMessage);
+});
+
+onUnmounted(() => {
+    chrome.runtime.onMessage.removeListener(handleMessage);
+});
+
 // 2. Control the loading state
 const currentQuestions = ref(hotelNaturalLanguageQuestions);
 
@@ -75,7 +108,7 @@ async function handleQuestion(questionText: string) {
         console.error("Failed to send question to service worker:", error);
         stopLoading();
         // Optionally add an error message to the UI
-        chatComponent.value?.streamAiResponse(Date.now())(
+        chatComponent.value?.streamAiResponse(Date.now() + "")(
             "Sorry, I was unable to process your question."
         );
     }

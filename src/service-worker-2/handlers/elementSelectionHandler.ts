@@ -1,94 +1,20 @@
-// src/service-worker-2/handlers/elementSelectionHandler.ts
-
+import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
-import { geminiNanoService } from "../geminiNano/geminiNanoService";
-import { createStreamingJsonExtractor } from "@/utils/jsonStreamParser";
 
 export async function handleElementSelection(html: string) {
     const messageId = crypto.randomUUID();
-    // const schema = {
-    //     entities: [
-    //         {
-    //             entityName: "name of the entity",
-    //             relation: "name of the relationship",
-    //             targetEntityName: "the other party in the relationship",
-    //         },
-    //     ],
-    // };
+    const analysisId = `analysis-${Date.now()}`;
 
-    // const userPrompt = `Here is some HTML: ${html}. Please extract the inner text from it, providing only the text content itself.`;
-    //     const userPrompt = `Extract facts and relationships from the following text:\n${html}`;
-    //     const systemPrompt = `
-    // You are a JSON extraction AI. Your task is to extract (entity, relation, target) triples from text. Adhere strictly to the schema. Output only raw JSON.
+    // --- Start Analysis Card ---
+    chrome.runtime.sendMessage({
+        type: "START_ANALYSIS",
+        payload: {
+            analysisId: analysisId,
+            topic: "Analyzing selected content...",
+        },
+    });
 
-    // --- EXAMPLE ---
-
-    // CONTEXT:
-    // "Tour Starts
-    // Meeting points:
-    // 08h30 V&A Waterfront: Aquarium Tour office, located office outside the Two Oceans Aquarium
-    // 07h50 CBD: Stop 5 Tour office, located at 81 Long Street"
-
-    // ✅ GOOD:
-    // {
-    //     "entities": [
-    //         {
-    //             "entityName": "V&A Waterfront: Aquarium Tour office",
-    //             "relation": "located_at",
-    //             "targetEntityName": "outside the Two Oceans Aquarium"
-    //         },
-    //         {
-    //             "entityName": "V&A Waterfront: Aquarium Tour office",
-    //             "relation": "meeting_time",
-    //             "targetEntityName": "08h30"
-    //         },
-    //         {
-    //             "entityName": "CBD: Stop 5 Tour office",
-    //             "relation": "meeting_time",
-    //             "targetEntityName": "07h50"
-    //         },
-    //         {
-    //             "entityName": "CBD: Stop 5 Tour office",
-    //             "relation": "located_at",
-    //             "targetEntityName": "81 Long Street"
-    //         }
-    //     ]
-    // }
-
-    // ❌ BAD:
-    // {
-    //     "entities": [
-    //         {
-    //             "entityName": "V&A Waterfront Meeting Point", // WRONG: Invented entity name
-    //             "relation": "has_details", // WRONG: Vague relation
-    //             "targetEntityName": "08h30 at Aquarium Tour office, which is outside the Two Oceans Aquarium" // WRONG: Bundles multiple facts
-    //         },
-    //         {
-    //             "entityName": "CBD: Stop 5 Tour office",
-    //             "relation": "is_at", // WRONG: Vague relation
-    //             "targetEntityName": "81 Long Street at 07h50" // WRONG: Bundles location and time
-    //         }
-    //     ]
-    // }
-    // `;
-
-    // This callback will be invoked with the clean text chunks from the parser.
-    // const onParsedChunk = (textChunk: string) => {
-    //     console.log("🚀 ~ onParsedChunk ~ textChunk:", textChunk);
-    //     chrome.runtime.sendMessage({
-    //         type: "STREAM_UPDATE",
-    //         payload: { messageId, chunk: textChunk, isLast: false },
-    //     });
-    // };
-
-    // Create a new parser instance for this request.
-    // const jsonProcessor = createStreamingJsonExtractor(
-    //     "extracted_text",
-    //     onParsedChunk
-    // );
-
-    // Example schema for a user wanting tour logistics info
-    // A reusable schema for extracting tour logistics
+    // A simplified schema for this example
     const tourLogisticsSchema = {
         type: "object",
         properties: {
@@ -165,10 +91,10 @@ export async function handleElementSelection(html: string) {
     const systemPrompt = `You are a highly accurate data extraction AI. Analyze the user-provided text and populate the given JSON schema with all relevant information. Be precise. If information for a field cannot be found, omit it from the output.`;
     const goalSchema = tourLogisticsSchema;
 
-    let asdf = "";
-    // The callback function remains the same
+    let fullJsonResponse = "";
     const onRawChunk = (rawChunk: string) => {
-        asdf = asdf + rawChunk;
+        fullJsonResponse += rawChunk;
+
         chrome.runtime.sendMessage({
             type: "STREAM_UPDATE",
             payload: { messageId, chunk: rawChunk, isLast: false },
@@ -195,13 +121,61 @@ export async function handleElementSelection(html: string) {
         });
     } finally {
         const translator = new MangleTranslator();
-        const asdf_parsed = JSON.parse(asdf);
-        console.log("🚀 ~ handleElementSelection ~ asdf_parsed:", asdf_parsed);
-        console.log("asdf, ", translator.translate(asdf_parsed, "tour-12345"));
+        try {
+            const parsedData = JSON.parse(fullJsonResponse);
+            console.log(
+                "🚀 ~ handleElementSelection ~ parsedData:",
+                parsedData
+            );
+            console.log(
+                "Translated Mangle:",
+                translator.translate(parsedData, "tour-12345")
+            );
+
+            // --- Add Analysis Ideas ---
+            if (parsedData.tour_name) {
+                chrome.runtime.sendMessage({
+                    type: "ADD_ANALYSIS_IDEA",
+                    payload: {
+                        analysisId: analysisId,
+                        idea: `Extracted Tour: ${parsedData.tour_name}`,
+                    },
+                });
+            }
+            if (
+                parsedData.meeting_points &&
+                parsedData.meeting_points.length > 0
+            ) {
+                chrome.runtime.sendMessage({
+                    type: "ADD_ANALYSIS_IDEA",
+                    payload: {
+                        analysisId: analysisId,
+                        idea: `Found ${parsedData.meeting_points.length} meeting point(s).`,
+                    },
+                });
+            }
+        } catch (e) {
+            console.error("Failed to parse JSON from AI response:", e);
+            chrome.runtime.sendMessage({
+                type: "ADD_ANALYSIS_IDEA",
+                payload: {
+                    analysisId: analysisId,
+                    idea: `Error: Could not parse the extracted data.`,
+                },
+            });
+        }
 
         chrome.runtime.sendMessage({
             type: "STREAM_UPDATE",
             payload: { messageId, chunk: "", isLast: true },
+        });
+
+        // --- Complete Analysis Card ---
+        chrome.runtime.sendMessage({
+            type: "COMPLETE_ANALYSIS",
+            payload: {
+                analysisId: analysisId,
+            },
         });
     }
 }

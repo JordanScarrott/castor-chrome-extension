@@ -224,7 +224,7 @@ const streamAiResponse = (messageId: string) => {
         type: "text",
     };
     messages.value.push(newMessage);
-    scrollToBottom();
+    // scrollToBottom();
 
     const updateFunction = (textChunk: string) => {
         const messageIndex = messages.value.findIndex(
@@ -232,7 +232,7 @@ const streamAiResponse = (messageId: string) => {
         );
         if (messageIndex !== -1) {
             messages.value[messageIndex].text += textChunk;
-            scrollToBottom();
+            // scrollToBottom();
         }
     };
 
