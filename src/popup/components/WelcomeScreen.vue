@@ -2,7 +2,7 @@
     <div class="welcome-container" :class="{ 'animate-start': startAnimation }">
         <div class="animation-wrapper">
             <h1 class="castor-title">Castor</h1>
-            <CastorIcon class="spark-icon" :loading="startAnimation" />
+            <CastorIcon class="spark-icon" :loading="isTwinkling" />
         </div>
         <div class="content">
             <h1>Lets browse the web better</h1>
@@ -37,6 +37,7 @@ const goals = [
 const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
 
 const startAnimation = ref(false);
+const isTwinkling = ref(false);
 
 const handleGoalSubmission = () => {
     if (goalInput.value.trim()) {
@@ -45,18 +46,25 @@ const handleGoalSubmission = () => {
 };
 
 onMounted(() => {
+    const initialDelay = 100; // ms
+    const totalDuration = 2500; // ms, matches --animation-total-duration
+
     setTimeout(() => {
         startAnimation.value = true;
-    }, 100);
+        isTwinkling.value = true;
+    }, initialDelay);
+
+    // Stop twinkling when the expand animation begins
+    // Delay is 0.6 * totalDuration
+    setTimeout(() => {
+        isTwinkling.value = false;
+    }, initialDelay + totalDuration * 0.6);
 });
 </script>
 
 <style scoped>
-:root {
-    --animation-total-duration: 2.5s; /* Master variable for animation timing */
-}
-
 .welcome-container {
+    --animation-total-duration: 2.5s; /* Master variable for animation timing */
     background-color: transparent;
     height: 100%;
     width: 100%;
@@ -100,15 +108,20 @@ onMounted(() => {
 }
 
 /* Animation sequence */
+.welcome-container.animate-start .castor-title {
+    animation: fade-in-out calc(var(--animation-total-duration) * 0.6)
+        cubic-bezier(0.4, 0, 0.2, 1) forwards
+        calc(var(--animation-total-duration) * 0.1);
+}
+
 .welcome-container.animate-start .animation-wrapper {
-    animation: fade-out-wrapper
-        calc(var(--animation-total-duration) * 0.4) ease-in forwards
+    animation: expand calc(var(--animation-total-duration) * 0.4)
+        cubic-bezier(0.4, 0, 0.2, 1) forwards
         calc(var(--animation-total-duration) * 0.6);
 }
-.welcome-container.animate-start .castor-title {
-    animation: fade-in-title calc(var(--animation-total-duration) * 0.4)
-        ease-in-out forwards
-        calc(var(--animation-total-duration) * 0.2);
+
+.welcome-container.animate-start .spark-icon {
+    /* Twinkling is now controlled by a prop, so no delay is needed here */
 }
 
 .content {
@@ -160,25 +173,30 @@ h1 {
     color: #6b7280; /* text-gray-500 */
 }
 
-@keyframes fade-in-title {
-    from {
+@keyframes fade-in-out {
+    0% {
         opacity: 0;
         transform: translateY(10px);
     }
-    to {
+    25%,
+    75% {
         opacity: 1;
         transform: translateY(0);
     }
+    100% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
 }
 
-@keyframes fade-out-wrapper {
+@keyframes expand {
     from {
-        opacity: 1;
         transform: scale(1);
+        opacity: 1;
     }
     to {
+        transform: scale(100);
         opacity: 0;
-        transform: scale(0.95);
     }
 }
 
