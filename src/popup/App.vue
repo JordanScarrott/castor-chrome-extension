@@ -34,7 +34,7 @@ body {
 }
 
 #app-container {
-    min-height: 500px; /* Typical min-height for a content-rich popup */
+    height: 500px; /* Fixed height for the popup */
     display: flex;
     flex-direction: column;
 }

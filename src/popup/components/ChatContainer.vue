@@ -1,11 +1,13 @@
 <!-- In your App.vue -->
 <template>
-    <Chat
-        ref="chatComponent"
-        :is-loading="isLoading"
-        :sample-questions="currentQuestions"
-        @submit-question="handleQuestion"
-    />
+    <div class="chat-view-container">
+        <Chat
+            ref="chatComponent"
+            :is-loading="isLoading"
+            :sample-questions="currentQuestions"
+            @submit-question="handleQuestion"
+        />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -17,6 +19,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 
 // useAnalysisDemo(chatComponent);
+// const mangleFacts = useChromeStorage<string[]>("mangle_facts", []); // For accessing the mangle facts from local storage
 
 const handleMessage = (message: any) => {
     if (!message.type || !message.payload || !message.payload.analysisId)
@@ -55,6 +58,7 @@ onUnmounted(() => {
 const currentQuestions = ref(hotelNaturalLanguageQuestions);
 
 import { useAiMessageStream } from "@/popup/composables/useAiMessageStream";
+import { useChromeStorage } from "@/popup/composables/useChromeStorage";
 
 const { isLoading, startLoading, stopLoading } = useAiMessageStream(
     (messageId) => chatComponent.value?.streamAiResponse(messageId)
@@ -83,3 +87,12 @@ function resetChat() {
     chatComponent.value?.clearChat();
 }
 </script>
+
+<style scoped>
+.chat-view-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+</style>

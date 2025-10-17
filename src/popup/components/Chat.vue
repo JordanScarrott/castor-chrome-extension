@@ -1,11 +1,5 @@
 <template>
     <div class="chat-container">
-        <!-- Header -->
-        <div class="chat-header">
-            <CastorIcon />
-            <h1 class="header-title">Castor</h1>
-        </div>
-
         <!-- Message History -->
         <div ref="messageContainer" class="message-history">
             <!-- Existing Messages -->
@@ -281,29 +275,12 @@ defineExpose({
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 600px;
-    max-height: 600px; /* Standard extension popup max height */
+    height: 100%;
     background-color: #f0f4f9;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
         Helvetica, Arial, sans-serif;
     color: #3c4043;
-}
-
-/* Header Styles */
-.chat-header {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center-aligns the content */
-    padding: 12px 16px;
-    background-color: #ffffff; /* Fallback color */
-    border-bottom: 1px solid #dcdfe2;
-    flex-shrink: 0;
-}
-
-.header-title {
-    margin-left: 8px;
-    font-size: 18px;
-    font-weight: 600;
+    overflow: hidden;
 }
 
 /* Message History */

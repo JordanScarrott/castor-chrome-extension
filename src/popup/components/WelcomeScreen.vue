@@ -4,68 +4,44 @@
             <h1 class="castor-title">Castor</h1>
             <CastorIcon class="spark-icon" :loading="isTwinkling" />
         </div>
-        <div class="content">
-            <h1>Let's browse the web better</h1>
-            <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
-                <input
-                    v-model="goalInput"
-                    type="text"
-                    :placeholder="animatedPlaceholder"
-                    class="goal-input"
-                />
-            </form>
-        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useTypingAnimation } from "../composables/useTypingAnimation";
-import { useSessionStore } from "../store/sessionStore";
 import CastorIcon from "./CastorIcon.vue";
 
-const store = useSessionStore();
-const goalInput = ref("");
-
-const goals = [
-    "Find a hotel near the V&A Waterfront on a MyCiTi bus route.",
-    "Compare Dell XPS 15 laptops for video editing.",
-    "Shop for a 'get well soon' basket with local Cape Town treats.",
-    "Observe console logs and find the bug on this page.",
-];
-
-const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
+const emit = defineEmits(["animation-complete"]);
 
 const startAnimation = ref(false);
 const isTwinkling = ref(false);
 
-const handleGoalSubmission = () => {
-    if (goalInput.value.trim()) {
-        store.setGoal(goalInput.value.trim());
-    }
-};
-
 onMounted(() => {
     const initialDelay = 100; // ms
-    const totalDuration = 2500; // ms, matches --animation-total-duration
+    const animationDuration = 2500; // ms, matches --animation-total-duration
 
+    // Start the main animation and twinkling
     setTimeout(() => {
         startAnimation.value = true;
         isTwinkling.value = true;
     }, initialDelay);
 
     // Stop twinkling when the expand animation begins
-    // Delay is 0.6 * totalDuration
     setTimeout(() => {
         isTwinkling.value = false;
-    }, initialDelay + totalDuration * 0.6);
+    }, initialDelay + animationDuration * 0.6);
+
+    // Emit event when the entire animation is over
+    setTimeout(() => {
+        emit("animation-complete");
+    }, animationDuration);
 });
 </script>
 
 <style scoped>
 .welcome-container {
     --animation-total-duration: 2.5s; /* Master variable for animation timing */
-    background-color: transparent;
+    background-color: #f9fafb; /* bg-gray-50 */
     height: 100%;
     width: 100%;
     display: flex;
@@ -98,13 +74,13 @@ onMounted(() => {
 .castor-title {
     font-size: 2rem; /* 32px */
     font-weight: 700;
-    color: #f3f4f6; /* text-gray-100 */
+    color: #111827; /* gray-900 */
     margin-bottom: 1rem; /* 16px */
     opacity: 0;
 }
 
 .welcome-container.animate-start {
-    background-color: #111827; /* bg-gray-900 */
+    background-color: #f9fafb; /* bg-gray-50 */
 }
 
 /* Animation sequence */
@@ -122,55 +98,6 @@ onMounted(() => {
 
 .welcome-container.animate-start .spark-icon {
     /* Twinkling is now controlled by a prop, so no delay is needed here */
-}
-
-.content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    animation: fade-in-content calc(var(--animation-total-duration) * 0.4)
-        ease-in-out forwards calc(var(--animation-total-duration) * 0.7);
-}
-
-h1 {
-    font-size: 1.5rem; /* 24px */
-    font-weight: 700;
-    color: #f3f4f6; /* text-gray-100 */
-    margin-bottom: 1.5rem; /* 24px */
-}
-
-.input-wrapper {
-    position: relative;
-    width: 90%;
-    max-width: 28rem; /* 448px */
-    margin: 0;
-}
-
-.goal-input {
-    width: 100%;
-    background-color: #1f2937; /* bg-gray-800 */
-    color: white;
-    border-radius: 9999px;
-    padding: 1rem 1.5rem;
-    border: 1px solid transparent;
-    transition: all 0.2s ease-in-out;
-    box-sizing: border-box;
-    height: 3.5rem;
-    font-size: 1rem;
-}
-
-.goal-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 */
-}
-
-.goal-input::placeholder {
-    color: #6b7280; /* text-gray-500 */
 }
 
 @keyframes fade-in-out {
@@ -210,4 +137,5 @@ h1 {
         transform: translateY(0);
     }
 }
+
 </style>

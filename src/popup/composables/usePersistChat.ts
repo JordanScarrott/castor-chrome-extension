@@ -17,6 +17,8 @@ import { useStorage } from "@vueuse/core";
 export function usePersistedChat() {
     const messages = useStorage("messages", [] as Message[]);
     const nextId = useStorage("nextId", ref(0));
+    // const messages = useChromeStorage("messages", [] as Message[]);s
+    // const nextId = useChromeStorage("nextId", 0);
 
     return { messages, nextId };
 }
