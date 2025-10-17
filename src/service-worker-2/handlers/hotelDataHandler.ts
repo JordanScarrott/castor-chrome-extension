@@ -129,6 +129,9 @@ export async function analyzeHotelData(hotelData: HotelInfo[]) {
     const facts = convertHotelDataToFacts(hotelData);
     console.log("🚀 ~ analyzeHotelData ~ facts:", facts);
 
+    // Save all facts to localStorage
+    chrome.storage.local.set({ ["mangle_facts"]: facts });
+
     // Define all facts and rules in the Mangle engine
     // (You might want to clear the engine first if it's not a fresh instance)
     for (const fact of facts) {
