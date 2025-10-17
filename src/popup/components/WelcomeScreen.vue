@@ -1,9 +1,10 @@
 <template>
     <div class="welcome-container" :class="{ 'animate-start': startAnimation }">
-        <div class="spark-icon-wrapper">
-            <CastorIcon class="spark-icon" />
+        <div class="animation-wrapper">
+            <h1 class="castor-title">Castor</h1>
+            <CastorIcon class="spark-icon" :loading="startAnimation" />
         </div>
-        <div class="content" :class="{ 'fade-in': showContent }">
+        <div class="content">
             <h1>Lets browse the web better</h1>
             <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
                 <input
@@ -12,7 +13,6 @@
                     :placeholder="animatedPlaceholder"
                     class="goal-input"
                 />
-                <!-- <span class="cursor"></span> -->
             </form>
         </div>
     </div>
@@ -37,7 +37,6 @@ const goals = [
 const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
 
 const startAnimation = ref(false);
-const showContent = ref(false);
 
 const handleGoalSubmission = () => {
     if (goalInput.value.trim()) {
@@ -49,14 +48,14 @@ onMounted(() => {
     setTimeout(() => {
         startAnimation.value = true;
     }, 100);
-
-    setTimeout(() => {
-        showContent.value = true;
-    }, 1100); // Should be timed with the expand animation
 });
 </script>
 
 <style scoped>
+:root {
+    --animation-total-duration: 2.5s; /* Master variable for animation timing */
+}
+
 .welcome-container {
     background-color: transparent;
     height: 100%;
@@ -66,38 +65,50 @@ onMounted(() => {
     justify-content: center;
     position: relative;
     overflow: hidden;
-    transition: background-color 0.5s ease;
+    transition: background-color calc(var(--animation-total-duration) * 0.2)
+        ease;
 }
 
-.spark-icon-wrapper {
+.animation-wrapper {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     transform-origin: center;
-    animation: pulse 1s ease-in-out;
 }
 
 .spark-icon {
     width: 36px;
     height: 36px;
-    animation: pulse-inner 1s ease-in-out;
+}
+
+.castor-title {
+    font-size: 2rem; /* 32px */
+    font-weight: 700;
+    color: #f3f4f6; /* text-gray-100 */
+    margin-bottom: 1rem; /* 16px */
+    opacity: 0;
 }
 
 .welcome-container.animate-start {
     background-color: #111827; /* bg-gray-900 */
 }
 
-.welcome-container.animate-start .spark-icon-wrapper {
-    animation: expand 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.5s;
+/* Animation sequence */
+.welcome-container.animate-start .animation-wrapper {
+    animation: fade-out-wrapper
+        calc(var(--animation-total-duration) * 0.4) ease-in forwards
+        calc(var(--animation-total-duration) * 0.6);
 }
-
-.welcome-container.animate-start .spark-icon {
-    animation: none;
+.welcome-container.animate-start .castor-title {
+    animation: fade-in-title calc(var(--animation-total-duration) * 0.4)
+        ease-in-out forwards
+        calc(var(--animation-total-duration) * 0.2);
 }
 
 .content {
@@ -107,13 +118,10 @@ onMounted(() => {
     justify-content: center;
     text-align: center;
     opacity: 0;
-    transition: opacity 0.8s ease-in-out;
     width: 100%;
     height: 100%;
-}
-
-.content.fade-in {
-    opacity: 1;
+    animation: fade-in-content calc(var(--animation-total-duration) * 0.4)
+        ease-in-out forwards calc(var(--animation-total-duration) * 0.7);
 }
 
 h1 {
@@ -152,46 +160,37 @@ h1 {
     color: #6b7280; /* text-gray-500 */
 }
 
-@keyframes pulse {
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
-}
-
-@keyframes pulse-inner {
-    0%,
-    100% {
-        filter: drop-shadow(0 0 2px #fbbf24); /* yellow-300 */
-    }
-    50% {
-        filter: drop-shadow(0 0 10px #fbbf24);
-    }
-}
-
-@keyframes expand {
+@keyframes fade-in-title {
     from {
-        transform: scale(1);
-        opacity: 1;
+        opacity: 0;
+        transform: translateY(10px);
     }
     to {
-        transform: scale(100);
-        opacity: 0;
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-@keyframes blink {
-    0%,
-    100% {
+@keyframes fade-out-wrapper {
+    from {
         opacity: 1;
+        transform: scale(1);
     }
-    50% {
+    to {
         opacity: 0;
+        transform: scale(0.95);
     }
 }
+
+@keyframes fade-in-content {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 </style>
