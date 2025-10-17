@@ -18,9 +18,9 @@ const activeView = computed(() => {
     // return NewSessionView;
 });
 
-// Initialize the session title when the component mounts
+// Initialize the session when the component mounts
 onMounted(() => {
-    store.initSession("My Research Session");
+    store.init();
 });
 </script>
 

@@ -18,6 +18,7 @@ export interface Result {
 export interface SessionState {
     sessionTitle: string;
     goal: string | null;
+    tabGroupId: number | null; // Added for tab group integration
     schema: MangleSchema;
     guidingQuestions: string[];
     knowledgeSources: Source[];
@@ -32,7 +33,8 @@ export const useSessionStore = defineStore("session", {
     // 1. Pinia Store (`src/store/sessionStore.ts`)
     state: (): SessionState => ({
         sessionTitle: "",
-        goal: localStorage.getItem("goal"),
+        goal: null, // Initialize as null, will be loaded by init
+        tabGroupId: null, // Initialize as null
         guidingQuestions: [],
         schema: {
             guiding_questions: [],
@@ -67,34 +69,84 @@ export const useSessionStore = defineStore("session", {
     // Getters
     getters: {
         hasActiveSession(state): boolean {
-            return state.goal !== null;
+            // Session is active if there's a tab group associated with it
+            return state.tabGroupId !== null;
         },
     },
 
     // Actions
     actions: {
-        initSession(title: string) {
-            this.sessionTitle = title;
-            localStorage.setItem("goal", title);
+        // Initialize the session state from the current tab's context
+        async init() {
+            if (typeof chrome === "undefined" || !chrome.tabs) return;
+
+            const [currentTab] = await chrome.tabs.query({
+                active: true,
+                currentWindow: true,
+            });
+
+            if (currentTab && currentTab.groupId > -1) {
+                this.tabGroupId = currentTab.groupId;
+                const storageKey = `goal_${this.tabGroupId}`;
+                const result = await chrome.storage.local.get(storageKey);
+                if (result[storageKey]) {
+                    this.goal = result[storageKey];
+                }
+            }
         },
 
+        // Set a new goal, creating a new tab group
         async setGoal(goalText: string) {
             this.isLoading = true;
             this.goal = goalText;
+
+            if (typeof chrome !== "undefined" && chrome.tabs) {
+                const [currentTab] = await chrome.tabs.query({
+                    active: true,
+                    currentWindow: true,
+                });
+
+                if (currentTab?.id) {
+                    const newTab = await chrome.tabs.create({
+                        windowId: currentTab.windowId,
+                        index: currentTab.index + 1,
+                        active: true,
+                    });
+                    const groupId = await chrome.tabs.group({
+                        tabIds: [newTab.id!],
+                    });
+                    const groupName = goalText
+                        .split(" ")
+                        .slice(0, 5)
+                        .join(" ");
+                    await chrome.tabGroups.update(groupId, {
+                        title: groupName,
+                    });
+
+                    this.tabGroupId = groupId;
+                    await chrome.storage.local.set({
+                        [`goal_${groupId}`]: goalText,
+                    });
+                }
+            }
 
             try {
                 const { schema } = await serviceWorkerApi.generateMangleSchema(
                     goalText
                 );
-                console.log("Generated Mangle Schema:", schema);
                 this.guidingQuestions = schema.guiding_questions;
                 this.schema = schema;
             } catch (error) {
                 console.error("Failed to generate Mangle Schema:", error);
-                // Optionally, set an error state to display to the user
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        // Reset the session to allow setting a new goal
+        resetSession() {
+            this.goal = null;
+            this.tabGroupId = null;
         },
 
         addSource(source: Source) {

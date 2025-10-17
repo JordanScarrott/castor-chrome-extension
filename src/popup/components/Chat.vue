@@ -127,6 +127,7 @@ import MarkdownStream from "./MarkdownStream.vue";
 interface Props {
     sampleQuestions?: string[];
     isLoading?: boolean;
+    tabGroupId: number | null;
 }
 
 // --- PROPS ---
@@ -136,6 +137,7 @@ const props = withDefaults(defineProps<Props>(), {
         "Show me hotels with a pool.",
     ],
     isLoading: false,
+    tabGroupId: null,
 });
 
 // --- EMITS ---
@@ -144,7 +146,7 @@ const emit = defineEmits<{
 }>();
 
 // --- STATE MANAGEMENT ---
-const { messages, nextId } = usePersistedChat();
+const { messages, nextId } = usePersistedChat(props.tabGroupId);
 const userInput = ref("");
 const messageContainer = ref<HTMLElement | null>(null);
 

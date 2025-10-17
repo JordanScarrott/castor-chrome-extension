@@ -1,4 +1,5 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { useChromeStorage } from "./useChromeStorage";
 
 export interface Message {
     id: number | string;
@@ -12,13 +13,16 @@ export interface Message {
     };
 }
 
-import { useStorage } from "@vueuse/core";
+export function usePersistedChat(tabGroupId: number | null) {
+    const messagesKey = computed(() =>
+        tabGroupId ? `messages_${tabGroupId}` : "messages_default"
+    );
+    const nextIdKey = computed(() =>
+        tabGroupId ? `nextId_${tabGroupId}` : "nextId_default"
+    );
 
-export function usePersistedChat() {
-    const messages = useStorage("messages", [] as Message[]);
-    const nextId = useStorage("nextId", ref(0));
-    // const messages = useChromeStorage("messages", [] as Message[]);s
-    // const nextId = useChromeStorage("nextId", 0);
+    const messages = useChromeStorage(messagesKey.value, [] as Message[]);
+    const nextId = useChromeStorage(nextIdKey.value, 0);
 
     return { messages, nextId };
 }

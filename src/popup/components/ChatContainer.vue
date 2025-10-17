@@ -5,6 +5,7 @@
             ref="chatComponent"
             :is-loading="isLoading"
             :sample-questions="currentQuestions"
+            :tab-group-id="props.tabGroupId"
             @submit-question="handleQuestion"
         />
     </div>
@@ -14,6 +15,10 @@
 import Chat from "@/popup/components/Chat.vue";
 import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
 import { onMounted, onUnmounted, ref } from "vue";
+
+const props = defineProps<{
+    tabGroupId: number | null;
+}>();
 
 // 1. Give the component a name so you can call its methods
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
