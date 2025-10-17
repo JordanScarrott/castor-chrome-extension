@@ -1,7 +1,7 @@
 <template>
-    <WelcomeScreen style="height: 500px" />
+  <WelcomeScreen />
 </template>
 
 <script setup lang="ts">
-import WelcomeScreen from "../components/WelcomeScreen.vue";
+import WelcomeScreen from '../components/WelcomeScreen.vue';
 </script>
