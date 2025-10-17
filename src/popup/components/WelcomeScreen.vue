@@ -100,6 +100,10 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     transform-origin: center;
+    /* Promote to a new layer for hardware-accelerated animation */
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .spark-icon {
