@@ -5,7 +5,7 @@
             <CastorIcon class="spark-icon" :loading="isTwinkling" />
         </div>
         <div class="content">
-            <h1>Lets browse the web better</h1>
+            <h1>Let's browse the web better</h1>
             <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
                 <input
                     v-model="goalInput"
@@ -210,5 +210,4 @@ h1 {
         transform: translateY(0);
     }
 }
-
 </style>
