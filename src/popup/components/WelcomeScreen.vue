@@ -41,7 +41,7 @@ onMounted(() => {
 <style scoped>
 .welcome-container {
     --animation-total-duration: 2.5s; /* Master variable for animation timing */
-    background-color: transparent;
+    background-color: #f9fafb; /* bg-gray-50 */
     height: 100%;
     width: 100%;
     display: flex;

@@ -1,11 +1,13 @@
 <!-- In your App.vue -->
 <template>
-    <Chat
-        ref="chatComponent"
-        :is-loading="isLoading"
-        :sample-questions="currentQuestions"
-        @submit-question="handleQuestion"
-    />
+    <div class="chat-view-container">
+        <Chat
+            ref="chatComponent"
+            :is-loading="isLoading"
+            :sample-questions="currentQuestions"
+            @submit-question="handleQuestion"
+        />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -83,3 +85,12 @@ function resetChat() {
     chatComponent.value?.clearChat();
 }
 </script>
+
+<style scoped>
+.chat-view-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+</style>

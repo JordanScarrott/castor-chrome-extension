@@ -280,6 +280,7 @@ defineExpose({
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
         Helvetica, Arial, sans-serif;
     color: #3c4043;
+    overflow: hidden;
 }
 
 /* Message History */
