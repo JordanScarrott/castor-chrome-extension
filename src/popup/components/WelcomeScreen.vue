@@ -64,10 +64,6 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     transform-origin: center;
-    /* Promote to a new layer for hardware-accelerated animation */
-    will-change: transform, opacity;
-    transform: translateZ(0);
-    backface-visibility: hidden;
 }
 
 .spark-icon {
@@ -81,8 +77,6 @@ onMounted(() => {
     color: #111827; /* gray-900 */
     margin-bottom: 1rem; /* 16px */
     opacity: 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 .welcome-container.animate-start {
