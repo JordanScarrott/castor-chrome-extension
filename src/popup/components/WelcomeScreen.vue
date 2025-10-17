@@ -1,19 +1,31 @@
 <template>
     <div class="welcome-container" :class="{ 'animate-start': startAnimation }">
+        <!-- Initial Animation Elements -->
         <div class="animation-wrapper">
             <h1 class="castor-title">Castor</h1>
             <CastorIcon class="spark-icon" :loading="isTwinkling" />
         </div>
-        <div class="content">
-            <h1>Let's browse the web better</h1>
-            <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
-                <input
-                    v-model="goalInput"
-                    type="text"
-                    :placeholder="animatedPlaceholder"
-                    class="goal-input"
-                />
-            </form>
+
+        <!-- Final Content Layout -->
+        <div class="content-wrapper">
+            <header class="app-header">
+                <CastorIcon class="header-icon" />
+                <h1 class="header-title">Castor</h1>
+            </header>
+            <div class="main-content">
+                <h1 class="tagline">Lets browse the web better</h1>
+                <form
+                    class="input-wrapper"
+                    @submit.prevent="handleGoalSubmission"
+                >
+                    <input
+                        v-model="goalInput"
+                        type="text"
+                        :placeholder="animatedPlaceholder"
+                        class="goal-input"
+                    />
+                </form>
+            </div>
         </div>
     </div>
 </template>
@@ -98,13 +110,15 @@ onMounted(() => {
 .castor-title {
     font-size: 2rem; /* 32px */
     font-weight: 700;
-    color: #f3f4f6; /* text-gray-100 */
+    color: #111827; /* gray-900 */
     margin-bottom: 1rem; /* 16px */
     opacity: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .welcome-container.animate-start {
-    background-color: #111827; /* bg-gray-900 */
+    background-color: #f9fafb; /* bg-gray-50 */
 }
 
 /* Animation sequence */
@@ -124,23 +138,48 @@ onMounted(() => {
     /* Twinkling is now controlled by a prop, so no delay is needed here */
 }
 
-.content {
+.content-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    opacity: 0;
     width: 100%;
     height: 100%;
+    opacity: 0;
     animation: fade-in-content calc(var(--animation-total-duration) * 0.4)
         ease-in-out forwards calc(var(--animation-total-duration) * 0.7);
 }
 
-h1 {
+.app-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem; /* p-3, px-4 */
+    border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+}
+
+.header-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.5rem; /* mr-2 */
+}
+
+.header-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600; /* font-semibold */
+    color: #1f2937; /* text-gray-800 */
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.tagline {
     font-size: 1.5rem; /* 24px */
     font-weight: 700;
-    color: #f3f4f6; /* text-gray-100 */
+    color: #1f2937; /* text-gray-800 */
     margin-bottom: 1.5rem; /* 24px */
 }
 
@@ -153,11 +192,11 @@ h1 {
 
 .goal-input {
     width: 100%;
-    background-color: #1f2937; /* bg-gray-800 */
-    color: white;
+    background-color: #ffffff; /* bg-white */
+    color: #1f2937; /* text-gray-800 */
     border-radius: 9999px;
     padding: 1rem 1.5rem;
-    border: 1px solid transparent;
+    border: 1px solid #d1d5db; /* border-gray-300 */
     transition: all 0.2s ease-in-out;
     box-sizing: border-box;
     height: 3.5rem;
@@ -167,10 +206,11 @@ h1 {
 .goal-input:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 */
+    border-color: #3b82f6; /* focus:border-blue-500 */
 }
 
 .goal-input::placeholder {
-    color: #6b7280; /* text-gray-500 */
+    color: #9ca3af; /* text-gray-400 */
 }
 
 @keyframes fade-in-out {
@@ -210,4 +250,5 @@ h1 {
         transform: translateY(0);
     }
 }
+
 </style>
