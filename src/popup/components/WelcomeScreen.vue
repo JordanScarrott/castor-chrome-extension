@@ -1,7 +1,7 @@
 <template>
     <div class="welcome-container" :class="{ 'animate-start': startAnimation }">
         <div class="spark-icon-wrapper">
-            <div class="spark-icon">✨</div>
+            <CastorIcon class="spark-icon" />
         </div>
         <div class="content" :class="{ 'fade-in': showContent }">
             <h1>Lets browse the web better</h1>
@@ -22,6 +22,7 @@
 import { ref, onMounted } from "vue";
 import { useTypingAnimation } from "../composables/useTypingAnimation";
 import { useSessionStore } from "../store/sessionStore";
+import CastorIcon from "./CastorIcon.vue";
 
 const store = useSessionStore();
 const goalInput = ref("");
@@ -82,7 +83,8 @@ onMounted(() => {
 }
 
 .spark-icon {
-    font-size: 2.25rem; /* 36px */
+    width: 36px;
+    height: 36px;
     animation: pulse-inner 1s ease-in-out;
 }
 
