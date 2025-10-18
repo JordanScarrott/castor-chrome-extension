@@ -5,10 +5,11 @@
 </template>
 
 <script setup lang="ts">
+import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { computed, onMounted, onUnmounted } from "vue";
 import { useSessionStore } from "./store/sessionStore";
-import NewSessionView from "./views/NewSessionView.vue";
 import ActiveSessionView from "./views/ActiveSessionView.vue";
+import NewSessionView from "./views/NewSessionView.vue";
 
 const store = useSessionStore();
 
@@ -34,6 +35,8 @@ onMounted(async () => {
     }
 
     chrome.tabs.onActivated.addListener(tabActivationListener);
+
+    geminiNanoService.primeGeminiNano();
 });
 
 onUnmounted(() => {
