@@ -1,6 +1,8 @@
 import { serviceWorkerApi } from "@/popup/api";
 import { MangleSchema } from "@/types/MangleSchema";
 import { defineStore } from "pinia";
+import { useStorageManager } from "../composables/useStorageManager";
+import { watch } from "vue";
 
 // 2. Data Types
 export interface Source {
@@ -18,6 +20,7 @@ export interface Result {
 export interface SessionState {
     sessionTitle: string;
     goal: string | null;
+    tabGroupId: number | null;
     schema: MangleSchema;
     guidingQuestions: string[];
     knowledgeSources: Source[];
@@ -28,41 +31,65 @@ export interface SessionState {
 // Mock delay function
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+function _updateGoalForTabGroup(
+    tabGroupId: number,
+    goalText: string | null
+) {
+    localStorage.setItem("activeTabGroupId", String(tabGroupId));
+    const storageManager = useStorageManager(tabGroupId);
+    const goal = storageManager.useTabGroupStorage("goal", null);
+    goal.value = goalText;
+}
+
 export const useSessionStore = defineStore("session", {
     // 1. Pinia Store (`src/store/sessionStore.ts`)
-    state: (): SessionState => ({
-        sessionTitle: "",
-        goal: localStorage.getItem("goal"),
-        guidingQuestions: [],
-        schema: {
-            guiding_questions: [],
-            mangle_facts: [],
-            mangle_rules: [],
-        } as MangleSchema,
-        knowledgeSources: [
-            // Mock data as requested
-            {
-                id: "1",
-                title: "Ars Technica: The new M3 MacBook Air.",
-                faviconUrl: "https://arstechnica.com/favicon.ico",
-                facts: [
-                    'Comes in 13" and 15" models.',
-                    "Supports two external displays (when lid is closed).",
-                ],
-            },
-            {
-                id: "2",
-                title: "The Verge: Apple’s new M3 MacBook Air is here.",
-                faviconUrl: "https://www.theverge.com/favicon.ico",
-                facts: [
-                    "Starting price is $1,099.",
-                    "Features a fanless design.",
-                ],
-            },
-        ],
-        currentResult: null,
-        isLoading: false,
-    }),
+    state: (): SessionState => {
+        const tabGroupId =
+            Number(localStorage.getItem("activeTabGroupId")) || null;
+        const storageManager = useStorageManager(tabGroupId || "global");
+        const goal = storageManager.useTabGroupStorage("goal", null);
+
+        const state = {
+            sessionTitle: "",
+            goal: goal.value,
+            tabGroupId,
+            guidingQuestions: [],
+            schema: {
+                guiding_questions: [],
+                mangle_facts: [],
+                mangle_rules: [],
+            } as MangleSchema,
+            knowledgeSources: [
+                // Mock data as requested
+                {
+                    id: "1",
+                    title: "Ars Technica: The new M3 MacBook Air.",
+                    faviconUrl: "https://arstechnica.com/favicon.ico",
+                    facts: [
+                        'Comes in 13" and 15" models.',
+                        "Supports two external displays (when lid is closed).",
+                    ],
+                },
+                {
+                    id: "2",
+                    title: "The Verge: Apple’s new M3 MacBook Air is here.",
+                    faviconUrl: "https://www.theverge.com/favicon.ico",
+                    facts: [
+                        "Starting price is $1,099.",
+                        "Features a fanless design.",
+                    ],
+                },
+            ],
+            currentResult: null,
+            isLoading: false,
+        };
+
+        watch(goal, (newGoal) => {
+            state.goal = newGoal;
+        });
+
+        return state;
+    },
 
     // Getters
     getters: {
@@ -73,14 +100,17 @@ export const useSessionStore = defineStore("session", {
 
     // Actions
     actions: {
-        initSession(title: string) {
+        initSession(title: string, tabGroupId: number) {
             this.sessionTitle = title;
-            localStorage.setItem("goal", title);
+            this.tabGroupId = tabGroupId;
+            _updateGoalForTabGroup(tabGroupId, title);
         },
 
-        async setGoal(goalText: string) {
+        async setGoal(goalText: string, tabGroupId: number) {
             this.isLoading = true;
             this.goal = goalText;
+            this.tabGroupId = tabGroupId;
+            _updateGoalForTabGroup(tabGroupId, goalText);
 
             try {
                 const { schema } = await serviceWorkerApi.generateMangleSchema(
@@ -94,6 +124,26 @@ export const useSessionStore = defineStore("session", {
                 // Optionally, set an error state to display to the user
             } finally {
                 this.isLoading = false;
+            }
+        },
+
+        resetSession() {
+            this.goal = null;
+            this.tabGroupId = null;
+            localStorage.removeItem("activeTabGroupId");
+        },
+
+        loadSessionForTabGroup(tabGroupId: number | null) {
+            // The Chrome Tabs API uses -1 to indicate a tab is not in a group.
+            // We only want to load a session for tabs that are in a valid group.
+            if (tabGroupId && tabGroupId > -1) {
+                this.tabGroupId = tabGroupId;
+                localStorage.setItem("activeTabGroupId", String(tabGroupId));
+                const storageManager = useStorageManager(tabGroupId);
+                const goal = storageManager.useTabGroupStorage("goal", null);
+                this.goal = goal.value;
+            } else {
+                this.resetSession();
             }
         },
 

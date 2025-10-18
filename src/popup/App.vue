@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useSessionStore } from "./store/sessionStore";
 import NewSessionView from "./views/NewSessionView.vue";
 import ActiveSessionView from "./views/ActiveSessionView.vue";
@@ -19,8 +19,25 @@ const activeView = computed(() => {
 });
 
 // Initialize the session title when the component mounts
-onMounted(() => {
-    store.initSession("My Research Session");
+const tabActivationListener = async (activeInfo: chrome.tabs.TabActiveInfo) => {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    store.loadSessionForTabGroup(tab.groupId);
+};
+
+onMounted(async () => {
+    const [currentTab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+    });
+    if (currentTab) {
+        store.loadSessionForTabGroup(currentTab.groupId);
+    }
+
+    chrome.tabs.onActivated.addListener(tabActivationListener);
+});
+
+onUnmounted(() => {
+    chrome.tabs.onActivated.removeListener(tabActivationListener);
 });
 </script>
 
