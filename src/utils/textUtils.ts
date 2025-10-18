@@ -21,11 +21,22 @@ export async function generateTabGroupTitleWithNano(
     goalText: string
 ): Promise<string> {
     try {
-        // Option 1: Use the summarize call
-        const title = await geminiNanoService.summarize(goalText);
-
-        // Option 2: Use the prompt call with a system prompt
-        // const title = await geminiNanoService.askPrompt(goalText, "Summarize the following into a very short title for a browser tab group.");
+        const title = await geminiNanoService.askPrompt(
+            goalText,
+            `
+You are an expert at creating concise, helpful Chrome tab group names. Given a user's goal, generate a short name, 3 words or less.
+GOAL: "I'm planning a trip to Japan for next spring to see the cherry blossoms."
+NAME: Japan Trip
+GOAL: "I'm working on the Q4 marketing report and looking at competitor data."
+NAME: Q4 Marketing
+GOAL: "I trying to find a budget-friendly laptop with a long battery life."
+NAME: Budget Laptop
+GOAL: "I'm learning how to use the Gemini API with Python."
+NAME: Gemini API
+GOAL: "{{USER_GOAL}}"
+NAME:
+`
+        );
 
         return title;
     } catch (error) {

@@ -1,5 +1,11 @@
 import { ref } from "vue";
 
+const getRandomColor = (): chrome.tabGroups.Color => {
+    const colorValues = Object.values(chrome.tabGroups.Color);
+    const randomIndex = Math.floor(Math.random() * colorValues.length);
+    return colorValues[randomIndex];
+};
+
 /**
  * A Vue composable for managing Chrome tab groups.
  * Provides functions to create and update tab groups.
@@ -34,7 +40,7 @@ export function useTabGroupManager() {
 
                 await chrome.tabGroups.update(newGroupId, {
                     title,
-                    color: "blue",
+                    color: getRandomColor(),
                 });
 
                 console.log(`Successfully updated tab group ${newGroupId}`);
