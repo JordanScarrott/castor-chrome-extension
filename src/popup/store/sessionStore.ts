@@ -31,6 +31,16 @@ export interface SessionState {
 // Mock delay function
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+function _updateGoalForTabGroup(
+    tabGroupId: number,
+    goalText: string | null
+) {
+    localStorage.setItem("activeTabGroupId", String(tabGroupId));
+    const storageManager = useStorageManager(tabGroupId);
+    const goal = storageManager.useTabGroupStorage("goal", null);
+    goal.value = goalText;
+}
+
 export const useSessionStore = defineStore("session", {
     // 1. Pinia Store (`src/store/sessionStore.ts`)
     state: (): SessionState => {
@@ -93,20 +103,14 @@ export const useSessionStore = defineStore("session", {
         initSession(title: string, tabGroupId: number) {
             this.sessionTitle = title;
             this.tabGroupId = tabGroupId;
-            localStorage.setItem("activeTabGroupId", String(tabGroupId));
-            const storageManager = useStorageManager(tabGroupId);
-            const goal = storageManager.useTabGroupStorage("goal", null);
-            goal.value = title;
+            _updateGoalForTabGroup(tabGroupId, title);
         },
 
         async setGoal(goalText: string, tabGroupId: number) {
             this.isLoading = true;
             this.goal = goalText;
             this.tabGroupId = tabGroupId;
-            localStorage.setItem("activeTabGroupId", String(tabGroupId));
-            const storageManager = useStorageManager(tabGroupId);
-            const goal = storageManager.useTabGroupStorage("goal", null);
-            goal.value = goalText;
+            _updateGoalForTabGroup(tabGroupId, goalText);
 
             try {
                 const { schema } = await serviceWorkerApi.generateMangleSchema(
@@ -130,6 +134,8 @@ export const useSessionStore = defineStore("session", {
         },
 
         loadSessionForTabGroup(tabGroupId: number | null) {
+            // The Chrome Tabs API uses -1 to indicate a tab is not in a group.
+            // We only want to load a session for tabs that are in a valid group.
             if (tabGroupId && tabGroupId > -1) {
                 this.tabGroupId = tabGroupId;
                 localStorage.setItem("activeTabGroupId", String(tabGroupId));

@@ -17,6 +17,7 @@ import { ref } from "vue";
 import { useTypingAnimation } from "../composables/useTypingAnimation";
 import { useSessionStore } from "../store/sessionStore";
 import { useTabGroupManager } from "../composables/useTabGroupManager";
+import { generateTabGroupTitle } from "@/utils/textUtils";
 
 const store = useSessionStore();
 const goalInput = ref("");
@@ -34,7 +35,7 @@ const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
 const handleGoalSubmission = async () => {
     if (goalInput.value.trim()) {
         const goalText = goalInput.value.trim();
-        const tabGroupTitle = goalText.split(" ").slice(0, 3).join(" ");
+        const tabGroupTitle = generateTabGroupTitle(goalText);
         const tabGroupId = await createTabGroup(tabGroupTitle);
         if (tabGroupId) {
             store.setGoal(goalText, tabGroupId);
