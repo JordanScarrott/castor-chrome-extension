@@ -51,50 +51,51 @@ export class ElementSelector {
     }
 
     private findListItem = (element: HTMLElement | null): HTMLElement | null => {
-        if (!element) {
-            return null;
-        }
-
-        const listTags = ["LI", "TR", "DD"];
-        if (listTags.includes(element.tagName)) {
-            return element;
-        }
-
-        const parent = element.parentElement;
-        if (parent) {
-            const children = Array.from(parent.children);
-            const sameTagSiblings = children.filter(
-                (child) => child.tagName === element.tagName
-            );
-            if (sameTagSiblings.length > 1) {
-                return element;
+        let currentElement = element;
+        while (currentElement && currentElement.parentElement) {
+            const listTags = ["LI", "TR", "DD"];
+            if (listTags.includes(currentElement.tagName)) {
+                return currentElement;
             }
-        }
 
-        const siblings = [];
-        let sibling = element.previousElementSibling;
-        while (sibling) {
-            if (
-                sibling.tagName === element.tagName &&
-                sibling.className === element.className
-            ) {
-                siblings.push(sibling);
+            const parent = currentElement.parentElement;
+            if (parent) {
+                const children = Array.from(parent.children);
+                const sameTagSiblings = children.filter(
+                    (child) => child.tagName === currentElement!.tagName
+                );
+                if (sameTagSiblings.length > 1) {
+                    return currentElement;
+                }
             }
-            sibling = sibling.previousElementSibling;
-        }
-        sibling = element.nextElementSibling;
-        while (sibling) {
-            if (
-                sibling.tagName === element.tagName &&
-                sibling.className === element.className
-            ) {
-                siblings.push(sibling);
-            }
-            sibling = sibling.nextElementSibling;
-        }
 
-        if (siblings.length >= 2) {
-            return element;
+            const siblings = [];
+            let sibling = currentElement.previousElementSibling;
+            while (sibling) {
+                if (
+                    sibling.tagName === currentElement.tagName &&
+                    sibling.className === currentElement.className
+                ) {
+                    siblings.push(sibling);
+                }
+                sibling = sibling.previousElementSibling;
+            }
+            sibling = currentElement.nextElementSibling;
+            while (sibling) {
+                if (
+                    sibling.tagName === currentElement.tagName &&
+                    sibling.className === currentElement.className
+                ) {
+                    siblings.push(sibling);
+                }
+                sibling = sibling.nextElementSibling;
+            }
+
+            if (siblings.length >= 2) {
+                return currentElement;
+            }
+
+            currentElement = currentElement.parentElement;
         }
 
         return null;
