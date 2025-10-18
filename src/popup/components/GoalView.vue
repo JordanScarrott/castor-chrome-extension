@@ -1,6 +1,6 @@
 <template>
     <div class="goal-view-container">
-        <h1 class="tagline">Lets browse the web better</h1>
+        <h1 class="tagline">Let's browse the web better</h1>
         <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
             <input
                 v-model="goalInput"
@@ -47,9 +47,7 @@ const handleGoalSubmission = async () => {
         isLoading.value = true;
         try {
             const goalText = goalInput.value.trim();
-            const tabGroupTitle = await generateTabGroupTitleWithNano(
-                goalText
-            );
+            const tabGroupTitle = await generateTabGroupTitleWithNano(goalText);
             const tabGroupId = await createTabGroup(tabGroupTitle);
             if (tabGroupId) {
                 store.setGoal(goalText, tabGroupId);

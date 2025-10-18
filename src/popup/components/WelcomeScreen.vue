@@ -17,8 +17,8 @@ const startAnimation = ref(false);
 const isTwinkling = ref(false);
 
 onMounted(() => {
-    const initialDelay = 100; // ms
-    const animationDuration = 2500; // ms, matches --animation-total-duration
+    const initialDelay = 50; // ms
+    const animationDuration = 2300; // ms, matches --animation-total-duration
 
     // Start the main animation and twinkling
     setTimeout(() => {
@@ -137,5 +137,4 @@ onMounted(() => {
         transform: translateY(0);
     }
 }
-
 </style>
