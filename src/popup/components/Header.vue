@@ -1,12 +1,19 @@
 <template>
     <header class="app-header" role="banner">
-        <CastorIcon class="header-icon" />
+        <CastorIcon class="header-icon" @click="handleIconClick" />
         <h1 class="header-title">Castor</h1>
     </header>
 </template>
 
 <script setup lang="ts">
 import CastorIcon from "./CastorIcon.vue";
+import { useSessionStore } from "../store/sessionStore";
+
+const store = useSessionStore();
+
+const handleIconClick = () => {
+    store.resetSession();
+};
 </script>
 
 <style scoped>
@@ -23,6 +30,7 @@ import CastorIcon from "./CastorIcon.vue";
     width: 24px;
     height: 24px;
     margin-right: 0.5rem;
+    cursor: pointer;
 }
 
 .header-title {

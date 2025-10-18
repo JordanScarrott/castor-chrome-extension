@@ -16,9 +16,11 @@
 import { ref } from "vue";
 import { useTypingAnimation } from "../composables/useTypingAnimation";
 import { useSessionStore } from "../store/sessionStore";
+import { useTabGroupManager } from "../composables/useTabGroupManager";
 
 const store = useSessionStore();
 const goalInput = ref("");
+const { createTabGroup } = useTabGroupManager();
 
 const goals = [
     "Find a hotel near the V&A Waterfront on a MyCiTi bus route.",
@@ -29,9 +31,14 @@ const goals = [
 
 const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
 
-const handleGoalSubmission = () => {
+const handleGoalSubmission = async () => {
     if (goalInput.value.trim()) {
-        store.setGoal(goalInput.value.trim());
+        const goalText = goalInput.value.trim();
+        const tabGroupTitle = goalText.split(" ").slice(0, 3).join(" ");
+        const tabGroupId = await createTabGroup(tabGroupTitle);
+        if (tabGroupId) {
+            store.setGoal(goalText, tabGroupId);
+        }
     }
 };
 </script>

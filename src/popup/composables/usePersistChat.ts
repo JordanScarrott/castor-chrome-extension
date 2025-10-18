@@ -12,13 +12,19 @@ export interface Message {
     };
 }
 
-import { useStorage } from "@vueuse/core";
+import { useStorageManager } from "./useStorageManager";
+import { useSessionStore } from "../store/sessionStore";
 
 export function usePersistedChat() {
-    const messages = useStorage("messages", [] as Message[]);
-    const nextId = useStorage("nextId", ref(0));
-    // const messages = useChromeStorage("messages", [] as Message[]);s
-    // const nextId = useChromeStorage("nextId", 0);
+    const sessionStore = useSessionStore();
+    const tabGroupId = sessionStore.tabGroupId || "global";
+    const storageManager = useStorageManager(tabGroupId);
+
+    const messages = storageManager.useTabGroupStorage(
+        "messages",
+        [] as Message[]
+    );
+    const nextId = storageManager.useTabGroupStorage("nextId", 0);
 
     return { messages, nextId };
 }
