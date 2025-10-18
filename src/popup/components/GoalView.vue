@@ -7,7 +7,15 @@
                 type="text"
                 :placeholder="animatedPlaceholder"
                 class="goal-input"
+                :disabled="isLoading"
             />
+            <button
+                type="submit"
+                :disabled="!goalInput.trim() || isLoading"
+                class="send-btn"
+            >
+                <SendIcon :is-loading="isLoading" />
+            </button>
         </form>
     </div>
 </template>
@@ -18,9 +26,11 @@ import { useTypingAnimation } from "../composables/useTypingAnimation";
 import { useSessionStore } from "../store/sessionStore";
 import { useTabGroupManager } from "../composables/useTabGroupManager";
 import { generateTabGroupTitleWithNano } from "@/utils/textUtils";
+import SendIcon from "./SendIcon.vue";
 
 const store = useSessionStore();
 const goalInput = ref("");
+const isLoading = ref(false);
 const { createTabGroup } = useTabGroupManager();
 
 const goals = [
@@ -33,12 +43,22 @@ const goals = [
 const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
 
 const handleGoalSubmission = async () => {
-    if (goalInput.value.trim()) {
-        const goalText = goalInput.value.trim();
-        const tabGroupTitle = await generateTabGroupTitleWithNano(goalText);
-        const tabGroupId = await createTabGroup(tabGroupTitle);
-        if (tabGroupId) {
-            store.setGoal(goalText, tabGroupId);
+    if (goalInput.value.trim() && !isLoading.value) {
+        isLoading.value = true;
+        try {
+            const goalText = goalInput.value.trim();
+            const tabGroupTitle = await generateTabGroupTitleWithNano(
+                goalText
+            );
+            const tabGroupId = await createTabGroup(tabGroupTitle);
+            if (tabGroupId) {
+                store.setGoal(goalText, tabGroupId);
+            }
+        } catch (error) {
+            console.error("Error setting goal:", error);
+            // Optionally, show an error message to the user
+        } finally {
+            isLoading.value = false;
         }
     }
 };
@@ -63,29 +83,53 @@ const handleGoalSubmission = async () => {
 }
 
 .input-wrapper {
-    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffffff;
+    padding: 8px;
+    border-radius: 9999px; /* Pill shape */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dcdfe2;
+    transition: box-shadow 0.2s;
     width: 90%;
     max-width: 28rem;
-    margin: 0;
 }
-
+.input-wrapper:focus-within {
+    box-shadow: 0 0 0 2px #d2e3fc;
+    border-color: #0b57d0;
+}
 .goal-input {
-    width: 100%;
-    background-color: #ffffff;
-    color: #1f2937;
-    border-radius: 9999px;
-    padding: 1rem 1.5rem;
-    border: 1px solid #d1d5db;
-    transition: all 0.2s ease-in-out;
-    box-sizing: border-box;
-    height: 3.5rem;
-    font-size: 1rem;
-}
-
-.goal-input:focus {
+    flex: 1;
+    border: none;
+    box-shadow: none;
+    padding: 12px;
+    font-size: 14px;
+    background-color: transparent;
+    color: #3c4043;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-    border-color: #3b82f6;
+}
+.goal-input::placeholder {
+    color: #9ab0c9;
+}
+.send-btn {
+    padding: 8px;
+    border-radius: 50%;
+    background-color: #0b57d0;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.send-btn:hover {
+    background-color: #0a4cb0;
+}
+.send-btn:disabled {
+    background-color: #b3c9e6;
+    cursor: not-allowed;
 }
 
 .goal-input::placeholder {

@@ -3,29 +3,6 @@ class GeminiNanoService {
         // Reserved for future config
     }
 
-    /**
-     * Speeds up the initial response time of Gemini Nano.
-     * TODO: Should be replaced by reusing session instances.
-     *          - We can have this class or another act as a Gemini Nano factory that returns a session instance container and a method to prompt the model.
-     */
-    async primeGeminiNano(): Promise<void> {
-        await this.primePromptAPI();
-    }
-
-    private async primePromptAPI(): Promise<void> {
-        const session = await LanguageModel.create({
-            signal: undefined,
-            monitor: (m: any) => {
-                m.addEventListener("downloadprogress", (e: any) => {
-                    console.log(
-                        `Prompt Model downloaded ${Math.floor(e.loaded * 100)}%`
-                    );
-                });
-            },
-        });
-        await session.prompt("");
-    }
-
     async summarize(inputText: string): Promise<string> {
         // Feature detect
         if (typeof Summarizer === "undefined") {
