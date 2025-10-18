@@ -19,8 +19,19 @@ const activeView = computed(() => {
 });
 
 // Initialize the session title when the component mounts
-onMounted(() => {
-    store.initSession("My Research Session");
+onMounted(async () => {
+    const [currentTab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+    });
+    if (currentTab) {
+        store.loadSessionForTabGroup(currentTab.groupId);
+    }
+
+    chrome.tabs.onActivated.addListener(async (activeInfo) => {
+        const tab = await chrome.tabs.get(activeInfo.tabId);
+        store.loadSessionForTabGroup(tab.groupId);
+    });
 });
 </script>
 

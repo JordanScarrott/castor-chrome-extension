@@ -129,6 +129,18 @@ export const useSessionStore = defineStore("session", {
             localStorage.removeItem("activeTabGroupId");
         },
 
+        loadSessionForTabGroup(tabGroupId: number | null) {
+            if (tabGroupId && tabGroupId > -1) {
+                this.tabGroupId = tabGroupId;
+                localStorage.setItem("activeTabGroupId", String(tabGroupId));
+                const storageManager = useStorageManager(tabGroupId);
+                const goal = storageManager.useTabGroupStorage("goal", null);
+                this.goal = goal.value;
+            } else {
+                this.resetSession();
+            }
+        },
+
         addSource(source: Source) {
             // Stubbed action
             console.log("addSource action called with:", source);
