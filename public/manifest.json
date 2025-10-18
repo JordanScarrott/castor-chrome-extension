@@ -3,7 +3,7 @@
     "name": "Castor",
     "version": "1.0.0",
     "description": "The second brain for the browser.",
-    "permissions": ["activeTab", "scripting", "storage"],
+    "permissions": ["activeTab", "scripting", "storage", "tabGroups"],
     "action": {
         "default_popup": "index.html"
     },
