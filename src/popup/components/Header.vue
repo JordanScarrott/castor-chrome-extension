@@ -1,7 +1,7 @@
 <template>
     <header class="app-header" role="banner">
         <CastorIcon class="header-icon" @click="handleIconClick" />
-        <h1 class="header-title">Castor</h1>
+        <h1 class="header-title" @click="handleIconClick">Castor</h1>
     </header>
 </template>
 
@@ -20,6 +20,7 @@ const handleIconClick = () => {
 .app-header {
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #e5e7eb;
     background-color: #ffffff;
@@ -27,8 +28,8 @@ const handleIconClick = () => {
 }
 
 .header-icon {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     margin-right: 0.5rem;
     cursor: pointer;
 }
@@ -38,5 +39,6 @@ const handleIconClick = () => {
     font-weight: 600;
     color: #1f2937;
     margin: 0;
+    cursor: pointer;
 }
 </style>
