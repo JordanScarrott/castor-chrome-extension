@@ -2,6 +2,7 @@ export class ElementSelector {
     private static readonly HIGHLIGHT_CLASS = "castor-highlight-element";
     private static readonly LIST_ITEM_HIGHLIGHT_CLASS = "castor-highlight-list-item";
     private lastHoveredElement: HTMLElement | null = null;
+    private currentTarget: HTMLElement | null = null;
     private isModifierKeyDown = false;
 
     constructor() {
@@ -99,7 +100,7 @@ export class ElementSelector {
         return null;
     };
 
-    private handleMouseOver = (event: MouseEvent): void => {
+    private updateHighlight = (): void => {
         if (this.lastHoveredElement) {
             this.lastHoveredElement.classList.remove(
                 ElementSelector.HIGHLIGHT_CLASS,
@@ -107,45 +108,52 @@ export class ElementSelector {
             );
         }
 
-        const target = event.target as HTMLElement;
-        if (target) {
-            if (this.isModifierKeyDown) {
-                const listItem = this.findListItem(target);
-                if (listItem) {
-                    listItem.classList.add(
-                        ElementSelector.LIST_ITEM_HIGHLIGHT_CLASS
-                    );
-                    this.lastHoveredElement = listItem;
-                    return;
-                }
+        if (!this.currentTarget) {
+            return;
+        }
+
+        let elementToHighlight: HTMLElement | null = this.currentTarget;
+        let highlightClass = ElementSelector.HIGHLIGHT_CLASS;
+
+        if (this.isModifierKeyDown) {
+            const listItem = this.findListItem(this.currentTarget);
+            if (listItem) {
+                elementToHighlight = listItem;
+                highlightClass = ElementSelector.LIST_ITEM_HIGHLIGHT_CLASS;
             }
-            target.classList.add(ElementSelector.HIGHLIGHT_CLASS);
-            this.lastHoveredElement = target;
+        }
+
+        if (elementToHighlight) {
+            elementToHighlight.classList.add(highlightClass);
+            this.lastHoveredElement = elementToHighlight;
         }
     };
 
+    private handleMouseOver = (event: MouseEvent): void => {
+        this.currentTarget = event.target as HTMLElement;
+        this.updateHighlight();
+    };
+
     private handleKeyDown = (event: KeyboardEvent): void => {
-        this.isModifierKeyDown = event.ctrlKey || event.metaKey;
+        if (event.ctrlKey || event.metaKey) {
+            this.isModifierKeyDown = true;
+            this.updateHighlight();
+        }
     };
 
     private handleKeyUp = (event: KeyboardEvent): void => {
-        this.isModifierKeyDown = event.ctrlKey || event.metaKey;
+        if (!event.ctrlKey && !event.metaKey) {
+            this.isModifierKeyDown = false;
+            this.updateHighlight();
+        }
     };
 
     private handleClick = (event: MouseEvent): void => {
         event.preventDefault();
         event.stopPropagation();
 
-        const target = event.target as HTMLElement;
-        if (target) {
-            let elementToSend = target;
-            if (this.isModifierKeyDown) {
-                const listItem = this.findListItem(target);
-                if (listItem) {
-                    elementToSend = listItem;
-                }
-            }
-            const html = elementToSend.innerText;
+        if (this.lastHoveredElement) {
+            const html = this.lastHoveredElement.innerText;
             chrome.runtime.sendMessage({
                 type: "ELEMENT_TEXT_SELECTED",
                 payload: html,
