@@ -21,12 +21,26 @@ export function useTabGroupManager() {
                 const newGroupId = await chrome.tabs.group({
                     tabIds: currentTab.id,
                 });
+
+                console.log(`Created tab group with ID: ${newGroupId}`);
+                console.log("Checking chrome.tabGroups API:", chrome.tabGroups);
+
+                if (!chrome.tabGroups) {
+                    console.error(
+                        "chrome.tabGroups API is not available. This is likely a permissions issue. Ensure 'tabGroups' is in the manifest.json permissions."
+                    );
+                    return newGroupId; // Return the groupId even if we can't update it
+                }
+
                 await chrome.tabGroups.update(newGroupId, {
                     title,
                     color: "blue",
                 });
+
+                console.log(`Successfully updated tab group ${newGroupId}`);
                 return newGroupId;
             }
+            return null; // Explicitly return null if no tab was found
         } catch (error) {
             console.error("Error creating tab group:", error);
             return null;
