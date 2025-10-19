@@ -7,7 +7,6 @@ class GeminiNanoService {
 
     /**
      * Generates a consistent cache key from a session's configuration object.
-     * This method handles object property order by sorting the keys before stringifying.
      * @param options The options object for creating the session.
      * @returns A stringified, sorted representation of the options.
      */
@@ -286,57 +285,57 @@ class GeminiNanoService {
             payload: { messageId, chunk: "", isLast: true },
         });
     }
-
-    /**
-     * Formats a response using the Writer API based on a question and data.
-     * @param question The user's original question.
-     * @param mangleResult The data retrieved to answer the question.
-     */
-    async formatResponse(question: string, mangleResult: any): Promise<void> {
-        const messageId = crypto.randomUUID();
-
-        if (typeof Writer === "undefined") {
-            console.warn("Writer API is not supported in this browser.");
-            chrome.runtime.sendMessage({
-                type: "STREAM_UPDATE",
-                payload: {
-                    messageId,
-                    chunk: "The AI writer feature is not available in your browser.",
-                    isLast: true,
-                },
-            });
-            return;
-        }
-
-        let prompt: string;
-        const hasResults = mangleResult && (!Array.isArray(mangleResult) || mangleResult.length > 0);
-
-        if (hasResults) {
-            const jsonResult = JSON.stringify(mangleResult, null, 2);
-            prompt = `You are a helpful assistant. The user asked: "${question}". The following JSON data was retrieved to answer the question: ${jsonResult}. Please format this data into a friendly, conversational sentence that directly answers the user's question.`;
-        } else {
-            prompt = `You are a helpful assistant. The user asked: "${question}". Unfortunately, no relevant information was found to answer this. Please inform the user of this in a polite and conversational way.`;
-        }
-
-        try {
-            await this.writeStreaming(prompt, messageId, {
-                sharedContext: "The user is expecting a well formatted markdown response.",
-                tone: "neutral",
-                format: "markdown",
-                length: "short",
-            });
-        } catch (error) {
-            console.error("Error using the Writer API:", error);
-            chrome.runtime.sendMessage({
-                type: "STREAM_UPDATE",
-                payload: {
-                    messageId,
-                    chunk: "I'm sorry, I encountered an error while trying to generate a response.",
-                    isLast: true,
-                },
-            });
-        }
-    }
 }
 
 export const geminiNanoService = new GeminiNanoService();
+
+export async function formatResponseWithAI(
+    question: string,
+    mangleResult: any
+): Promise<void> {
+    const messageId = crypto.randomUUID();
+
+    if (typeof Writer === "undefined") {
+        console.warn("Writer API is not supported in this browser.");
+        chrome.runtime.sendMessage({
+            type: "STREAM_UPDATE",
+            payload: {
+                messageId,
+                chunk: "The AI writer feature is not available in your browser.",
+                isLast: true,
+            },
+        });
+        return;
+    }
+
+    let prompt: string;
+    const hasResults = mangleResult && (!Array.isArray(mangleResult) || mangleResult.length > 0);
+
+    if (hasResults) {
+        const jsonResult = JSON.stringify(mangleResult, null, 2);
+        prompt = `You are a helpful assistant. The user asked: "${question}". The following JSON data was retrieved to answer the question: ${jsonResult}. Please format this data into a friendly, conversational sentence that directly answers the user's question.`;
+    } else {
+        prompt = `You are a helpful assistant. The user asked: "${question}". Unfortunately, no relevant information was found to answer this. Please inform the user of this in a polite and conversational way.`;
+    }
+
+    try {
+        const options = {
+            sharedContext: "The user is expecting a well formatted markdown response.",
+            tone: "neutral",
+            format: "markdown",
+            length: "short",
+        };
+        await geminiNanoService.writeStreaming(prompt, messageId, options);
+    } catch (error) {
+        console.error("Error using the Writer API:", error);
+        chrome.runtime.sendMessage({
+            type: "STREAM_UPDATE",
+            payload: {
+                messageId,
+                chunk: "I'm sorry, I encountered an error while trying to generate a response.",
+                isLast: true,
+            },
+        });
+    }
+}
+
