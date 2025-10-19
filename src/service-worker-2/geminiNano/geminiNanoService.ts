@@ -173,30 +173,30 @@ class GeminiNanoService {
     }
 
     /**
-     * Processes a large text input in batches to avoid context window limits.
+     * Processes a large text input in batches and streams the results to avoid context window limits.
      *
      * @param largeInputText The entire text to be processed.
      * @param systemPrompt The system prompt to use for *all* batches.
      * @param userPromptForBatch A function that takes a text chunk and returns the user prompt for that chunk.
+     * @param onChunk A callback function to handle each chunk of the streamed response.
      * @param options An object containing batching and API parameters.
      * @param options.batchSizeInChars The character limit for each text chunk (default: 8000).
      * @param options.abortSignal An AbortSignal to cancel the entire batch operation.
      * @param options.schema An optional JSON schema to apply to *each* batch.
-     * @returns A promise that resolves to an array of results (if schema is used) or a single combined string (if no schema).
      */
-    async askPromptBatched<T = string>(
-      largeInputText: string,
-      systemPrompt: string | undefined,
-      userPromptForBatch: (batchText: string) => string,
-      options: {
-        batchSizeInChars?: number;
-        abortSignal?: AbortSignal;
-        schema?: object;
-      }
-    ): Promise<T[] | string> {
+    async askPromptStreamingBatched(
+        largeInputText: string,
+        systemPrompt: string | undefined,
+        userPromptForBatch: (batchText: string) => string,
+        onChunk: (chunk: string) => void,
+        options: {
+            batchSizeInChars?: number;
+            abortSignal?: AbortSignal;
+            schema?: object;
+        }
+    ): Promise<void> {
         try {
             const batchSize = options.batchSizeInChars ?? 8000;
-            const allResults: (T | string)[] = [];
 
             for (let i = 0; i < largeInputText.length; i += batchSize) {
                 options.abortSignal?.throwIfAborted();
@@ -204,29 +204,23 @@ class GeminiNanoService {
                 const chunkText = largeInputText.substring(i, i + batchSize);
                 const userPrompt = userPromptForBatch(chunkText);
 
-                const result = await this.askPrompt<T>(
+                await this.askPromptStreaming(
                     userPrompt,
                     systemPrompt,
+                    onChunk,
                     options.schema,
                     options.abortSignal
                 );
-                allResults.push(result);
 
                 console.log(
-                    `Processed ${Math.min(
+                    `Processed and streamed ${Math.min(
                         i + batchSize,
                         largeInputText.length
                     )} of ${largeInputText.length} characters...`
                 );
             }
-
-            if (options.schema) {
-                return allResults as T[];
-            } else {
-                return allResults.join('\n\n');
-            }
         } catch (error) {
-            console.error("Error during batched prompt processing:", error);
+            console.error("Error during batched streaming prompt:", error);
             throw error;
         }
     }
