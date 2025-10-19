@@ -1,6 +1,7 @@
 export class ElementSelector {
     private static readonly HIGHLIGHT_CLASS = "castor-highlight-element";
-    private static readonly LIST_ITEM_HIGHLIGHT_CLASS = "castor-highlight-list-item";
+    private static readonly LIST_ITEM_HIGHLIGHT_CLASS =
+        "castor-highlight-list-item";
     private lastHoveredElement: HTMLElement | null = null;
     private currentTarget: HTMLElement | null = null;
     private isModifierKeyDown = false;
@@ -50,7 +51,9 @@ export class ElementSelector {
         document.head.appendChild(style);
     }
 
-    private findListItem = (element: HTMLElement | null): HTMLElement | null => {
+    private findListItem = (
+        element: HTMLElement | null
+    ): HTMLElement | null => {
         let currentElement = element;
         while (currentElement && currentElement.parentElement) {
             const listTags = ["LI", "TR", "DD"];
@@ -154,6 +157,7 @@ export class ElementSelector {
         event.stopPropagation();
 
         if (this.lastHoveredElement) {
+            // const html = this.lastHoveredElement.innerHTML;
             const html = this.lastHoveredElement.innerText;
             chrome.runtime.sendMessage({
                 type: "ELEMENT_TEXT_SELECTED",
