@@ -29,7 +29,7 @@ function extract(): void {
         // You can now send this `allHotelsData` array to your Mangle engine.
         chrome.runtime.sendMessage({
             type: "HOTEL_DATA_EXTRACTED",
-            payload: allHotelsData,
+            payload: { hotelData: allHotelsData },
         });
     } else {
         console.log("No hotel listings found on the page.");
