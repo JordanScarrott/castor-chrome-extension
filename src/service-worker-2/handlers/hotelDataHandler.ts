@@ -94,7 +94,10 @@ export const hotelRules: string[] = [
 ];
 
 // 4. Define the user-facing questions and their corresponding Mangle queries
-export const hotelQueries: Record<string, string> = {
+type NaturalLanguageQuery = string;
+type MangleQuery = string;
+export type MangleQueries = Record<NaturalLanguageQuery, MangleQuery>;
+export const hotelQueries: MangleQueries = {
     "Which hotels have a rating of 9.0 or higher?":
         "highly_rated_hotel(Name, Rating)",
     "What are the best value hotels (great rating, good price)?":
@@ -136,9 +139,13 @@ export async function analyzeHotelData(
     const facts = convertHotelDataToFacts(hotelData);
     console.log("🚀 ~ analyzeHotelData ~ facts:", facts);
 
-    // Save all facts to localStorage
-    const key = getNamespacedKey("mangle_facts", tabGroupId);
-    chrome.storage.local.set({ [key]: facts });
+    // Save all facts, rules, and queries to localStorage
+    const mangle_facts_key = getNamespacedKey("mangle_facts", tabGroupId);
+    chrome.storage.local.set({ [mangle_facts_key]: facts });
+    const mangle_rules_key = getNamespacedKey("mangle_rules", tabGroupId);
+    chrome.storage.local.set({ [mangle_rules_key]: hotelRules });
+    const mangle_queries_key = getNamespacedKey("mangle_queries", tabGroupId);
+    chrome.storage.local.set({ [mangle_queries_key]: hotelQueries });
 
     // Define all facts and rules in the Mangle engine
     // (You might want to clear the engine first if it's not a fresh instance)

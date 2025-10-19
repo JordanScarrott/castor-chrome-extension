@@ -132,7 +132,7 @@ const emit = defineEmits<{
 }>();
 
 // --- STATE MANAGEMENT ---
-const { messages, nextId } = usePersistedChat();
+const { messages, nextId, mangle } = usePersistedChat();
 const userInput = ref("");
 const messageContainer = ref<HTMLElement | null>(null);
 
