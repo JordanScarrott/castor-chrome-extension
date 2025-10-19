@@ -1,6 +1,37 @@
 class GeminiNanoService {
+    private sessionCache = new Map<string, any>();
+
     constructor() {
         // Reserved for future config
+    }
+
+    /**
+     * Generates a consistent cache key from a session's configuration object.
+     * This method handles object property order by sorting the keys before stringifying.
+     * @param options The options object for creating the session.
+     * @returns A stringified, sorted representation of the options.
+     */
+    private getCacheKey(options: object): string {
+        if (!options) return 'default';
+        const sortedOptions = Object.keys(options).sort().reduce(
+            (acc, key) => {
+                acc[key] = options[key];
+                return acc;
+            }, {} as { [key: string]: any }
+        );
+        return JSON.stringify(sortedOptions);
+    }
+
+    /**
+     * Clears all cached sessions, destroying them to release resources.
+     */
+    async clearCache() {
+        for (const session of this.sessionCache.values()) {
+            if (session && typeof session.destroy === 'function') {
+                await session.destroy();
+            }
+        }
+        this.sessionCache.clear();
     }
 
     /**
@@ -26,24 +57,18 @@ class GeminiNanoService {
         await session.prompt("");
     }
 
-    async summarize(inputText: string): Promise<string> {
+    /**
+     * Summarizes the given text using the Summarizer API with caching.
+     * @param inputText The text to summarize.
+     * @param options Options for the summarizer session.
+     * @returns The summarized text.
+     */
+    async summarize(inputText: string, options: any = {}): Promise<string> {
         // Feature detect
         if (typeof Summarizer === "undefined") {
             console.warn("Summarizer API not supported in this browser.");
             return "";
         }
-
-        const options: SummarizeOptions = {
-            sharedContext: "This is a scientific article",
-            type: "key-points",
-            format: "plain-text",
-            length: "medium",
-            monitor(m) {
-                m.addEventListener("downloadprogress", (e: any) => {
-                    console.log(`Downloaded ${e.loaded * 100}%`);
-                });
-            },
-        };
 
         const availability = await Summarizer.availability();
         if (availability === "unavailable") {
@@ -51,19 +76,29 @@ class GeminiNanoService {
             return "";
         }
 
-        // if (!navigator.userActivation.isActive) {
-        //     console.warn("User interaction required before summarization.");
-        //     return "";
-        // }
+        const cacheKey = this.getCacheKey(options);
+        let summarizer = this.sessionCache.get(cacheKey);
 
-        const summarizer = await Summarizer.create(options);
+        if (!summarizer) {
+            const createOptions = {
+                ...options,
+                monitor(m: any) {
+                    m.addEventListener("downloadprogress", (e: any) => {
+                        console.log(`Downloaded ${e.loaded * 100}%`);
+                    });
+                },
+            };
+            summarizer = await Summarizer.create(createOptions);
+            this.sessionCache.set(cacheKey, summarizer);
+        }
+
         return await summarizer.summarize(inputText, {
             context: "This article is intended for a tech-savvy audience.",
         });
     }
 
     /**
-     * Uses Chrome's Prompt API to ask a question using the LanguageModel.
+     * Uses Chrome's Prompt API to ask a question using the LanguageModel with caching.
      * @param userPrompt The user's question or prompt.
      * @param systemPrompt Optional system-level context (e.g. "You are a helpful assistant")
      * @param schema Optional JSON Schema to constrain the output.
@@ -89,64 +124,45 @@ class GeminiNanoService {
             return "" as string;
         }
 
-        // Optionally monitor download, if model not yet ready
-        const session = await LanguageModel.create({
+        const options = {
             signal: abortSignal,
-            monitor: (m: any) => {
-                m.addEventListener("downloadprogress", (e: any) => {
-                    console.log(
-                        `LanguageModel downloaded ${Math.floor(
-                            e.loaded * 100
-                        )}%`
-                    );
-                });
-            },
-            initialPrompts: systemPrompt
-                ? [
-                      {
-                          role: "system",
-                          content: systemPrompt,
-                      },
-                  ]
-                : undefined,
-        });
+            initialPrompts: systemPrompt ? [{ role: "system", content: systemPrompt }] : undefined,
+        };
+        const cacheKey = this.getCacheKey(options);
+        let session = this.sessionCache.get(cacheKey);
 
-        try {
-            let result: string;
+        if (!session) {
+            session = await LanguageModel.create({
+                ...options,
+                monitor: (m: any) => {
+                    m.addEventListener("downloadprogress", (e: any) => {
+                        console.log(`LanguageModel downloaded ${Math.floor(e.loaded * 100)}%`);
+                    });
+                },
+            });
+            this.sessionCache.set(cacheKey, session);
+        }
 
-            if (schema) {
-                // Constrain the output with JSON Schema
-                result = await session.prompt(userPrompt, {
-                    responseConstraint: schema,
-                    signal: abortSignal,
-                });
-                // Try parsing
-                try {
-                    const parsed = JSON.parse(result);
-                    return parsed as T;
-                } catch (err) {
-                    console.warn(
-                        "Response did not match schema / JSON parse failed",
-                        err
-                    );
-                    // Fallback: return the raw string
-                    return result;
-                }
-            } else {
-                // No schema: just prompt and return string
-                result = await session.prompt(userPrompt, {
-                    signal: abortSignal,
-                });
+        let result: string;
+        if (schema) {
+            result = await session.prompt(userPrompt, {
+                responseConstraint: schema,
+                signal: abortSignal,
+            });
+            try {
+                return JSON.parse(result) as T;
+            } catch (err) {
+                console.warn("Response did not match schema / JSON parse failed", err);
                 return result;
             }
-        } finally {
-            // Clean up
-            await session.destroy();
+        } else {
+            result = await session.prompt(userPrompt, { signal: abortSignal });
+            return result;
         }
     }
 
     /**
-     * Uses Chrome's Prompt API to ask a question using the LanguageModel and streams the response.
+     * Uses Chrome's Prompt API to ask a question using the LanguageModel and streams the response with caching.
      * @param userPrompt The user's question or prompt.
      * @param systemPrompt Optional system-level context (e.g. "You are a helpful assistant")
      * @param onChunk Callback function to handle each chunk of the response.
@@ -160,64 +176,51 @@ class GeminiNanoService {
         schema?: object,
         abortSignal?: AbortSignal
     ): Promise<void> {
-        console.log(
-            "🚀 ~ GeminiNanoService ~ askPromptStreaming ~ userPrompt:",
-            userPrompt
-        );
-        // Feature detect
         if (typeof LanguageModel === "undefined") {
             console.warn("Prompt API not supported in this browser.");
             return;
         }
 
-        // Check availability
         const availability = await LanguageModel.availability();
         if (availability === "unavailable") {
             console.warn("Prompt API is unavailable.");
             return;
         }
 
-        const session = await LanguageModel.create({
+        const options = {
             signal: abortSignal,
-            initialPrompts: systemPrompt
-                ? [
-                      {
-                          role: "system",
-                          content: systemPrompt,
-                      },
-                  ]
-                : undefined,
-        });
+            initialPrompts: systemPrompt ? [{ role: "system", content: systemPrompt }] : undefined,
+        };
+        const cacheKey = this.getCacheKey(options);
+        let session = this.sessionCache.get(cacheKey);
 
-        try {
-            const options: any = { signal: abortSignal };
-            if (schema) {
-                options.responseConstraint = schema;
-            }
+        if (!session) {
+            session = await LanguageModel.create({ ...options });
+            this.sessionCache.set(cacheKey, session);
+        }
 
-            // Get a streaming response
-            const stream = await session.promptStreaming(userPrompt, options);
+        const promptOptions: any = { signal: abortSignal };
+        if (schema) {
+            promptOptions.responseConstraint = schema;
+        }
 
-            // Read from the stream and call the callback for each chunk
-            for await (const chunk of stream) {
-                onChunk(chunk);
-            }
-        } finally {
-            // Clean up
-            await session.destroy();
+        const stream = await session.promptStreaming(userPrompt, promptOptions);
+        for await (const chunk of stream) {
+            onChunk(chunk);
         }
     }
 
     /**
-     * Uses Chrome's Summarizer API to summarize text and streams the response.
+     * Uses Chrome's Summarizer API to summarize text and streams the response with caching.
      * @param inputText The text to summarize.
      * @param onChunk Callback function to handle each chunk of the response.
+     * @param options Options for the summarizer session.
      */
     async summarizeStreaming(
         inputText: string,
-        onChunk: (chunk: string) => void
+        onChunk: (chunk: string) => void,
+        options: any = {}
     ): Promise<void> {
-        // Feature detect
         if (typeof Summarizer === "undefined") {
             console.warn("Summarizer API not supported in this browser.");
             return;
@@ -229,152 +232,111 @@ class GeminiNanoService {
             return;
         }
 
-        // if (!navigator.userActivation.isActive) {
-        //     console.warn("User interaction required before summarization.");
-        //     return;
-        // }
+        const cacheKey = this.getCacheKey(options);
+        let summarizer = this.sessionCache.get(cacheKey);
 
-        const summarizer = await Summarizer.create();
+        if (!summarizer) {
+            summarizer = await Summarizer.create(options);
+            this.sessionCache.set(cacheKey, summarizer);
+        }
+
         const stream = await summarizer.summarizeStreaming(inputText);
-
         for await (const chunk of stream) {
             onChunk(chunk);
+        }
+    }
+
+    /**
+     * Generates a response using the Writer API and streams it back.
+     * @param prompt The prompt to send to the model.
+     * @param messageId A unique ID for the message stream.
+     * @param options Options for the writer session.
+     */
+    async writeStreaming(prompt: string, messageId: string, options: any = {}): Promise<void> {
+        const cacheKey = this.getCacheKey(options);
+        let writer = this.sessionCache.get(cacheKey);
+
+        if (!writer) {
+            const available = await Writer.availability();
+            if (available === "available") {
+                writer = await Writer.create(options);
+            } else {
+                writer = await Writer.create({
+                    ...options,
+                    monitor: (m: any) => {
+                        m.addEventListener("downloadprogress", (e: any) => {
+                            console.log(`Writer downloaded ${e.loaded * 100}%`);
+                        });
+                    },
+                });
+            }
+            this.sessionCache.set(cacheKey, writer);
+        }
+
+        const stream = await writer.writeStreaming(prompt);
+        for await (const chunk of stream) {
+            chrome.runtime.sendMessage({
+                type: "STREAM_UPDATE",
+                payload: { messageId, chunk, isLast: false },
+            });
+        }
+
+        chrome.runtime.sendMessage({
+            type: "STREAM_UPDATE",
+            payload: { messageId, chunk: "", isLast: true },
+        });
+    }
+
+    /**
+     * Formats a response using the Writer API based on a question and data.
+     * @param question The user's original question.
+     * @param mangleResult The data retrieved to answer the question.
+     */
+    async formatResponse(question: string, mangleResult: any): Promise<void> {
+        const messageId = crypto.randomUUID();
+
+        if (typeof Writer === "undefined") {
+            console.warn("Writer API is not supported in this browser.");
+            chrome.runtime.sendMessage({
+                type: "STREAM_UPDATE",
+                payload: {
+                    messageId,
+                    chunk: "The AI writer feature is not available in your browser.",
+                    isLast: true,
+                },
+            });
+            return;
+        }
+
+        let prompt: string;
+        const hasResults = mangleResult && (!Array.isArray(mangleResult) || mangleResult.length > 0);
+
+        if (hasResults) {
+            const jsonResult = JSON.stringify(mangleResult, null, 2);
+            prompt = `You are a helpful assistant. The user asked: "${question}". The following JSON data was retrieved to answer the question: ${jsonResult}. Please format this data into a friendly, conversational sentence that directly answers the user's question.`;
+        } else {
+            prompt = `You are a helpful assistant. The user asked: "${question}". Unfortunately, no relevant information was found to answer this. Please inform the user of this in a polite and conversational way.`;
+        }
+
+        try {
+            await this.writeStreaming(prompt, messageId, {
+                sharedContext: "The user is expecting a well formatted markdown response.",
+                tone: "neutral",
+                format: "markdown",
+                length: "short",
+            });
+        } catch (error) {
+            console.error("Error using the Writer API:", error);
+            chrome.runtime.sendMessage({
+                type: "STREAM_UPDATE",
+                payload: {
+                    messageId,
+                    chunk: "I'm sorry, I encountered an error while trying to generate a response.",
+                    isLast: true,
+                },
+            });
         }
     }
 }
 
 export const geminiNanoService = new GeminiNanoService();
-
-// Make sure the Writer API types are declared if not globally available
-declare const Writer: any;
-
-export async function formatResponseWithAI(
-    question: string,
-    mangleResult: any
-): Promise<void> {
-    console.log("🚀 ~ formatResponseWithAI ~ question:", question);
-    const messageId = crypto.randomUUID();
-
-    // 1. Check for Writer API availability
-    if (typeof Writer === "undefined") {
-        console.warn("Writer API is not supported in this browser.");
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: {
-                messageId,
-                chunk: "The AI writer feature is not available in your browser.",
-                isLast: true,
-            },
-        });
-        return;
-    }
-
-    // 2. Generate a high-quality prompt based on the mangle result
-    let prompt: string;
-    const hasResults =
-        mangleResult &&
-        (!Array.isArray(mangleResult) || mangleResult.length > 0);
-
-    if (hasResults) {
-        const jsonResult = JSON.stringify(mangleResult, null, 2);
-        console.log("🚀 ~ formatResponseWithAI ~ jsonResult:", jsonResult);
-        prompt = `You are a helpful assistant. The user asked: "${question}". The following JSON data was retrieved to answer the question: ${jsonResult}. Please format this data into a friendly, conversational sentence that directly answers the user's question.`;
-    } else {
-        prompt = `You are a helpful assistant. The user asked: "${question}". Unfortunately, no relevant information was found to answer this. Please inform the user of this in a polite and conversational way.`;
-    }
-
-    // 3. Use the Writer API to generate the final response
-    try {
-        await geminiNanoWriteStreaming(prompt, messageId);
-    } catch (error) {
-        console.error("Error using the Writer API:", error);
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: {
-                messageId,
-                chunk: "I'm sorry, I encountered an error while trying to generate a response.",
-                isLast: true,
-            },
-        });
-    }
-}
-
-async function geminiNanoWriteStreaming(
-    prompt: string,
-    messageId: string
-): Promise<void> {
-    const options = {
-        sharedContext:
-            "The user is expecting a well formatted markdown response.",
-        tone: "neutral",
-        format: "markdown",
-        length: "short",
-    };
-
-    const available = await Writer.availability();
-    let writer;
-
-    if (available === "available") {
-        // The Writer API can be used immediately .
-        writer = await Writer.create(options);
-    } else {
-        // The Writer can be used after the model is downloaded.
-        writer = await Writer.create({
-            ...options,
-            monitor(m: any) {
-                m.addEventListener("downloadprogress", (e: any) => {
-                    console.log(`Downloaded ${e.loaded * 100}%`);
-                });
-            },
-        });
-    }
-
-    const stream = await writer.writeStreaming(prompt);
-    for await (const chunk of stream) {
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: { messageId, chunk, isLast: false },
-        });
-    }
-
-    // Send the final message
-    chrome.runtime.sendMessage({
-        type: "STREAM_UPDATE",
-        payload: { messageId, chunk: "", isLast: true },
-    });
-}
-
-async function geminiNanoSummariseStreaming(): Promise<void> {
-    const options = {
-        sharedContext: "This is a scientific article",
-        type: "key-points",
-        format: "markdown",
-        length: "medium",
-        monitor(m: any) {
-            m.addEventListener("downloadprogress", (e) => {
-                console.log(`Downloaded ${e.loaded * 100}%`);
-            });
-        },
-    };
-
-    const availability = await Summarizer.availability();
-    if (availability === "unavailable") {
-        // The Summarizer API isn't usable.
-        console.log("The Summarizer API isn't usable.");
-    } else {
-        // Check for user activation before creating the summarizer
-        if (navigator.userActivation.isActive) {
-            const summarizer = await Summarizer.create(options);
-            const longText = ``;
-            const stream = summarizer.summarizeStreaming(longText, {
-                context: "This is a travel website about wine tours",
-            });
-
-            let outputSummary = "";
-            for await (const chunk of stream) {
-                outputSummary = outputSummary + chunk;
-                console.log(outputSummary);
-            }
-        }
-    }
-}
