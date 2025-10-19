@@ -1,3 +1,6 @@
+// Make sure the Writer API types are declared if not globally available
+declare const Writer: any;
+
 class GeminiNanoService {
     private sessionCache = new Map<string, any>();
 
@@ -5,19 +8,19 @@ class GeminiNanoService {
         // Reserved for future config
     }
 
-    /**
+    /**s
      * Generates a consistent cache key from a session's configuration object.
      * @param options The options object for creating the session.
      * @returns A stringified, sorted representation of the options.
      */
     private getCacheKey(options: object): string {
-        if (!options) return 'default';
-        const sortedOptions = Object.keys(options).sort().reduce(
-            (acc, key) => {
+        if (!options) return "default";
+        const sortedOptions = Object.keys(options)
+            .sort()
+            .reduce((acc, key) => {
                 acc[key] = options[key];
                 return acc;
-            }, {} as { [key: string]: any }
-        );
+            }, {} as { [key: string]: any });
         return JSON.stringify(sortedOptions);
     }
 
@@ -26,7 +29,7 @@ class GeminiNanoService {
      */
     async clearCache() {
         for (const session of this.sessionCache.values()) {
-            if (session && typeof session.destroy === 'function') {
+            if (session && typeof session.destroy === "function") {
                 await session.destroy();
             }
         }
@@ -125,7 +128,9 @@ class GeminiNanoService {
 
         const options = {
             signal: abortSignal,
-            initialPrompts: systemPrompt ? [{ role: "system", content: systemPrompt }] : undefined,
+            initialPrompts: systemPrompt
+                ? [{ role: "system", content: systemPrompt }]
+                : undefined,
         };
         const cacheKey = this.getCacheKey(options);
         let session = this.sessionCache.get(cacheKey);
@@ -135,7 +140,11 @@ class GeminiNanoService {
                 ...options,
                 monitor: (m: any) => {
                     m.addEventListener("downloadprogress", (e: any) => {
-                        console.log(`LanguageModel downloaded ${Math.floor(e.loaded * 100)}%`);
+                        console.log(
+                            `LanguageModel downloaded ${Math.floor(
+                                e.loaded * 100
+                            )}%`
+                        );
                     });
                 },
             });
@@ -151,7 +160,10 @@ class GeminiNanoService {
             try {
                 return JSON.parse(result) as T;
             } catch (err) {
-                console.warn("Response did not match schema / JSON parse failed", err);
+                console.warn(
+                    "Response did not match schema / JSON parse failed",
+                    err
+                );
                 return result;
             }
         } else {
@@ -188,7 +200,9 @@ class GeminiNanoService {
 
         const options = {
             signal: abortSignal,
-            initialPrompts: systemPrompt ? [{ role: "system", content: systemPrompt }] : undefined,
+            initialPrompts: systemPrompt
+                ? [{ role: "system", content: systemPrompt }]
+                : undefined,
         };
         const cacheKey = this.getCacheKey(options);
         let session = this.sessionCache.get(cacheKey);
@@ -251,7 +265,11 @@ class GeminiNanoService {
      * @param messageId A unique ID for the message stream.
      * @param options Options for the writer session.
      */
-    async writeStreaming(prompt: string, messageId: string, options: any = {}): Promise<void> {
+    async writeStreaming(
+        prompt: string,
+        messageId: string,
+        options: any = {}
+    ): Promise<void> {
         const cacheKey = this.getCacheKey(options);
         let writer = this.sessionCache.get(cacheKey);
 
@@ -309,7 +327,9 @@ export async function formatResponseWithAI(
     }
 
     let prompt: string;
-    const hasResults = mangleResult && (!Array.isArray(mangleResult) || mangleResult.length > 0);
+    const hasResults =
+        mangleResult &&
+        (!Array.isArray(mangleResult) || mangleResult.length > 0);
 
     if (hasResults) {
         const jsonResult = JSON.stringify(mangleResult, null, 2);
@@ -320,7 +340,8 @@ export async function formatResponseWithAI(
 
     try {
         const options = {
-            sharedContext: "The user is expecting a well formatted markdown response.",
+            sharedContext:
+                "The user is expecting a well formatted markdown response.",
             tone: "neutral",
             format: "markdown",
             length: "short",
@@ -338,4 +359,3 @@ export async function formatResponseWithAI(
         });
     }
 }
-
