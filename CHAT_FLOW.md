@@ -18,7 +18,7 @@ sequenceDiagram
     Note right of ServiceWorker: The corresponding Mangle query is retrieved from `hotelQueries`.
     ServiceWorker->>ServiceWorker: mangleQuery(mangleQueryString)
     ServiceWorker->>ServiceWorker: formatResponseWithAI(question, mangleResult)
-    Note right of ServiceWorker: The Gemini Nano Writer API is used to generate a natural language response.
+    Note right of ServiceWorker: This calls `geminiNanoService.writeStreaming` internally.
     ServiceWorker->>PopupUI: chrome.runtime.sendMessage({ type: "STREAM_UPDATE", payload: { messageId, chunk, isLast } })
     PopupUI->>PopupUI: useAiMessageStream listens for "STREAM_UPDATE"
     PopupUI->>PopupUI: chatComponent.streamAiResponse(messageId)(chunk)
@@ -47,9 +47,9 @@ The chat information flow can be broken down into the following steps:
     *   **Files**: `src/service-worker-2/handlers/questionHandler.ts`, `src/service-worker-2/handlers/hotelDataHandler.ts`
 
 4.  **AI Response Generation**:
-    *   The result of the Mangle query (or `null` if no result was found) is passed to the `formatResponseWithAI` function in `geminiNanoService.ts`.
-    *   This function constructs a prompt for the Gemini Nano Writer API, including the user's original question and the Mangle query result.
-    *   The `geminiNanoWriteStreaming` function is called, which uses the `Writer` API to generate a natural language response and streams it back.
+    *   The result of the Mangle query (or `null` if no result was found) is passed to the standalone `formatResponseWithAI` function.
+    *   This function constructs a prompt and a specific `options` object for the Gemini Nano Writer API.
+    *   It then calls the generic `geminiNanoService.writeStreaming` method, which uses the `Writer` API (with session caching) to generate a natural language response and stream it back.
     *   As the response is generated, messages of type `"STREAM_UPDATE"` are sent to the Popup UI.
     *   **Files**: `src/service-worker-2/handlers/hotelDataHandler.ts`, `src/service-worker-2/geminiNano/geminiNanoService.ts`
 
