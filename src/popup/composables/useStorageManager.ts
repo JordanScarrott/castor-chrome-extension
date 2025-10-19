@@ -1,5 +1,6 @@
 import { useChromeStorage } from "./useChromeStorage";
 import { useStorage } from "@vueuse/core";
+import { getNamespacedKey as getKey } from "../../utils/storageUtils";
 
 /**
  * A Vue composable that provides namespaced storage utilities.
@@ -9,7 +10,7 @@ import { useStorage } from "@vueuse/core";
  * @param tabGroupId The ID of the tab group to namespace the storage for.
  */
 export function useStorageManager(tabGroupId: number | string) {
-    const getNamespacedKey = (key: string) => `${tabGroupId}_${key}`;
+    const getNamespacedKey = (key: string) => getKey(key, tabGroupId);
 
     /**
      * Creates a reactive ref synced with localStorage, namespaced by the tab group ID.

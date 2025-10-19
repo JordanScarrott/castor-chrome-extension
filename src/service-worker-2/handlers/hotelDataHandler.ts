@@ -1,6 +1,7 @@
 import { initializeMangleInstance } from "@/tests/modules/mangle/mangleRunTimeUtils";
 import { ApiContract } from "@/types";
 import { formatResponseWithAI } from "../geminiNano/geminiNanoService";
+import { getNamespacedKey } from "@/utils/storageUtils";
 
 export async function handleHotelDataExtraction(
     payload: ApiContract["HOTEL_DATA_EXTRACTED"][0]
@@ -9,7 +10,10 @@ export async function handleHotelDataExtraction(
         "Received hotel data in service worker. Ingesting into mangle",
         payload
     );
-    const result = await analyzeHotelData(payload);
+    const result = await analyzeHotelData(
+        payload.hotelData,
+        payload.tabGroupId
+    );
 
     console.log(result);
     return { result };
@@ -111,7 +115,10 @@ export type QandA = {
  * @param hotelData - The array of hotel data from the content script.
  * @returns A promise that resolves to an array of question-and-answer objects.
  */
-export async function analyzeHotelData(hotelData: HotelInfo[]) {
+export async function analyzeHotelData(
+    hotelData: HotelInfo[],
+    tabGroupId: number
+) {
     await initializeMangleInstance();
 
     // 1. Prime the predicates by defining dummy facts first.
@@ -130,7 +137,8 @@ export async function analyzeHotelData(hotelData: HotelInfo[]) {
     console.log("🚀 ~ analyzeHotelData ~ facts:", facts);
 
     // Save all facts to localStorage
-    chrome.storage.local.set({ ["mangle_facts"]: facts });
+    const key = getNamespacedKey("mangle_facts", tabGroupId);
+    chrome.storage.local.set({ [key]: facts });
 
     // Define all facts and rules in the Mangle engine
     // (You might want to clear the engine first if it's not a fresh instance)

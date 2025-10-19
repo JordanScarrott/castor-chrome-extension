@@ -18,9 +18,25 @@ const handlers = {
     HOTEL_DATA_EXTRACTED: handleHotelDataExtraction,
 };
 
-export function routeMessage(message: Message<MessageType>) {
+export function routeMessage(
+    message: Message<MessageType>,
+    sender: chrome.runtime.MessageSender
+) {
     const handler = handlers[message.type];
     if (handler) {
+        // If the message is HOTEL_DATA_EXTRACTED, inject the tabGroupId into the payload.
+        if (
+            message.type === "HOTEL_DATA_EXTRACTED" &&
+            sender.tab &&
+            sender.tab.groupId
+        ) {
+            const payloadWithTabGroupId = {
+                ...message.payload,
+                tabGroupId: sender.tab.groupId,
+            };
+            return (handler as any)(payloadWithTabGroupId);
+        }
+
         return (handler as any)(message.payload);
     } else {
         return Promise.reject(
