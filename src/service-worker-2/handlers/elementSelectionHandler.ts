@@ -87,7 +87,7 @@ export async function handleElementSelection(html: string) {
         required: ["tour_name"], // We need the name to link everything
     };
 
-    const userPrompt = `Please extract all relevant information from the following text:\n${html}`;
+    const userPrompt = `Please extract all relevant information from the following text:\n`;
     const systemPrompt = `You are a highly accurate data extraction AI. Analyze the user-provided text and populate the given JSON schema with all relevant information. Be precise. If information for a field cannot be found, omit it from the output.`;
     const goalSchema = tourLogisticsSchema;
 
@@ -103,11 +103,14 @@ export async function handleElementSelection(html: string) {
 
     try {
         // 🚀 Pass the goalSchema directly to the API call
-        await geminiNanoService.askPromptStreaming(
-            userPrompt,
+        await geminiNanoService.askPromptStreamingBatched(
+            html,
             systemPrompt,
+            (batchText: string) => userPrompt + batchText,
             onRawChunk,
-            goalSchema // The schema is now a direct parameter
+            {
+                schema: goalSchema,
+            }
         );
     } catch (error) {
         console.error("Error during streaming:", error);
