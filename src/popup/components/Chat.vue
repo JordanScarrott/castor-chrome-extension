@@ -239,9 +239,18 @@ const updateAnalysisCard = (id: string, newIdea: string) => {
 };
 
 const completeAnalysisCard = (id: string) => {
-    const message = messages.value.find((m) => m.id === id);
-    if (message?.analysisData) {
-        message.analysisData.status = "complete";
+    const messageIndex = messages.value.findIndex((m) => m.id === id);
+    if (messageIndex !== -1) {
+        const message = messages.value[messageIndex];
+        if (message.analysisData) {
+            messages.value[messageIndex] = {
+                ...message,
+                analysisData: {
+                    ...message.analysisData,
+                    status: "complete",
+                },
+            };
+        }
     }
 };
 

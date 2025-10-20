@@ -196,6 +196,15 @@ export async function handleElementSelection(html: string) {
         //     payload: { messageId, chunk: "", isLast: true },
         // });
 
+        // --- Add a final "Analysis complete" message ---
+        chrome.runtime.sendMessage({
+            type: "ADD_ANALYSIS_IDEA",
+            payload: {
+                analysisId: analysisId,
+                idea: "Analysis complete.",
+            },
+        });
+
         // --- Complete Analysis Card ---
         chrome.runtime.sendMessage({
             type: "COMPLETE_ANALYSIS",
