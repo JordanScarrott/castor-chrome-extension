@@ -1,6 +1,8 @@
 import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
 import { StreamingJSONParser } from "@/service-worker-2/utils/StreamingJSONParser";
+import { findNewValues } from "@/service-worker-2/utils/findNewValues";
+import { debounce } from "es-toolkit";
 
 export async function handleElementSelection(html: string) {
     const messageId = crypto.randomUUID();
@@ -94,10 +96,43 @@ export async function handleElementSelection(html: string) {
 
     const jsonParser = new StreamingJSONParser();
     let fullJsonResponse = "";
+    let previousJsonObject: any = null;
+
+    const debouncedProcessUpdate = debounce(async (currentJson) => {
+        const newItems = findNewValues(currentJson, previousJsonObject);
+
+        for (const item of newItems) {
+            const systemPrompt = `You are a discovery agent announcing new information as it's found. Your announcements must be extremely short (under 5 words) and act as a quick status update. Focus on the most important part of the value. Do not mention JSON keys.`;
+            const userPrompt = `The following data was just discovered: ${JSON.stringify(
+                item
+            )}. Announce this discovery.
+
+Examples of good announcements:
+- For "Winelands Tour", announce: "Found: Winelands Tour"
+- For {"location_name": "V&A Waterfront"}, announce: "New Location: V&A Waterfront"
+- For "Wine tasting with Cheese", announce: "Added: Wine tasting"
+- For "Cost of lunch", announce: "Excludes lunch cost"`;
+            const prompt = `${systemPrompt}\n\n${userPrompt}`;
+            const notificationMessageId = crypto.randomUUID();
+            const options = { length: "short", tone: "neutral" };
+
+            geminiNanoService.writeStreaming(
+                prompt,
+                notificationMessageId,
+                options
+            );
+        }
+
+        previousJsonObject = currentJson;
+    }, 400);
+
     const onRawChunk = (rawChunk: string) => {
         fullJsonResponse += rawChunk;
+        const newJsonObject = jsonParser.parse(fullJsonResponse);
 
-        console.log("parser: ", jsonParser.parse(fullJsonResponse));
+        if (newJsonObject) {
+            debouncedProcessUpdate(newJsonObject);
+        }
 
         chrome.runtime.sendMessage({
             type: "STREAM_UPDATE",
