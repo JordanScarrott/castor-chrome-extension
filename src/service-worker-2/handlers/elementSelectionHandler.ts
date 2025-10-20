@@ -1,5 +1,6 @@
 import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
+import { StreamingJSONParser } from "@/service-worker-2/utils/StreamingJSONParser";
 
 export async function handleElementSelection(html: string) {
     const messageId = crypto.randomUUID();
@@ -91,9 +92,12 @@ export async function handleElementSelection(html: string) {
     const systemPrompt = `You are a highly accurate data extraction AI. Analyze the user-provided text and populate the given JSON schema with all relevant information. Be precise. If information for a field cannot be found, omit it from the output.`;
     const goalSchema = tourLogisticsSchema;
 
+    const jsonParser = new StreamingJSONParser();
     let fullJsonResponse = "";
     const onRawChunk = (rawChunk: string) => {
         fullJsonResponse += rawChunk;
+
+        console.log("parser: ", jsonParser.parse(fullJsonResponse));
 
         chrome.runtime.sendMessage({
             type: "STREAM_UPDATE",
