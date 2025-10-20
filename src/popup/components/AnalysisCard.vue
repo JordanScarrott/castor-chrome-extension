@@ -3,7 +3,9 @@
         <div class="card-header">
             <CastorIcon class="card-icon" :loading="data.status === 'analyzing'" />
             <h3 class="topic">{{ data.topic }}</h3>
-            <span class="status-text" :class="{ 'is-hidden': data.status === 'complete' }">Analyzing...</span>
+            <span class="status-text" :class="{ 'is-complete': data.status === 'complete' }">
+                {{ data.status === 'complete' ? 'Complete' : 'Analyzing...' }}
+            </span>
         </div>
         <div class="ideas-container">
             <TransitionGroup name="idea-list" tag="ul">
@@ -60,11 +62,12 @@ const displayedIdeas = computed(() => props.data.ideas.slice(-3));
 .status-text {
   font-size: 14px;
   color: #5f6368;
-  transition: visibility 0.1s; /* Add a small transition */
+  transition: color 0.3s;
 }
 
-.status-text.is-hidden {
-  visibility: hidden;
+.status-text.is-complete {
+  color: #008000; /* A nice green color for complete */
+  font-weight: 500;
 }
 
 .ideas-container {
