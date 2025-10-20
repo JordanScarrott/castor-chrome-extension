@@ -28,6 +28,7 @@
     "dependencies": {
         "@vueuse/core": "^13.9.0",
         "dompurify": "^3.3.0",
+        "es-toolkit": "^1.40.0",
         "markdown-it": "^14.1.0",
         "pinia": "^3.0.3",
         "streaming-markdown": "^0.2.15"

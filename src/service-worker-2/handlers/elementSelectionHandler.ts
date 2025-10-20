@@ -1,6 +1,8 @@
 import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
 import { StreamingJSONParser } from "@/service-worker-2/utils/StreamingJSONParser";
+import { findNewValues } from "@/service-worker-2/utils/findNewValues";
+import { debounce, throttle } from "es-toolkit";
 
 export async function handleElementSelection(html: string) {
     const messageId = crypto.randomUUID();
@@ -94,15 +96,32 @@ export async function handleElementSelection(html: string) {
 
     const jsonParser = new StreamingJSONParser();
     let fullJsonResponse = "";
+    let previousJsonObject: any = null;
+
+    const throttledCreateInsight = throttle(async (currentJson: string) => {
+        console.log("🚀 ~ handleElementSelection ~ currentJson:", currentJson);
+        const newItems = findNewValues(currentJson, previousJsonObject);
+        previousJsonObject = currentJson;
+
+        const item = getFirstPrimitiveValue(newItems);
+        if (item) {
+            createInsight(item + "", analysisId);
+        }
+    }, 1500);
+
     const onRawChunk = (rawChunk: string) => {
         fullJsonResponse += rawChunk;
+        const newJsonObject = jsonParser.parse(fullJsonResponse);
 
-        console.log("parser: ", jsonParser.parse(fullJsonResponse));
+        if (newJsonObject) {
+            console.log("🚀 ~ onRawChunk ~ newJsonObject:", newJsonObject);
+            throttledCreateInsight(newJsonObject);
+        }
 
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: { messageId, chunk: rawChunk, isLast: false },
-        });
+        // chrome.runtime.sendMessage({
+        //     type: "STREAM_UPDATE",
+        //     payload: { messageId, chunk: rawChunk, isLast: false },
+        // });
     };
 
     try {
@@ -140,27 +159,27 @@ export async function handleElementSelection(html: string) {
             );
 
             // --- Add Analysis Ideas ---
-            if (parsedData.tour_name) {
-                chrome.runtime.sendMessage({
-                    type: "ADD_ANALYSIS_IDEA",
-                    payload: {
-                        analysisId: analysisId,
-                        idea: `Extracted Tour: ${parsedData.tour_name}`,
-                    },
-                });
-            }
-            if (
-                parsedData.meeting_points &&
-                parsedData.meeting_points.length > 0
-            ) {
-                chrome.runtime.sendMessage({
-                    type: "ADD_ANALYSIS_IDEA",
-                    payload: {
-                        analysisId: analysisId,
-                        idea: `Found ${parsedData.meeting_points.length} meeting point(s).`,
-                    },
-                });
-            }
+            // if (parsedData.tour_name) {
+            //     chrome.runtime.sendMessage({
+            //         type: "ADD_ANALYSIS_IDEA",
+            //         payload: {
+            //             analysisId: analysisId,
+            //             idea: `Extracted Tour: ${parsedData.tour_name}`,
+            //         },
+            //     });
+            // }
+            // if (
+            //     parsedData.meeting_points &&
+            //     parsedData.meeting_points.length > 0
+            // ) {
+            //     chrome.runtime.sendMessage({
+            //         type: "ADD_ANALYSIS_IDEA",
+            //         payload: {
+            //             analysisId: analysisId,
+            //             idea: `Found ${parsedData.meeting_points.length} meeting point(s).`,
+            //         },
+            //     });
+            // }
         } catch (e) {
             console.error("Failed to parse JSON from AI response:", e);
             chrome.runtime.sendMessage({
@@ -172,10 +191,10 @@ export async function handleElementSelection(html: string) {
             });
         }
 
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: { messageId, chunk: "", isLast: true },
-        });
+        // chrome.runtime.sendMessage({
+        //     type: "STREAM_UPDATE",
+        //     payload: { messageId, chunk: "", isLast: true },
+        // });
 
         // --- Complete Analysis Card ---
         chrome.runtime.sendMessage({
@@ -184,5 +203,82 @@ export async function handleElementSelection(html: string) {
                 analysisId: analysisId,
             },
         });
+    }
+}
+
+async function createInsight(item: string, analysisId: string): Promise<void> {
+    // for (const item of newItems) {
+    //     const systemPrompt = `You are a discovery agent announcing new information as it's found. Your announcements must be extremely short (under 5 words) and act as a quick status update. Focus on the most important part of the value. Do not mention JSON keys.`;
+    //     const userPrompt = `The following data was just discovered: ${JSON.stringify(
+    //         item
+    //     )}. Announce this discovery.
+
+    // Examples of good announcements:
+    // - For "Winelands Tour", announce: "Found: Winelands Tour"
+    // - For {"location_name": "V&A Waterfront"}, announce: "New Location: V&A Waterfront"
+    // - For "Wine tasting with Cheese", announce: "Added: Wine tasting"
+    // - For "Cost of lunch", announce: "Excludes lunch cost"`;
+    //     // const prompt = `${systemPrompt}\n\n${userPrompt}`;
+    //     const notificationMessageId = crypto.randomUUID();
+    //     // const options = { length: "short", tone: "neutral" };
+
+    //     const insight = await geminiNanoService.write(
+    //         systemPrompt,
+    //         userPrompt,
+    //         notificationMessageId
+    //         // options
+    //     );
+
+    // const trimmedInsight = insight.split("\n").at(0);
+    const trimmedInsight = item;
+
+    chrome.runtime.sendMessage({
+        type: "ADD_ANALYSIS_IDEA",
+        payload: {
+            analysisId: analysisId,
+            idea: trimmedInsight || "",
+        },
+    });
+}
+
+/**
+ * Recursively traverses a JSON object or array to find the very first
+ * primitive value (string, number, boolean, null). It always follows the
+ * first key of an object or the first element of an array.
+ *
+ * @param data The object or array to start searching from.
+ * @returns The first primitive value found, or `undefined` if the object is
+ * empty, contains only empty structures, or is not a valid object/array.
+ */
+function getFirstPrimitiveValue(
+    data: any
+): string | number | boolean | null | undefined {
+    // Guard against null, undefined, or primitive inputs.
+    if (data === null || typeof data !== "object") {
+        return data;
+    }
+
+    // Determine if the current data is an array or a plain object.
+    const isArray = Array.isArray(data);
+    const keysOrIndices = isArray
+        ? Object.keys(data).map(Number)
+        : Object.keys(data);
+
+    // If the object/array is empty, we can't go deeper.
+    if (keysOrIndices.length === 0) {
+        return undefined;
+    }
+
+    // Get the first element or the value of the first key.
+    const firstKeyOrIndex = keysOrIndices[0];
+    const nextValue = data[firstKeyOrIndex];
+
+    // This is the recursive step:
+    // If the next value is still an object, call the function again.
+    // Otherwise, we've found our primitive value.
+    if (typeof nextValue === "object" && nextValue !== null) {
+        return getFirstPrimitiveValue(nextValue);
+    } else {
+        return nextValue;
     }
 }

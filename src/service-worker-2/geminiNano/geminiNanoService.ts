@@ -312,6 +312,31 @@ class GeminiNanoService {
         }
     }
 
+    async write(
+        context: string,
+        message: string,
+        messageId: string
+    ): Promise<string> {
+        const options = {
+            sharedContext: context,
+            tone: "neutral",
+            format: "plain-text",
+            length: "short",
+        };
+
+        // The Writer can be used after the model is downloaded.
+        const writer = await Writer.create({
+            ...options,
+            monitor(m) {
+                m.addEventListener("downloadprogress", (e) => {
+                    console.log(`Downloaded ${e.loaded * 100}%`);
+                });
+            },
+        });
+
+        return await writer.write(message);
+    }
+
     /**
      * Generates a response using the Writer API and streams it back.
      * @param prompt The prompt to send to the model.
