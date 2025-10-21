@@ -97,6 +97,7 @@ export async function handleElementSelection(html: string) {
     const jsonParser = new StreamingJSONParser();
     let fullJsonResponse = "";
     let previousJsonObject: any = null;
+    let finishedAnalysing = false;
 
     const throttledCreateInsight = throttle(async (currentJson: string) => {
         console.log("🚀 ~ handleElementSelection ~ currentJson:", currentJson);
@@ -105,7 +106,22 @@ export async function handleElementSelection(html: string) {
 
         const item = getFirstPrimitiveValue(newItems);
         if (item) {
-            createInsight(item + "", analysisId);
+            chrome.runtime.sendMessage({
+                type: "ADD_ANALYSIS_IDEA",
+                payload: {
+                    analysisId: analysisId,
+                    idea: item || "",
+                },
+            });
+        }
+
+        if (finishedAnalysing) {
+            chrome.runtime.sendMessage({
+                type: "COMPLETE_ANALYSIS",
+                payload: {
+                    analysisId: analysisId,
+                },
+            });
         }
     }, 1500);
 
@@ -197,48 +213,8 @@ export async function handleElementSelection(html: string) {
         // });
 
         // --- Complete Analysis Card ---
-        chrome.runtime.sendMessage({
-            type: "COMPLETE_ANALYSIS",
-            payload: {
-                analysisId: analysisId,
-            },
-        });
+        finishedAnalysing = true;
     }
-}
-
-async function createInsight(item: string, analysisId: string): Promise<void> {
-    // for (const item of newItems) {
-    //     const systemPrompt = `You are a discovery agent announcing new information as it's found. Your announcements must be extremely short (under 5 words) and act as a quick status update. Focus on the most important part of the value. Do not mention JSON keys.`;
-    //     const userPrompt = `The following data was just discovered: ${JSON.stringify(
-    //         item
-    //     )}. Announce this discovery.
-
-    // Examples of good announcements:
-    // - For "Winelands Tour", announce: "Found: Winelands Tour"
-    // - For {"location_name": "V&A Waterfront"}, announce: "New Location: V&A Waterfront"
-    // - For "Wine tasting with Cheese", announce: "Added: Wine tasting"
-    // - For "Cost of lunch", announce: "Excludes lunch cost"`;
-    //     // const prompt = `${systemPrompt}\n\n${userPrompt}`;
-    //     const notificationMessageId = crypto.randomUUID();
-    //     // const options = { length: "short", tone: "neutral" };
-
-    //     const insight = await geminiNanoService.write(
-    //         systemPrompt,
-    //         userPrompt,
-    //         notificationMessageId
-    //         // options
-    //     );
-
-    // const trimmedInsight = insight.split("\n").at(0);
-    const trimmedInsight = item;
-
-    chrome.runtime.sendMessage({
-        type: "ADD_ANALYSIS_IDEA",
-        payload: {
-            analysisId: analysisId,
-            idea: trimmedInsight || "",
-        },
-    });
 }
 
 /**
