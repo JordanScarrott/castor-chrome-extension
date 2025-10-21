@@ -18,8 +18,6 @@ import { onMounted, onUnmounted, ref } from "vue";
 // 1. Give the component a name so you can call its methods
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 
-// useAnalysisDemo(chatComponent);
-// const mangleFacts = useChromeStorage<string[]>("mangle_facts", []); // For accessing the mangle facts from local storage
 
 const handleMessage = (message: any) => {
     if (!message.type || !message.payload || !message.payload.analysisId)
@@ -58,7 +56,6 @@ onUnmounted(() => {
 const currentQuestions = ref(hotelNaturalLanguageQuestions);
 
 import { useAiMessageStream } from "@/popup/composables/useAiMessageStream";
-import { useChromeStorage } from "@/popup/composables/useChromeStorage";
 
 const { isLoading, startLoading, stopLoading } = useAiMessageStream(
     (messageId) => chatComponent.value?.streamAiResponse(messageId)

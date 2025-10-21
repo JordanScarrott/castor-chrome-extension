@@ -60,27 +60,6 @@
 
             <!-- Text Input and Send Button -->
             <form @submit.prevent="handleSubmit" class="input-form">
-                <button
-                    type="button"
-                    @click="handleAttachClick"
-                    :disabled="props.isLoading"
-                    class="send-btn"
-                >
-                    <svg
-                        class="send-icon"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                        ></path>
-                    </svg>
-                </button>
                 <input
                     v-model="userInput"
                     type="text"
@@ -103,9 +82,7 @@
 <script setup lang="ts">
 import { Message, usePersistedChat } from "@/popup/composables/usePersistChat";
 import { nextTick, onMounted, ref } from "vue";
-import { usePageAttachment } from "../composables/usePageAttachment";
 import AnalysisCard from "./AnalysisCard.vue";
-import CastorIcon from "./CastorIcon.vue";
 import HorizontalScroller from "./HorizontalScroller.vue";
 import MarkdownStream from "./MarkdownStream.vue";
 import SendIcon from "./SendIcon.vue";
@@ -137,12 +114,8 @@ const userInput = ref("");
 const messageContainer = ref<HTMLElement | null>(null);
 
 // --- COMPOSABLES ---
-const { attachFromPage } = usePageAttachment();
 
 // --- METHODS ---
-const handleAttachClick = () => {
-    attachFromPage();
-};
 const scrollToBottom = () => {
     nextTick(() => {
         if (messageContainer.value) {
@@ -212,7 +185,6 @@ const streamAiResponse = (messageId: string) => {
 // --- COMPONENT API and STREAMING LOGIC ---
 const chatApi = { streamAiResponse };
 const chatApiRef = ref(chatApi);
-// useMessageStreamer(chatApiRef);
 
 // --- ANALYSIS CARD METHODS ---
 const addAnalysisCard = (id: string, topic: string) => {
