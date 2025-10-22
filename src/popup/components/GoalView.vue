@@ -11,6 +11,9 @@
                 rows="2"
             ></textarea>
             <div class="button-container">
+                <button type="button" class="upload-btn" disabled>
+                    <PaperclipIcon />
+                </button>
                 <button
                     type="submit"
                     :disabled="!goalInput.trim() || isLoading"
@@ -30,6 +33,7 @@ import { useSessionStore } from "../store/sessionStore";
 import { useTabGroupManager } from "../composables/useTabGroupManager";
 import { generateTabGroupTitleWithNano } from "@/utils/textUtils";
 import SendIcon from "./SendIcon.vue";
+import PaperclipIcon from "./PaperclipIcon.vue";
 
 const store = useSessionStore();
 const goalInput = ref("");
@@ -70,9 +74,8 @@ const handleGoalSubmission = async () => {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    justify-content: space-between;
+    padding: 2.5rem 1rem 2rem;
     background-color: #f9fafb;
 }
 
@@ -87,13 +90,14 @@ const handleGoalSubmission = async () => {
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
-    padding: 12px 12px 8px 12px;
+    padding: 16px 16px 12px 16px;
     border-radius: 24px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid #dcdfe2;
     transition: box-shadow 0.2s;
-    width: 90%;
+    width: 100%;
     max-width: 28rem;
+    margin: 0 auto;
 }
 .input-wrapper:focus-within {
     box-shadow: 0 0 0 2px #d2e3fc;
@@ -116,8 +120,20 @@ const handleGoalSubmission = async () => {
 }
 .button-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     width: 100%;
+    align-items: center;
+}
+.upload-btn {
+    padding: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #9ab0c9;
+    border: none;
+    cursor: not-allowed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .send-btn {
     padding: 8px;
