@@ -5,7 +5,13 @@
     "description": "The second brain for the browser.",
     "permissions": ["activeTab", "scripting", "storage", "tabGroups"],
     "action": {
-        "default_popup": "index.html"
+        "default_popup": "index.html",
+        "default_icon": {
+            "128": "icon128.png"
+        }
+    },
+    "icons": {
+        "128": "icon128.png"
     },
     "background": {
         "service_worker": "background.js",

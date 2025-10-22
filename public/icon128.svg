@@ -1,8 +1,8 @@
 <svg 
   xmlns="http://www.w3.org/2000/svg" 
-  width="40" 
-  height="40"
-  viewBox="0 0 40 40" 
+  width="28" 
+  height="28"
+  viewBox="0 0 28 28" 
   fill="#0b57d0"
 >
   <title>Castor Icon</title>
@@ -12,7 +12,7 @@
     The viewBox is 40 high, the content is 20 high.
     (40 - 20) / 2 = 10. We translate 10 units down.
   -->
-  <g transform="translate(0, 10)">
+  <g transform="translate(0, 5)">
     <!-- 
       First (larger) star:
       Original 24x24 path scaled down to 20x20 (20/24 = 0.8333)
@@ -27,7 +27,7 @@
       - Translated 22 units right (20 for the first star + 2 for the gap)
       - Translated 1 unit down to be vertically centered ( (20 - 18) / 2 )
     -->
-    <g transform="translate(22, 1) scale(0.75)">
+    <g transform="translate(15, 1.5) scale(0.75)">
       <path d="M12,6.5L13.5,10L17,11.5L13.5,13L12,16.5L10.5,13L7,11.5L10.5,10L12,6.5Z" />
     </g>
   </g>
