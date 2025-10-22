@@ -3,20 +3,26 @@
         <!-- <h1 class="tagline">Let's browse the web better</h1> -->
         <h1 class="tagline">Turn browsing into insight</h1>
         <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
-            <input
+            <textarea
                 v-model="goalInput"
-                type="text"
                 :placeholder="animatedPlaceholder"
                 class="goal-input"
                 :disabled="isLoading"
-            />
-            <button
-                type="submit"
-                :disabled="!goalInput.trim() || isLoading"
-                class="send-btn"
-            >
-                <SendIcon :is-loading="isLoading" />
-            </button>
+                rows="2"
+                @keydown="handleKeyPress"
+            ></textarea>
+            <div class="button-container">
+                <button type="button" class="upload-btn" disabled>
+                    <PaperclipIcon />
+                </button>
+                <button
+                    type="submit"
+                    :disabled="!goalInput.trim() || isLoading"
+                    class="send-btn"
+                >
+                    <SendIcon :is-loading="isLoading" />
+                </button>
+            </div>
         </form>
     </div>
 </template>
@@ -28,6 +34,7 @@ import { useSessionStore } from "../store/sessionStore";
 import { useTabGroupManager } from "../composables/useTabGroupManager";
 import { generateTabGroupTitleWithNano } from "@/utils/textUtils";
 import SendIcon from "./SendIcon.vue";
+import PaperclipIcon from "./PaperclipIcon.vue";
 
 const store = useSessionStore();
 const goalInput = ref("");
@@ -42,6 +49,13 @@ const goals = [
 ];
 
 const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
+
+const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleGoalSubmission();
+    }
+};
 
 const handleGoalSubmission = async () => {
     if (goalInput.value.trim() && !isLoading.value) {
@@ -68,8 +82,6 @@ const handleGoalSubmission = async () => {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     padding: 1rem;
     background-color: #f9fafb;
 }
@@ -78,21 +90,23 @@ const handleGoalSubmission = async () => {
     font-size: 1.5rem;
     font-weight: 700;
     color: #1f2937;
-    margin-bottom: 1.5rem;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .input-wrapper {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
     background-color: #ffffff;
-    padding: 8px;
-    border-radius: 9999px; /* Pill shape */
+    padding: 16px 16px 12px 16px;
+    border-radius: 24px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid #dcdfe2;
     transition: box-shadow 0.2s;
     width: 90%;
     max-width: 28rem;
+    margin: 0 auto;
 }
 .input-wrapper:focus-within {
     box-shadow: 0 0 0 2px #d2e3fc;
@@ -102,14 +116,34 @@ const handleGoalSubmission = async () => {
     flex: 1;
     border: none;
     box-shadow: none;
-    padding: 12px;
+    padding: 4px;
     font-size: 14px;
     background-color: transparent;
     color: #3c4043;
     outline: none;
+    resize: none;
+    font-family: inherit;
 }
 .goal-input::placeholder {
     color: #9ab0c9;
+}
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    padding: 0.75rem 0 0 0;
+}
+.upload-btn {
+    padding: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #9ab0c9;
+    border: none;
+    cursor: not-allowed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .send-btn {
     padding: 8px;

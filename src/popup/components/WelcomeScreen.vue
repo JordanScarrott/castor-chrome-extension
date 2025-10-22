@@ -1,8 +1,8 @@
 <template>
     <div class="welcome-container" :class="{ 'animate-start': startAnimation }">
         <div class="animation-wrapper">
-            <h1 class="castor-title">Castor</h1>
             <CastorIcon class="spark-icon" :loading="isTwinkling" />
+            <h1 class="castor-title">Castor</h1>
         </div>
     </div>
 </template>
@@ -60,7 +60,7 @@ onMounted(() => {
     bottom: 0;
     left: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     transform-origin: center;
@@ -69,13 +69,14 @@ onMounted(() => {
 .spark-icon {
     width: 36px;
     height: 36px;
+    margin-right: 0.5rem;
 }
 
 .castor-title {
     font-size: 2rem; /* 32px */
     font-weight: 700;
     color: #111827; /* gray-900 */
-    margin-bottom: 1rem; /* 16px */
+    margin: 0;
     opacity: 0;
 }
 
