@@ -84,6 +84,7 @@ const handleGoalSubmission = async () => {
     font-weight: 700;
     color: #1f2937;
     margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .input-wrapper {
@@ -95,7 +96,7 @@ const handleGoalSubmission = async () => {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid #dcdfe2;
     transition: box-shadow 0.2s;
-    width: 100%;
+    width: 90%;
     max-width: 28rem;
     margin: 0 auto;
 }
