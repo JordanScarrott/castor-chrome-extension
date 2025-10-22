@@ -3,20 +3,22 @@
         <!-- <h1 class="tagline">Let's browse the web better</h1> -->
         <h1 class="tagline">Turn browsing into insight</h1>
         <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
-            <input
+            <textarea
                 v-model="goalInput"
-                type="text"
                 :placeholder="animatedPlaceholder"
                 class="goal-input"
                 :disabled="isLoading"
-            />
-            <button
-                type="submit"
-                :disabled="!goalInput.trim() || isLoading"
-                class="send-btn"
-            >
-                <SendIcon :is-loading="isLoading" />
-            </button>
+                rows="2"
+            ></textarea>
+            <div class="button-container">
+                <button
+                    type="submit"
+                    :disabled="!goalInput.trim() || isLoading"
+                    class="send-btn"
+                >
+                    <SendIcon :is-loading="isLoading" />
+                </button>
+            </div>
         </form>
     </div>
 </template>
@@ -83,11 +85,10 @@ const handleGoalSubmission = async () => {
 
 .input-wrapper {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
     background-color: #ffffff;
-    padding: 8px;
-    border-radius: 9999px; /* Pill shape */
+    padding: 12px 12px 8px 12px;
+    border-radius: 24px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid #dcdfe2;
     transition: box-shadow 0.2s;
@@ -102,14 +103,21 @@ const handleGoalSubmission = async () => {
     flex: 1;
     border: none;
     box-shadow: none;
-    padding: 12px;
+    padding: 4px;
     font-size: 14px;
     background-color: transparent;
     color: #3c4043;
     outline: none;
+    resize: none;
+    font-family: inherit;
 }
 .goal-input::placeholder {
     color: #9ab0c9;
+}
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
 }
 .send-btn {
     padding: 8px;
