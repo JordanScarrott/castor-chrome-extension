@@ -74,8 +74,7 @@ const handleGoalSubmission = async () => {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 2.5rem 1rem 2rem;
+    padding: 1rem;
     background-color: #f9fafb;
 }
 
@@ -83,8 +82,9 @@ const handleGoalSubmission = async () => {
     font-size: 1.5rem;
     font-weight: 700;
     color: #1f2937;
-    margin-bottom: 1.5rem;
     text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .input-wrapper {
@@ -124,6 +124,7 @@ const handleGoalSubmission = async () => {
     justify-content: space-between;
     width: 100%;
     align-items: center;
+    padding: 0.75rem 0 0 0;
 }
 .upload-btn {
     padding: 8px;
