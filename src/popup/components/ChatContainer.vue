@@ -37,12 +37,18 @@ watch(analysisState, (newState, oldState) => {
 
     if (newState.status === "complete" && oldState?.status !== "complete") {
         chatComponent.value?.completeAnalysisCard(newState.analysisId);
+        setTimeout(() => {
+            analysisState.value = null;
+        }, 100);
     }
 
     if (newState.status === "error" && oldState?.status !== "error") {
         const errorMessage = newState.ideas[newState.ideas.length - 1] || "An unknown error occurred.";
         chatComponent.value?.updateAnalysisCard(newState.analysisId, errorMessage);
         chatComponent.value?.completeAnalysisCard(newState.analysisId);
+        setTimeout(() => {
+            analysisState.value = null;
+        }, 100);
     }
 });
 
