@@ -9,6 +9,7 @@
                 class="goal-input"
                 :disabled="isLoading"
                 rows="2"
+                @keydown="handleKeyPress"
             ></textarea>
             <div class="button-container">
                 <button type="button" class="upload-btn" disabled>
@@ -48,6 +49,13 @@ const goals = [
 ];
 
 const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
+
+const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleGoalSubmission();
+    }
+};
 
 const handleGoalSubmission = async () => {
     if (goalInput.value.trim() && !isLoading.value) {
