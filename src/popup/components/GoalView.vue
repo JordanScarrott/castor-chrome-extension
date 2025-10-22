@@ -42,10 +42,10 @@ const isLoading = ref(false);
 const { createTabGroup } = useTabGroupManager();
 
 const goals = [
-    "Find a hotel near the V&A Waterfront on a MyCiTi bus route.",
-    "Compare Dell XPS 15 laptops for video editing.",
+    "Help me find a budget laptop that also has a great screen.",
+    "Help me find a hotel near the Waterfront with a great restaurant that also lies on a bus route.",
     "Shop for a 'get well soon' basket with local Cape Town treats.",
-    "Observe console logs and find the bug on this page.",
+    "Investigate the cause of an error in the console logs.",
 ];
 
 const { currentPhrase: animatedPlaceholder } = useTypingAnimation(goals);
