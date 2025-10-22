@@ -1,8 +1,15 @@
 import { ElementSelector } from "@/element-selector";
 
+let elementSelector: ElementSelector | null = null;
+
 chrome.runtime.onMessage.addListener((message) => {
     if (message.type === "ACTIVATE_SELECTION_MODE") {
-        const elementSelector = new ElementSelector();
+        if (elementSelector) {
+            return;
+        }
+        elementSelector = new ElementSelector(() => {
+            elementSelector = null;
+        });
         elementSelector.start();
     }
 });
