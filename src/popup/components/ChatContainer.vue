@@ -13,45 +13,37 @@
 <script setup lang="ts">
 import Chat from "@/popup/components/Chat.vue";
 import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
-import { onMounted, onUnmounted, ref } from "vue";
+import { ref, watch } from "vue";
+import { useSessionStore } from "@/popup/store/sessionStore";
+import { useStorageManager } from "@/popup/composables/useStorageManager";
 
-// 1. Give the component a name so you can call its methods
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
+const sessionStore = useSessionStore();
+const { useTabGroupChromeStorage } = useStorageManager(sessionStore.tabGroupId);
 
-// useAnalysisDemo(chatComponent);
-// const mangleFacts = useChromeStorage<string[]>("mangle_facts", []); // For accessing the mangle facts from local storage
+const analysisState = useTabGroupChromeStorage<any>("analysis", null);
 
-const handleMessage = (message: any) => {
-    if (!message.type || !message.payload || !message.payload.analysisId)
-        return;
+watch(analysisState, (newState, oldState) => {
+    if (!newState) return;
 
-    switch (message.type) {
-        case "START_ANALYSIS":
-            chatComponent.value?.addAnalysisCard(
-                message.payload.analysisId,
-                message.payload.topic
-            );
-            break;
-        case "ADD_ANALYSIS_IDEA":
-            chatComponent.value?.updateAnalysisCard(
-                message.payload.analysisId,
-                message.payload.idea
-            );
-            break;
-        case "COMPLETE_ANALYSIS":
-            chatComponent.value?.completeAnalysisCard(
-                message.payload.analysisId
-            );
-            break;
+    if (!oldState || newState.analysisId !== oldState.analysisId) {
+        chatComponent.value?.addAnalysisCard(newState.analysisId, newState.topic);
     }
-};
 
-onMounted(() => {
-    chrome.runtime.onMessage.addListener(handleMessage);
-});
+    if (newState.ideas.length > (oldState?.ideas.length || 0)) {
+        const newIdea = newState.ideas[newState.ideas.length - 1];
+        chatComponent.value?.updateAnalysisCard(newState.analysisId, newIdea);
+    }
 
-onUnmounted(() => {
-    chrome.runtime.onMessage.removeListener(handleMessage);
+    if (newState.status === "complete" && oldState?.status !== "complete") {
+        chatComponent.value?.completeAnalysisCard(newState.analysisId);
+    }
+
+    if (newState.status === "error" && oldState?.status !== "error") {
+        const errorMessage = newState.ideas[newState.ideas.length - 1] || "An unknown error occurred.";
+        chatComponent.value?.updateAnalysisCard(newState.analysisId, errorMessage);
+        chatComponent.value?.completeAnalysisCard(newState.analysisId);
+    }
 });
 
 // 2. Control the loading state
