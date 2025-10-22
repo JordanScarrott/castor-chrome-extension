@@ -133,11 +133,6 @@ export async function handleElementSelection(html: string) {
             console.log("🚀 ~ onRawChunk ~ newJsonObject:", newJsonObject);
             throttledCreateInsight(newJsonObject);
         }
-
-        // chrome.runtime.sendMessage({
-        //     type: "STREAM_UPDATE",
-        //     payload: { messageId, chunk: rawChunk, isLast: false },
-        // });
     };
 
     try {
@@ -173,29 +168,6 @@ export async function handleElementSelection(html: string) {
                 "Translated Mangle:",
                 translator.translate(parsedData, "tour-12345")
             );
-
-            // --- Add Analysis Ideas ---
-            // if (parsedData.tour_name) {
-            //     chrome.runtime.sendMessage({
-            //         type: "ADD_ANALYSIS_IDEA",
-            //         payload: {
-            //             analysisId: analysisId,
-            //             idea: `Extracted Tour: ${parsedData.tour_name}`,
-            //         },
-            //     });
-            // }
-            // if (
-            //     parsedData.meeting_points &&
-            //     parsedData.meeting_points.length > 0
-            // ) {
-            //     chrome.runtime.sendMessage({
-            //         type: "ADD_ANALYSIS_IDEA",
-            //         payload: {
-            //             analysisId: analysisId,
-            //             idea: `Found ${parsedData.meeting_points.length} meeting point(s).`,
-            //         },
-            //     });
-            // }
         } catch (e) {
             console.error("Failed to parse JSON from AI response:", e);
             chrome.runtime.sendMessage({
@@ -206,11 +178,6 @@ export async function handleElementSelection(html: string) {
                 },
             });
         }
-
-        // chrome.runtime.sendMessage({
-        //     type: "STREAM_UPDATE",
-        //     payload: { messageId, chunk: "", isLast: true },
-        // });
 
         // --- Complete Analysis Card ---
         finishedAnalysing = true;
