@@ -1,6 +1,7 @@
 <template>
     <div class="goal-view-container">
-        <h1 class="tagline">Let's browse the web better</h1>
+        <!-- <h1 class="tagline">Let's browse the web better</h1> -->
+        <h1 class="tagline">Turn browsing into insight</h1>
         <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
             <input
                 v-model="goalInput"
