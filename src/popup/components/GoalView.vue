@@ -1,7 +1,9 @@
 <template>
     <div class="goal-view-container">
         <!-- <h1 class="tagline">Let's browse the web better</h1> -->
-        <h1 class="tagline">Turn browsing into insight</h1>
+        <h1 class="tagline" :class="{ 'is-exiting': isExiting }">
+            Turn browsing into insight
+        </h1>
         <form class="input-wrapper" @submit.prevent="handleGoalSubmission">
             <textarea
                 v-model="goalInput"
@@ -39,6 +41,7 @@ import PaperclipIcon from "./PaperclipIcon.vue";
 const store = useSessionStore();
 const goalInput = ref("");
 const isLoading = ref(false);
+const isExiting = ref(false);
 const { createTabGroup } = useTabGroupManager();
 
 const goals = [
@@ -63,13 +66,26 @@ const handleGoalSubmission = async () => {
         try {
             const goalText = goalInput.value.trim();
             const tabGroupTitle = await generateTabGroupTitleWithNano(goalText);
-            const tabGroupId = await createTabGroup(tabGroupTitle);
-            if (tabGroupId) {
-                store.setGoal(goalText, tabGroupId);
-            }
+
+            // Start the fade-out animation
+            isExiting.value = true;
+
+            // Wait for the animation to finish before creating the tab group
+            setTimeout(async () => {
+                try {
+                    const tabGroupId = await createTabGroup(tabGroupTitle);
+                    if (tabGroupId) {
+                        store.setGoal(goalText, tabGroupId);
+                    }
+                } catch (error) {
+                    console.error("Error setting goal inside timeout:", error);
+                    isLoading.value = false;
+                    isExiting.value = false;
+                }
+            }, 500); // 500ms matches the transition duration
         } catch (error) {
             console.error("Error setting goal:", error);
-            // Optionally, show an error message to the user
+            isExiting.value = false; // Reset animation state on error
         } finally {
             isLoading.value = false;
         }
@@ -93,6 +109,11 @@ const handleGoalSubmission = async () => {
     text-align: center;
     margin-top: auto;
     margin-bottom: auto;
+    transition: opacity 0.5s ease-out;
+}
+
+.tagline.is-exiting {
+    opacity: 0;
 }
 
 .input-wrapper {

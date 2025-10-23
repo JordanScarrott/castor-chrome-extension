@@ -6,7 +6,8 @@
         />
         <template v-else>
             <Header />
-            <GoalView />
+            <GoalView v-if="!sessionStore.hasActiveSession" />
+            <ChatContainer v-else />
         </template>
     </div>
 </template>
@@ -16,8 +17,11 @@ import { ref } from "vue";
 import WelcomeScreen from "../components/WelcomeScreen.vue";
 import Header from "../components/Header.vue";
 import GoalView from "../components/GoalView.vue";
+import ChatContainer from "../components/ChatContainer.vue";
+import { useSessionStore } from "../store/sessionStore";
 
 const animationComplete = ref(false);
+const sessionStore = useSessionStore();
 
 const handleAnimationComplete = () => {
     animationComplete.value = true;

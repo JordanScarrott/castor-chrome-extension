@@ -57,44 +57,36 @@
                     {{ question }}
                 </button>
             </HorizontalScroller>
-
-            <!-- Text Input and Send Button -->
-            <form @submit.prevent="handleSubmit" class="input-form">
+            <form
+                class="input-wrapper"
+                :class="{ 'disabled-input': props.isLoading }"
+                @submit.prevent="handleSubmit"
+            >
+                <textarea
+                    v-model="userInput"
+                placeholder="Type your message here..."
+                class="goal-input"
+                :disabled="props.isLoading"
+                rows="2"
+                @keydown="handleKeyPress"
+            ></textarea>
+            <div class="button-container">
                 <button
                     type="button"
+                    class="upload-btn"
                     @click="handleAttachClick"
                     :disabled="props.isLoading"
-                    class="send-btn"
                 >
-                    <svg
-                        class="send-icon"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                        ></path>
-                    </svg>
+                    <PaperclipIcon />
                 </button>
-                <input
-                    v-model="userInput"
-                    type="text"
-                    placeholder="Type your message here..."
-                    class="chat-input"
-                    :disabled="props.isLoading"
-                />
                 <button
                     type="submit"
                     :disabled="!userInput.trim() || props.isLoading"
                     class="send-btn"
                 >
-                    <SendIcon />
+                    <SendIcon :is-loading="isLoading" />
                 </button>
+            </div>
             </form>
         </div>
     </div>
@@ -105,10 +97,10 @@ import { Message, usePersistedChat } from "@/popup/composables/usePersistChat";
 import { nextTick, onMounted, ref } from "vue";
 import { usePageAttachment } from "../composables/usePageAttachment";
 import AnalysisCard from "./AnalysisCard.vue";
-import CastorIcon from "./CastorIcon.vue";
-import HorizontalScroller from "./HorizontalScroller.vue";
 import MarkdownStream from "./MarkdownStream.vue";
 import SendIcon from "./SendIcon.vue";
+import PaperclipIcon from "./PaperclipIcon.vue";
+import HorizontalScroller from "./HorizontalScroller.vue";
 
 // --- TYPE DEFINITIONS ---
 
@@ -172,6 +164,13 @@ const handleSubmit = () => {
     addMessage(text, "user");
     emit("submit-question", text);
     userInput.value = "";
+};
+
+const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleSubmit();
+    }
 };
 
 const handleQuestionChipClick = (question: string) => {
@@ -273,7 +272,7 @@ defineExpose({
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: #f0f4f9;
+    background-color: #f9fafb;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
         Helvetica, Arial, sans-serif;
     color: #3c4043;
@@ -282,7 +281,7 @@ defineExpose({
 
 /* Message History */
 .message-history {
-    flex: 1;
+    flex-grow: 1;
     overflow-y: auto;
     min-height: 0;
     padding: 16px;
@@ -322,18 +321,55 @@ defineExpose({
     white-space: pre-wrap;
 }
 
-/* Input Area */
-.input-area {
-    flex-shrink: 0;
-    padding: 16px;
-    background-color: #ffffff; /* Adds contrast */
-    border-top: 1px solid #dcdfe2;
-    transition: opacity 0.3s;
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    padding: 16px 16px 12px 16px;
+    border-radius: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dcdfe2;
+    transition: box-shadow 0.2s;
+    width: 90%;
+    max-width: 28rem;
+    margin: 0 auto;
 }
-
-.input-area.disabled-input {
-    opacity: 0.5;
-    pointer-events: none;
+.input-wrapper:focus-within {
+    box-shadow: 0 0 0 2px #d2e3fc;
+    border-color: #0b57d0;
+}
+.goal-input {
+    flex: 1;
+    border: none;
+    box-shadow: none;
+    padding: 4px;
+    font-size: 14px;
+    background-color: transparent;
+    color: #3c4043;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+}
+.goal-input::placeholder {
+    color: #9ab0c9;
+}
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    padding: 0.75rem 0 0 0;
+}
+.upload-btn {
+    padding: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #9ab0c9;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .chip-container {
@@ -356,28 +392,6 @@ defineExpose({
     background-color: #e8f0fe;
     border-color: #c9deff;
 }
-
-.input-form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.chat-input {
-    flex: 1;
-    border: 1px solid #dcdfe2;
-    border-radius: 8px;
-    box-shadow: none;
-    padding: 12px;
-    font-size: 14px;
-    background-color: #ffffff;
-}
-.chat-input:focus {
-    outline: none;
-    border-color: #0b57d0;
-    box-shadow: 0 0 0 2px #d2e3fc;
-}
-
 .send-btn {
     padding: 8px;
     border-radius: 50%;
@@ -397,13 +411,9 @@ defineExpose({
     background-color: #b3c9e6;
     cursor: not-allowed;
 }
-.send-icon {
-    width: 24px;
-    height: 24px;
-    transform: rotate(90deg);
-}
-.input-form .send-btn[type="button"] .send-icon {
-    transform: rotate(0deg);
+
+.goal-input::placeholder {
+    color: #9ca3af;
 }
 
 /* Typing Indicator Styles */
