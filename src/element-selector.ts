@@ -5,16 +5,17 @@ export class ElementSelector {
     private lastHoveredElement: HTMLElement | null = null;
     private currentTarget: HTMLElement | null = null;
     private isModifierKeyDown = false;
+    private onStop: () => void;
 
-    constructor() {
+    constructor(onStop: () => void) {
         this.injectCss();
+        this.onStop = onStop;
     }
 
     public start(): void {
         document.addEventListener("mouseover", this.handleMouseOver);
         document.addEventListener("click", this.handleClick, {
             capture: true,
-            once: true,
         });
         document.addEventListener("keydown", this.handleKeyDown);
         document.addEventListener("keyup", this.handleKeyUp);
@@ -27,6 +28,7 @@ export class ElementSelector {
         });
         document.removeEventListener("keydown", this.handleKeyDown);
         document.removeEventListener("keyup", this.handleKeyUp);
+        this.onStop();
         if (this.lastHoveredElement) {
             this.lastHoveredElement.classList.remove(
                 ElementSelector.HIGHLIGHT_CLASS,

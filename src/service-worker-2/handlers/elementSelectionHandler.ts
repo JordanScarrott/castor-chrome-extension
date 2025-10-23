@@ -2,22 +2,29 @@ import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoServi
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
 import { StreamingJSONParser } from "@/service-worker-2/utils/StreamingJSONParser";
 import { findNewValues } from "@/service-worker-2/utils/findNewValues";
-import { debounce, throttle } from "es-toolkit";
+import { throttle } from "es-toolkit";
+import { getNamespacedKey } from "@/utils/storageUtils";
 
-export async function handleElementSelection(html: string) {
-    const messageId = crypto.randomUUID();
+interface AnalysisState {
+    analysisId: string;
+    topic: string;
+    status: "analyzing" | "complete" | "error";
+    ideas: string[];
+}
+
+export async function handleElementSelection(html: string, tabGroupId: number) {
     const analysisId = `analysis-${Date.now()}`;
+    const storageKey = getNamespacedKey("analysis", tabGroupId);
 
-    // --- Start Analysis Card ---
-    chrome.runtime.sendMessage({
-        type: "START_ANALYSIS",
-        payload: {
-            analysisId: analysisId,
-            topic: "Analyzing selected content...",
-        },
-    });
+    const initialState: AnalysisState = {
+        analysisId,
+        topic: "Analyzing selected content...",
+        status: "analyzing",
+        ideas: [],
+    };
 
-    // A simplified schema for this example
+    await chrome.storage.local.set({ [storageKey]: initialState });
+
     const tourLogisticsSchema = {
         type: "object",
         properties: {
@@ -100,28 +107,20 @@ export async function handleElementSelection(html: string) {
     let finishedAnalysing = false;
 
     const throttledCreateInsight = throttle(async (currentJson: string) => {
-        console.log("🚀 ~ handleElementSelection ~ currentJson:", currentJson);
         const newItems = findNewValues(currentJson, previousJsonObject);
         previousJsonObject = currentJson;
 
         const item = getFirstPrimitiveValue(newItems);
         if (item) {
-            chrome.runtime.sendMessage({
-                type: "ADD_ANALYSIS_IDEA",
-                payload: {
-                    analysisId: analysisId,
-                    idea: item || "",
-                },
-            });
+            const currentState = (await chrome.storage.local.get(storageKey))[storageKey];
+            currentState.ideas.push(item as string);
+            await chrome.storage.local.set({ [storageKey]: currentState });
         }
 
         if (finishedAnalysing) {
-            chrome.runtime.sendMessage({
-                type: "COMPLETE_ANALYSIS",
-                payload: {
-                    analysisId: analysisId,
-                },
-            });
+            const finalState = (await chrome.storage.local.get(storageKey))[storageKey];
+            finalState.status = "complete";
+            await chrome.storage.local.set({ [storageKey]: finalState });
         }
     }, 1500);
 
@@ -148,14 +147,11 @@ export async function handleElementSelection(html: string) {
         );
     } catch (error) {
         console.error("Error during streaming:", error);
-        chrome.runtime.sendMessage({
-            type: "STREAM_UPDATE",
-            payload: {
-                messageId,
-                chunk: "I'm sorry, I encountered an error while trying to extract the text.",
-                isLast: true,
-            },
-        });
+        const errorState = (await chrome.storage.local.get(storageKey))[storageKey];
+        errorState.status = "error";
+        errorState.ideas.push("I'm sorry, I encountered an error while trying to extract the text.");
+        await chrome.storage.local.set({ [storageKey]: errorState });
+
     } finally {
         const translator = new MangleTranslator();
         try {
@@ -170,17 +166,15 @@ export async function handleElementSelection(html: string) {
             );
         } catch (e) {
             console.error("Failed to parse JSON from AI response:", e);
-            chrome.runtime.sendMessage({
-                type: "ADD_ANALYSIS_IDEA",
-                payload: {
-                    analysisId: analysisId,
-                    idea: `Error: Could not parse the extracted data.`,
-                },
-            });
+            const errorState = (await chrome.storage.local.get(storageKey))[storageKey];
+            errorState.status = "error";
+            errorState.ideas.push("Error: Could not parse the extracted data.");
+            await chrome.storage.local.set({ [storageKey]: errorState });
         }
 
-        // --- Complete Analysis Card ---
         finishedAnalysing = true;
+        // This will trigger the final update in the throttled function
+        throttledCreateInsight(fullJsonResponse);
     }
 }
 

@@ -25,16 +25,8 @@ export function routeMessage(
     const handler = handlers[message.type];
     if (handler) {
         // If the message is HOTEL_DATA_EXTRACTED, inject the tabGroupId into the payload.
-        if (
-            message.type === "HOTEL_DATA_EXTRACTED" &&
-            sender.tab &&
-            sender.tab.groupId
-        ) {
-            const payloadWithTabGroupId = {
-                ...message.payload,
-                tabGroupId: sender.tab.groupId,
-            };
-            return (handler as any)(payloadWithTabGroupId);
+        if (sender.tab && sender.tab.groupId) {
+            return (handler as any)(message.payload, sender.tab.groupId);
         }
 
         return (handler as any)(message.payload);
