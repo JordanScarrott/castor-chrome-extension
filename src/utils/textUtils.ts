@@ -34,7 +34,6 @@ NAME: Budget Laptop
 GOAL: "I'm learning how to use the Gemini API with Python."
 NAME: Gemini API
 GOAL: "{{USER_GOAL}}"
-NAME:
 `
         );
 
