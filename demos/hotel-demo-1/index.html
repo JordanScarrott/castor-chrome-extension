@@ -390,7 +390,7 @@
                     "The Crowberry Creek",
                     "The Bearberry Boutique",
                     "The Bilberry Bungalow",
-                ];
+                ].splice(0, 98);
                 const busStops = [
                     "Waterfront North Pier",
                     "Bo-Kaap Stairs",
@@ -435,7 +435,10 @@
                 shuffleArray(shuffledHotelNames);
 
                 // Ensure we don't try to generate more hotels than we have unique names
-                const numberOfHotelsToGenerate = Math.min(count, shuffledHotelNames.length);
+                const numberOfHotelsToGenerate = Math.min(
+                    count,
+                    shuffledHotelNames.length
+                );
 
                 for (let i = 0; i < numberOfHotelsToGenerate; i++) {
                     const hotelName = shuffledHotelNames[i];
@@ -458,7 +461,9 @@
                         id: i,
                         name: hotelName,
                         distanceFromBus: `${distance}km from ${
-                            busStops[Math.floor(Math.random() * busStops.length)]
+                            busStops[
+                                Math.floor(Math.random() * busStops.length)
+                            ]
                         }`,
                         price: price,
                         rating: rating,
