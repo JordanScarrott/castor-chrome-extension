@@ -102,44 +102,34 @@
                                     </h2>
                                     <div class="flex flex-col gap-2">
                                         <button
-                                            class="flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] w-full transition-colors duration-200"
+                                            class="route-button flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] w-full transition-colors duration-200"
+                                            onclick="selectRoute('route101', 'Route 101: Downtown Express', this)"
                                         >
-                                            <span class="truncate"
-                                                >Route 101: Downtown
-                                                Express</span
-                                            >
+                                            <span class="truncate">Route 101: Downtown Express</span>
                                         </button>
                                         <button
-                                            class="flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            class="route-button flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            onclick="selectRoute('route202', 'Route 202: University Line', this)"
                                         >
-                                            <span class="truncate"
-                                                >Route 202: University
-                                                Line</span
-                                            >
+                                            <span class="truncate">Route 202: University Line</span>
                                         </button>
                                         <button
-                                            class="flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            class="route-button flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            onclick="selectRoute('route303', 'Route 303: Crosstown Shuttle', this)"
                                         >
-                                            <span class="truncate"
-                                                >Route 303: Crosstown
-                                                Shuttle</span
-                                            >
+                                            <span class="truncate">Route 303: Crosstown Shuttle</span>
                                         </button>
                                         <button
-                                            class="flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            class="route-button flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            onclick="selectRoute('route404', 'Route 404: North Industrial', this)"
                                         >
-                                            <span class="truncate"
-                                                >Route 404: North
-                                                Industrial</span
-                                            >
+                                            <span class="truncate">Route 404: North Industrial</span>
                                         </button>
                                         <button
-                                            class="flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            class="route-button flex min-w-[84px] cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-200"
+                                            onclick="selectRoute('route505', 'Route 505: Coastal Connector', this)"
                                         >
-                                            <span class="truncate"
-                                                >Route 505: Coastal
-                                                Connector</span
-                                            >
+                                            <span class="truncate">Route 505: Coastal Connector</span>
                                         </button>
                                     </div>
                                 </div>
@@ -150,315 +140,231 @@
                                 <div
                                     class="lg:w-2/3 bg-white dark:bg-slate-800/50 rounded-xl shadow-sm overflow-hidden min-h-[400px]"
                                 >
-                                    <div
-                                        class="bg-slate-200 dark:bg-slate-700 h-full w-full flex items-center justify-center text-slate-500 dark:text-slate-400 text-xl font-medium"
-                                    >
-                                        <span
-                                            class="material-symbols-outlined text-6xl mr-2"
-                                            >map</span
-                                        >
-                                        <p>Route Map Placeholder</p>
-                                    </div>
+                                    <img src="images/map.jpg" alt="Bus route map of the city" class="w-full h-full object-cover">
                                 </div>
                                 <div
                                     class="lg:w-1/3 bg-white dark:bg-slate-800/50 rounded-xl shadow-sm p-6 flex flex-col overflow-hidden min-h-[400px]"
                                 >
                                     <h2
+                                        id="route-title"
                                         class="text-slate-900 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] pb-4 border-b border-slate-200 dark:border-slate-700 shrink-0"
                                     >
                                         Route 101 Stops
                                     </h2>
                                     <div
-                                        class="flow-root mt-4 overflow-y-auto custom-scrollbar"
+                                        class="flow-root mt-4 overflow-y-auto custom-scrollbar max-h-[70vh]"
                                     >
-                                        <div
+                                        <div id="stops-list"
                                             class="divide-y divide-slate-200 dark:divide-slate-700"
                                         >
-                                            <div
-                                                class="flex flex-col gap-1 py-3 pr-2"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >directions_bus</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate"
-                                                    >
-                                                        Central Station
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    class="text-slate-600 dark:text-slate-400 text-xs pl-[44px]"
-                                                >
-                                                    Departure: 9:00 AM
-                                                </p>
-                                            </div>
-                                            <div
-                                                class="flex flex-col gap-1 py-3 pr-2"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >arrow_right_alt</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-600 dark:text-slate-400 text-sm pl-0.5"
-                                                    >
-                                                        Approx. 7 min travel
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >directions_bus</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate"
-                                                    >
-                                                        Oak Street &amp; 5th Ave
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    class="text-slate-600 dark:text-slate-400 text-xs pl-[44px]"
-                                                >
-                                                    Arrival: 9:07 AM
-                                                </p>
-                                            </div>
-                                            <div
-                                                class="flex flex-col gap-1 py-3 pr-2"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >arrow_right_alt</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-600 dark:text-slate-400 text-sm pl-0.5"
-                                                    >
-                                                        Approx. 5 min travel
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >directions_bus</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate"
-                                                    >
-                                                        City Library
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    class="text-slate-600 dark:text-slate-400 text-xs pl-[44px]"
-                                                >
-                                                    Arrival: 9:12 AM
-                                                </p>
-                                            </div>
-                                            <div
-                                                class="flex flex-col gap-1 py-3 pr-2"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >arrow_right_alt</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-600 dark:text-slate-400 text-sm pl-0.5"
-                                                    >
-                                                        Approx. 10 min travel
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >directions_bus</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate"
-                                                    >
-                                                        Grand Park Entrance
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    class="text-slate-600 dark:text-slate-400 text-xs pl-[44px]"
-                                                >
-                                                    Arrival: 9:22 AM
-                                                </p>
-                                            </div>
-                                            <div
-                                                class="flex flex-col gap-1 py-3 pr-2"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >arrow_right_alt</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-600 dark:text-slate-400 text-sm pl-0.5"
-                                                    >
-                                                        Approx. 8 min travel
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >directions_bus</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate"
-                                                    >
-                                                        Market Square
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    class="text-slate-600 dark:text-slate-400 text-xs pl-[44px]"
-                                                >
-                                                    Arrival: 9:30 AM
-                                                </p>
-                                            </div>
-                                            <div
-                                                class="flex flex-col gap-1 py-3 pr-2"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >arrow_right_alt</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-600 dark:text-slate-400 text-sm pl-0.5"
-                                                    >
-                                                        Approx. 6 min travel
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >directions_bus</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate"
-                                                    >
-                                                        Financial District
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    class="text-slate-600 dark:text-slate-400 text-xs pl-[44px]"
-                                                >
-                                                    Arrival: 9:36 AM
-                                                </p>
-                                            </div>
-                                            <div
-                                                class="flex flex-col gap-1 py-3 pr-2"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-slate-600 dark:text-slate-400 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >arrow_right_alt</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-600 dark:text-slate-400 text-sm pl-0.5"
-                                                    >
-                                                        Approx. 4 min travel
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div
-                                                        class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8"
-                                                    >
-                                                        <span
-                                                            class="material-symbols-outlined text-base"
-                                                            >directions_bus</span
-                                                        >
-                                                    </div>
-                                                    <p
-                                                        class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate"
-                                                    >
-                                                        Waterfront Pier
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    class="text-slate-600 dark:text-slate-400 text-xs pl-[44px]"
-                                                >
-                                                    Arrival: 9:40 AM
-                                                </p>
-                                            </div>
-                                        </div>
+                                        <div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Waterfront North Pier
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Bo-Kaap Stairs
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Long Street Exchange
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Woodstock Brewery
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Salt River Market
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Pinelands Gardens
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Rondebosch Common
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Century City Square
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Langa Township
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Kenilworth Racecourse
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Wynberg Military Base
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Bishopscourt Estate
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Constantia Village
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Plattekloof Heights
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Bellville Central
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Kuils River Station
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Durbanville Wine Route
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Atlantis Industrial
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            City Center Hub
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Green Point Park
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Sea Point Promenade
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Camps Bay Beach
+        </p>
+    </div>
+</div><div class="flex flex-col gap-1 py-3 pr-2">
+    <div class="flex items-center gap-3">
+        <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+            <span class="material-symbols-outlined text-base">directions_bus</span>
+        </div>
+        <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+            Clifton Views
+        </p>
+    </div>
+</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -467,5 +373,94 @@
                 </main>
             </div>
         </div>
+        <script>
+            const routeData = {
+                route101: [
+                    "Waterfront North Pier", "Bo-Kaap Stairs", "Long Street Exchange", "Woodstock Brewery",
+                    "Salt River Market", "Pinelands Gardens", "Rondebosch Common", "Century City Square",
+                    "Langa Township", "Kenilworth Racecourse", "Wynberg Military Base", "Bishopscourt Estate",
+                    "Constantia Village", "Plattekloof Heights", "Bellville Central", "Kuils River Station",
+                    "Durbanville Wine Route", "Atlantis Industrial", "City Center Hub", "Green Point Park",
+                    "Sea Point Promenade", "Camps Bay Beach", "Clifton Views"
+                ],
+                route202: [
+                    "University Campus", "Rondebosch Common", "Pinelands Gardens", "Mowbray Station",
+                    "Kenilworth Racecourse", "Wynberg Military Base", "Claremont Hub", "Newlands Cricket Ground",
+                    "Kirstenbosch Gardens", "Bishopscourt Estate", "Constantia Village", "Hout Bay Harbour",
+                    "Muizenberg Beachfront", "Kalk Bay Main Road", "Fish Hoek Sands", "Simon's Town Navy Gate",
+                    "Cape Point Reserve", "Noordhoek Farm Village", "Kommetjie Lighthouse", "Scarborough Beach",
+                    "Misty Cliffs", "Ocean View"
+                ],
+                route303: [
+                    "Century City Square", "Plattekloof Heights", "Durbanville Wine Route", "Bellville Central",
+                    "Kuils River Station", "Tyger Valley Center", "Parow Station", "Goodwood Market",
+                    "Epping Industrial", "Ndabeni Exchange", "Maitland Cemetery", "Salt River Market",
+                    "Woodstock Brewery", "East City Precinct", "District Six Museum", "Castle of Good Hope",
+                    "Grand Parade", "Long Street Exchange", "Bo-Kaap Stairs", "Waterfront North Pier"
+                ],
+                route404: [
+                    "Langa Township", "Khayelitsha Hub", "Mitchells Plain Center", "Philippi Market",
+                    "Gugulethu Square", "Nyanga Junction", "Crossroads Exchange", "Athlone Stadium",
+                    "Bonteheuwel Station", "Manenberg", "Hanover Park", "Epping Industrial",
+                    "Pinelands Gardens", "Thornton Station", "Goodwood Market", "Vasco da Gama",
+                    "Plattekloof Heights", "Bellville Central", "Atlantis Industrial", "Mamre Village",
+                    "Darling Fields"
+                ],
+                route505: [
+                    "Waterfront North Pier", "Sea Point Terminal", "Bantry Bay Rocks", "Clifton Beach",
+                    "Camps Bay Strip", "Llandudno Corner", "Hout Bay Harbour", "Chapman's Peak View",
+                    "Noordhoek Beach", "Kommetjie Crossing", "Muizenberg Beachfront", "St James Tidal Pool",
+                    "Kalk Bay Main Road", "Fish Hoek Sands", "Glencairn", "Simon's Town Navy Gate",
+                    "Boulders Beach", "Miller's Point", "Smitswinkel Bay", "Cape Point Lighthouse"
+                ]
+            };
+
+            function selectRoute(routeId, routeName, selectedButton) {
+                // 1. Update Button Active State
+                const buttons = document.querySelectorAll('.route-button');
+                buttons.forEach(btn => {
+                    // Remove active classes
+                    btn.classList.remove('bg-primary', 'text-white');
+                    // Add inactive classes
+                    btn.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-800', 'dark:text-slate-200', 'hover:bg-primary/10', 'dark:hover:bg-primary/20');
+                });
+
+                // Add active classes to the clicked button
+                selectedButton.classList.add('bg-primary', 'text-white');
+                // Remove inactive classes
+                selectedButton.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-800', 'dark:text-slate-200', 'hover:bg-primary/10', 'dark:hover:bg-primary/20');
+
+                // 2. Update Route Title
+                const routeTitle = document.getElementById('route-title');
+                routeTitle.textContent = `${routeName} Stops`;
+
+                // 3. Update Stops List
+                const stopsList = document.getElementById('stops-list');
+                const stops = routeData[routeId];
+
+                // Clear current list
+                stopsList.innerHTML = '';
+
+                // Populate new list
+                if (stops) {
+                    stops.forEach(stop => {
+                        // This HTML structure MUST match the static structure from Step 2
+                        const stopHtml = `
+                        <div class="flex flex-col gap-1 py-3 pr-2">
+                            <div class="flex items-center gap-3">
+                                <div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-8">
+                                    <span class="material-symbols-outlined text-base">directions_bus</span>
+                                </div>
+                                <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal flex-1 truncate">
+                                    ${stop}
+                                </p>
+                            </div>
+                        </div>
+                        `;
+                        stopsList.innerHTML += stopHtml;
+                    });
+                }
+            }
+        </script>
     </body>
 </html>
