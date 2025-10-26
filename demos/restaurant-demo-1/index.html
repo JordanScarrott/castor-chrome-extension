@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>Fake Stellenbosch Eats - Top 10 Restaurants</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link href="https://fonts.googleapis.com" rel="preconnect" />
+        <link
+            crossorigin=""
+            href="https://fonts.gstatic.com"
+            rel="preconnect"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+            rel="stylesheet"
+        />
+        <style>
+            .material-symbols-outlined {
+                font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0,
+                    "opsz" 24;
+            }
+        </style>
+        <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: "#8B0000",
+                            secondary: "#D4AF37",
+                            "background-light": "#fcfaf8",
+                            "background-dark": "#1a1a1a",
+                            "text-light": "#1b130d",
+                            "text-dark": "#f0f0f0",
+                            "subtle-light": "#f3ece7",
+                            "subtle-dark": "#2c2c2c",
+                            "border-light": "#e7d9cf",
+                            "border-dark": "#444444",
+                        },
+                        fontFamily: {
+                            display: ["Newsreader", "serif"],
+                            sans: ["Noto Sans", "sans-serif"],
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.25rem",
+                            lg: "0.5rem",
+                            xl: "0.75rem",
+                            full: "9999px",
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+    <body class="bg-background-light dark:bg-background-dark font-sans">
+        <div
+            class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden"
+        >
+            <div class="layout-container flex h-full grow flex-col">
+                <div
+                    class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-5"
+                >
+                    <div
+                        class="layout-content-container flex flex-col max-w-[960px] flex-1"
+                    >
+                        <header
+                            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-10 py-3"
+                        >
+                            <div
+                                class="flex items-center gap-4 text-text-light dark:text-text-dark"
+                            >
+                                <div class="size-6 text-primary">
+                                    <span
+                                        class="material-symbols-outlined text-3xl"
+                                        >dinner_dining</span
+                                    >
+                                </div>
+                                <h2
+                                    class="font-display text-xl font-bold leading-tight tracking-[-0.015em]"
+                                >
+                                    Stellenbosch Eats
+                                </h2>
+                            </div>
+                            <div
+                                class="hidden md:flex flex-1 justify-end gap-8"
+                            >
+                                <div class="flex items-center gap-9">
+                                    <a
+                                        class="text-text-light dark:text-text-dark text-sm font-medium leading-normal"
+                                        href="#"
+                                        >Home</a
+                                    >
+                                    <a
+                                        class="text-text-light dark:text-text-dark text-sm font-medium leading-normal"
+                                        href="#"
+                                        >Reviews</a
+                                    >
+                                    <a
+                                        class="text-text-light dark:text-text-dark text-sm font-medium leading-normal"
+                                        href="#"
+                                        >About</a
+                                    >
+                                    <a
+                                        class="text-text-light dark:text-text-dark text-sm font-medium leading-normal"
+                                        href="#"
+                                        >Contact</a
+                                    >
+                                </div>
+                                <button
+                                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
+                                >
+                                    <span class="truncate">Subscribe</span>
+                                </button>
+                            </div>
+                            <div class="md:hidden">
+                                <button
+                                    class="text-text-light dark:text-text-dark"
+                                >
+                                    <span
+                                        class="material-symbols-outlined text-3xl"
+                                        >menu</span
+                                    >
+                                </button>
+                            </div>
+                        </header>
+                        <main
+                            class="flex flex-col gap-8 md:gap-12 mt-8 px-4 sm:px-0"
+                        >
+                            <div class="flex flex-col gap-4 text-center">
+                                <div class="flex flex-col gap-2">
+                                    <p
+                                        class="font-display text-text-light dark:text-text-dark text-5xl md:text-6xl font-black leading-tight tracking-[-0.033em]"
+                                    >
+                                        The Top 10 Restaurants in Stellenbosch
+                                    </p>
+                                    <p
+                                        class="font-sans text-text-light/70 dark:text-text-dark/70 text-lg font-normal leading-normal"
+                                    >
+                                        Our curated list of the must-visit
+                                        dining destinations in the heart of the
+                                        Winelands.
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="text-text-light dark:text-text-dark font-display text-lg leading-relaxed max-w-prose mx-auto"
+                            >
+                                <p>
+                                    Welcome to our definitive guide to the
+                                    culinary heart of South Africa's Winelands!
+                                    Stellenbosch is not just famous for its
+                                    historic oak-lined streets and world-class
+                                    wines; it's a food lover's paradise. We've
+                                    dined, deliberated, and distilled our
+                                    experiences to bring you the top 10
+                                    restaurants you simply cannot miss. From
+                                    fine-dining establishments to cozy, rustic
+                                    eateries, this list celebrates the diverse
+                                    and vibrant food scene that makes this town
+                                    so special.
+                                </p>
+                            </div>
+                            <div
+                                class="flex flex-col gap-8 md:gap-12 border-t border-border-light dark:border-border-dark pt-8"
+                            >
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="A beautifully plated steak dish with garnish on a dark plate, representing The Fat Butcher's signature meal."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBregTUrTePwZ6RaYxCHZ1mrQNZtjYloNvvCwJlOFIwHOlK1CKIDYIiRfFEn3_CPRDaNdxyZDiY0Q00R8mt4MMA6Gz3VLMFsMXjaE7dn6pIXkyU3dafDoqygR8B7TTrudlSeOVANPlq0cJvBDxKhbTutbduKBoqGEaG3Mgb6vjySw3X-gCUp9b2WEhX5sDOYPuBTDINzaJC3HBfCzI83YjSSrs7ImAPh9xV6WobWZ68UB_uewugyLnhlny0_d4q1sTkUF8unj8xEX8"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                1. The Fat Butcher
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star_half</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.8</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            A carnivore's dream, The Fat Butcher
+                                            offers an unparalleled steakhouse
+                                            experience with masterfully
+                                            prepared, locally sourced cuts and
+                                            an extensive wine list in a
+                                            sophisticated yet welcoming
+                                            atmosphere.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="A luxurious restaurant interior with warm lighting."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA737cjSJiFu-hjEYzF8Gp2jEVV6wh4dmWeZbW6HTY5psRihD9-ZrUqqPWjQX5dcqTTOIUpE9AOnslJZoQ_qDSFUxt9_AWUK5OlqsVVAkrrmu8AS819-bH7cNiCM0P5WVnQ_QUTO20CZfw6sgAYqXKVFbKYfyseDzGXhHFOiVzHK0icYHmzVXzrWP5ESb6vVA3ZPk13Xr2m-1SHuOLB4-qfbeb5-ChIBJyEzA2BMjiGXkGG5VXqkB8oGQQHECjQmS-IW7MatnXcDfI"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                2. Rust en Vrede
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.9</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            Set on a historic wine estate, this
+                                            is the epitome of fine dining.
+                                            Expect exquisite tasting menus,
+                                            flawless service, and a world-class
+                                            wine pairing experience that is
+                                            truly unforgettable.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="Elegant dessert with berries and cream."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCchYxgT_tVFj-j2dw56DkfOunugpNHmepOcZXPjcCHMx7w-Rif_V47xVNr5_3C8rg7H2T2ztEEWVkiymexhwRuFxIUZ4N6urC0TGWvS-XIvtGDA1Nt3sz8hmSZfkvdVYFkkgdZS8NIqnYc5ZtiHMfl8OnS_WEBK8qp-nXwiemtvXLNxF7htA-e6mO1mlYpg_K_GJ1h2iHuR6yYBgjMINhhbe5VXHe-pjsTqN2_6oWWMlArM0JujK9zRXdlBmiQHGb8dDIX_j_bpyU"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                3. Helena's Restaurant
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-text-light/20 dark:text-text-dark/20 text-lg"
+                                                        >star</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.4</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            Celebrating authentic Cape heritage
+                                            cuisine, Helena's serves up
+                                            beautifully crafted dishes that are
+                                            both comforting and refined, all
+                                            within a charming and elegant
+                                            setting in the historic town center.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="Close-up of a rack of lamb."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBAQ9tah1cLoI02WHva5qzTZYXt6-EuRQDxinTgP3Plbc60BhuUevI-hwePqt-K11YhDn4SoWlWYTq23MUNMVZ98irWgx7r59EsKYS_dtq3DoSbMtxPJN5ktFDKuRXxQgIEoXsbfUmVhmn2WU5iyh8bFlzEu7CZvIRBvBQ8ee85tVsp4FqwS-Z0LJhA-D8YrWPNB4EpNVoowQs54TxcatkhhmEkkuslhH9BHz0W2u1yzqaM8URlinof0HRSx0BdFsygejDi66kiRs"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                4. Spek &amp; Bone
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star_half</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.6</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            A vibrant tapas-style restaurant
+                                            from renowned chef Bertus Basson.
+                                            It's the perfect spot for sharing
+                                            small, inventive plates packed with
+                                            flavor, paired with exceptional
+                                            local wines in a relaxed courtyard.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="A glass of red wine being poured."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUp81ZRTo5AMSpZQkbj9pJE4et84LoWy4RrVV91PK7qRDbsGDtDuSd7ZDKz0-n6W6eHWGCUOriBXlA4Dl5ZdIMENYf8thn0cSCd3xqIXWf7iSdyMeRhpZgJPAy0vH5OqctDtfdryNUlKFMSJlADqE8cQmUK_SzqjpTPdLa-Lxjp2I6m2g35IA8Gov7U_mwG8bwNQ-6h66WhutZvA1o9SXi8JPmpo_xlPRH7wODlYJ3eB9NyPwkXP14chisAEshhCWYdlNEa7L1shU"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                5. Jardine Restaurant
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star_half</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.7</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            Chef George Jardine's intimate
+                                            eatery focuses on seasonal, locally
+                                            sourced ingredients. The set menu is
+                                            a masterclass in simplicity and
+                                            flavor, offering a truly authentic
+                                            taste of the region.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="The exterior entrance of a classic restaurant at night."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKb31vtzQWD19s1CtsWQfrjM3feKGiLmX2JtDLzsUaPwRVzX4Jnr1BIY4a0e5YwQKv5z5S0SiB-zoMgRRkvzs_qwz93bY43gxFoBJLowIk0GzJWjLIdpE2sCnyDkoqutpoTf1mbucA4xkV0MnpNVWJeYcDj-4gc53jCODxsS-B7zmRkXgqtOnf_81fJawgo065jR3avGJ3T5CCykMyuIrmmm9m2-xp9OpugKj8WAq4tPO5O0zIcLJsn_KYsMBcRggYjaTiuLQPpDY"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                6. De Warenmarkt
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-text-light/20 dark:text-text-dark/20 text-lg"
+                                                        >star</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.3</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            Housed in a historic 18th-century
+                                            building, this vibrant market space
+                                            offers a lively atmosphere with
+                                            diverse food vendors, a legendary
+                                            brunch spot, and a fantastic gin and
+                                            wine bar.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="Grilled meat skewers with vegetables."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfvLQOoLHpFhePGNQ_p8sRoRjESth7yKBKfVAMTVJZKdnwmIE8w7_DoVDkVbCNhX0Zsp7YhPShaDboCINJlSYq9XLq6eYAwVHfPJwcvTL5XzjH-whpsAKvToRG6K9jbUQCYwrBt4imR8colmE9XC7OLyoN9oIaXXgA1qvUMfbNkuy0xRG4G3ij5sBhjLoWNQWe_FWQ29VrACVXn6XvilQDNMMUGMYs2SyldZjHCfznk0q2TBr3vI8r5WmtZCV1Km5yt9G_m_Luoq0"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                7. The Hussar Grill
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star_half</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.5</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            A Stellenbosch institution known for
+                                            its legendary steaks, old-school
+                                            charm, and warm, inviting ambiance.
+                                            Consistently excellent food and
+                                            service make it a perennial favorite
+                                            for locals and visitors alike.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="Fresh pasta dish with basil."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA74EVsKcx05vHehqI0RlcbwSDK_5NL1wnLuhjMxPAcVInQBLt2ILIGSexuO0oYoNMSSYRrb9hpbrDyJYSSqmXO3H0HRjZkKYkdngMhdClHzb4t7bhABIccFfHRFpWWJZrEo_ZrYZKF_zKhUFn_0rUiRayAeWfz9G7rC76BGZ2elqA0AV0JixI2G8bqzVJ-23WzCriVxBO5DJWdWUYMysZWh4jrPPqirtZJNDR-t_wZTBaSpnHbwJcd1UW_v7T8xSIUAc65fF3J9rs"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                8. Gino's
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-text-light/20 dark:text-text-dark/20 text-lg"
+                                                        >star</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.2</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            For authentic, unpretentious Italian
+                                            food, Gino's is the place. This
+                                            family-run restaurant serves up
+                                            delicious pizzas and pastas in a
+                                            cozy, friendly atmosphere that feels
+                                            like a home away from home.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="A table at a vineyard with wine glasses."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvPq2ahQ0tSlZlb-dkxBn15tyvoyu8c4aCtZrUWiLAeIhRzidSMwpBOqjR1r5FZUNVwYUvUCQI4uA9S-N1oEnE-usbBCXg698ITgaL8zZ1y9OG1jzDWWhYoYgFhm7D_sC0oF8cvrg6b0bnR9B1V3r8xw0IKUB0xDWG2qYFGOjNatv62r7sE8vR8esF7k9-sQsCVR6IKrsDznexs3JaryKCZ40bwvPEwDMdtn8IFI4AqmoxfmDo-HR1NMnNjx4fix2HVuz4v8dvwxc"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                9. Postcard Cafe
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star_half</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.5</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            Nestled in the Jonkershoek Valley,
+                                            this picturesque cafe offers
+                                            breathtaking views and a tranquil
+                                            escape. Perfect for a leisurely
+                                            breakfast or lunch with fresh,
+                                            seasonal dishes and delicious cakes.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6 items-start"
+                                >
+                                    <img
+                                        class="w-full h-36 object-cover rounded-lg"
+                                        data-alt="A modern cafe interior."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8chc94GhY6nftjIS33ZqRS3mBUlTrpRngLOoqDlOoqxB5R5962CiW7y2bw77_b4iq0KruXATanH_jxnlkL8lmgm1QJpJILnZZmXw4RxtpDBYM3j0zVHyPSp3d1kaZSbqSo3jg4olIeq2PovPqJNn6EOo7NPJiAKbB_fwr-yzNGM50h5IyNI7QIwg09QpITE_mEwYTg4OrENIn8ZRaMsKMMk1jJ_-UwMnlz5X3N0tuhGueemonRWei9BQzwLCMoSTwYS5wquNUcjo"
+                                    />
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <h3
+                                                class="font-display text-2xl font-bold text-text-light dark:text-text-dark"
+                                            >
+                                                10. Basic Bistro
+                                            </h3>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div class="flex gap-0.5">
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-secondary text-lg"
+                                                        >star</span
+                                                    >
+                                                    <span
+                                                        class="material-symbols-outlined text-text-light/20 dark:text-text-dark/20 text-lg"
+                                                        >star</span
+                                                    >
+                                                </div>
+                                                <span
+                                                    class="text-sm text-text-light/70 dark:text-text-dark/70"
+                                                    >4.1</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-text-light/90 dark:text-text-dark/90 text-base leading-relaxed"
+                                        >
+                                            A cozy and intimate bistro known for
+                                            its black-board menu and
+                                            consistently good, value-for-money
+                                            food. It's the perfect spot for a
+                                            relaxed evening with hearty meals
+                                            and a great vibe.
+                                        </p>
+                                        <a
+                                            class="flex items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity mt-2 w-full sm:w-auto sm:self-start"
+                                            href="#"
+                                        >
+                                            <span class="truncate"
+                                                >Read More</span
+                                            >
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="text-text-light dark:text-text-dark font-display text-lg leading-relaxed max-w-prose mx-auto border-t border-border-light dark:border-border-dark pt-8 mt-4"
+                            >
+                                <p>
+                                    And there you have it—our top 10 picks for
+                                    dining in Stellenbosch. Each of these
+                                    restaurants offers a unique flavor and
+                                    experience that contributes to the town's
+                                    rich culinary tapestry. We encourage you to
+                                    explore these incredible spots and discover
+                                    your own favorites. Happy eating!
+                                </p>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
