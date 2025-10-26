@@ -1,4 +1,4 @@
-import { createMangleSchemaPrompt } from "@/core/gprompt";
+import { createMangleSchemaPrompt } from "@/service-worker-2/geminiNano/prompts/gprompt";
 import { geminiNanoService } from "@/modules/geminiNano/service/geminiNanoService";
 import {
     manglePrompt,

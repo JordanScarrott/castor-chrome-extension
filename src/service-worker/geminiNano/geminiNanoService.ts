@@ -1,5 +1,5 @@
 import { MangleSchema } from "@/types/MangleSchema";
-import { createMangleSchemaPrompt } from "@/core/gprompt";
+import { createMangleSchemaPrompt } from "@/service-worker-2/geminiNano/prompts/gprompt";
 
 /**
  * A helper function to clean the raw output from the LLM.
