@@ -1,11 +1,537 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Demo 1</title>
-</head>
-<body>
-    <h1>Welcome to Hotel Demo 1</h1>
-</body>
+<html class="dark" lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>Hotel Search Results</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+            rel="stylesheet"
+        />
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: "#0071c2",
+                            "background-light": "#f5f5f5",
+                            "background-dark": "#1a1a1a",
+                            "card-light": "#ffffff",
+                            "card-dark": "#2d2d2d",
+                            "text-light": "#333333",
+                            "text-dark": "#e0e0e0",
+                            "secondary-text-light": "#6b6b6b",
+                            "secondary-text-dark": "#a0a0a0",
+                            "border-light": "#e0e0e0",
+                            "border-dark": "#444444",
+                        },
+                        fontFamily: {
+                            display: ["Roboto", "sans-serif"],
+                        },
+                        borderRadius: {
+                            DEFAULT: "8px",
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            body {
+                font-family: "Roboto", sans-serif;
+            }
+            .material-icons {
+                vertical-align: middle;
+            }
+        </style>
+    </head>
+    <body
+        class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark"
+    >
+        <div class="min-h-screen">
+            <header
+                class="bg-primary text-white p-4 flex justify-between items-center"
+            >
+                <h1 class="text-2xl font-bold">FakeBookingWebsite.com</h1>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a
+                        class="flex items-center space-x-1 hover:bg-white/10 p-2 rounded"
+                        href="#"
+                    >
+                        <span class="material-icons">hotel</span>
+                        <span>Stays</span>
+                    </a>
+                    <a
+                        class="flex items-center space-x-1 hover:bg-white/10 p-2 rounded"
+                        href="#"
+                    >
+                        <span class="material-icons">flight</span>
+                        <span>Flights</span>
+                    </a>
+                    <a
+                        class="flex items-center space-x-1 hover:bg-white/10 p-2 rounded"
+                        href="#"
+                    >
+                        <span class="material-icons">directions_car</span>
+                        <span>Car rental</span>
+                    </a>
+                    <a
+                        class="flex items-center space-x-1 hover:bg-white/10 p-2 rounded"
+                        href="#"
+                    >
+                        <span class="material-icons">local_taxi</span>
+                        <span>Airport taxis</span>
+                    </a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-full hover:bg-white/10">
+                        <span class="material-icons">help_outline</span>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-white/10">
+                        <span class="material-icons">notifications</span>
+                    </button>
+                    <button
+                        class="bg-white text-primary px-4 py-2 rounded font-semibold"
+                    >
+                        Sign in
+                    </button>
+                </div>
+            </header>
+            <main class="container mx-auto p-4 md:p-6 lg:p-8">
+                <div
+                    class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow-md mb-6"
+                >
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-1">
+                            <label
+                                class="block text-sm font-medium text-secondary-text-light dark:text-secondary-text-dark"
+                                for="destination"
+                                >Destination/property name:</label
+                            >
+                            <div class="relative mt-1">
+                                <span
+                                    class="material-icons absolute inset-y-0 left-0 pl-3 flex items-center text-secondary-text-light dark:text-secondary-text-dark"
+                                    >search</span
+                                >
+                                <input
+                                    class="w-full pl-10 pr-4 py-2 border border-border-light dark:border-border-dark rounded bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-primary focus:border-primary"
+                                    id="destination"
+                                    type="text"
+                                    value="Stellenbosch"
+                                />
+                            </div>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label
+                                class="block text-sm font-medium text-secondary-text-light dark:text-secondary-text-dark"
+                                for="dates"
+                                >Check-in / Check-out</label
+                            >
+                            <div class="relative mt-1">
+                                <span
+                                    class="material-icons absolute inset-y-0 left-0 pl-3 flex items-center text-secondary-text-light dark:text-secondary-text-dark"
+                                    >calendar_today</span
+                                >
+                                <input
+                                    class="w-full pl-10 pr-4 py-2 border border-border-light dark:border-border-dark rounded bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-primary focus:border-primary"
+                                    id="dates"
+                                    type="text"
+                                    value="Fri 31 Oct - Sun 2 Nov"
+                                />
+                            </div>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label
+                                class="block text-sm font-medium text-secondary-text-light dark:text-secondary-text-dark"
+                                for="guests"
+                                >Guests</label
+                            >
+                            <div class="relative mt-1">
+                                <span
+                                    class="material-icons absolute inset-y-0 left-0 pl-3 flex items-center text-secondary-text-light dark:text-secondary-text-dark"
+                                    >person</span
+                                >
+                                <input
+                                    class="w-full pl-10 pr-4 py-2 border border-border-light dark:border-border-dark rounded bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-primary focus:border-primary"
+                                    id="guests"
+                                    type="text"
+                                    value="2 adults - 0 children - 1 room"
+                                />
+                            </div>
+                        </div>
+                        <div class="md:col-span-1 flex items-end">
+                            <button
+                                class="w-full bg-primary text-white font-bold py-2 px-4 rounded hover:bg-blue-700"
+                            >
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <aside class="w-full lg:w-1/4">
+                        <div
+                            class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow-md"
+                        >
+                            <h2 class="text-xl font-bold mb-4">Filter by:</h2>
+                            <div class="mb-6">
+                                <h3
+                                    class="font-semibold mb-2 text-text-light dark:text-text-dark"
+                                >
+                                    Your budget (per night)
+                                </h3>
+                                <input
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    max="20000"
+                                    min="1000"
+                                    type="range"
+                                />
+                                <div
+                                    class="flex justify-between text-sm text-secondary-text-light dark:text-secondary-text-dark mt-1"
+                                >
+                                    <span>ZAR 1,000</span>
+                                    <span>ZAR 20,000+</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3
+                                    class="font-semibold mb-2 text-text-light dark:text-text-dark"
+                                >
+                                    Popular filters
+                                </h3>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input
+                                            class="form-checkbox h-5 w-5 text-primary rounded border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:ring-primary"
+                                            type="checkbox"
+                                        />
+                                        <span
+                                            class="ml-2 text-text-light dark:text-text-dark"
+                                            >Breakfast Included</span
+                                        >
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input
+                                            class="form-checkbox h-5 w-5 text-primary rounded border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:ring-primary"
+                                            type="checkbox"
+                                        />
+                                        <span
+                                            class="ml-2 text-text-light dark:text-text-dark"
+                                            >Free WiFi</span
+                                        >
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input
+                                            checked=""
+                                            class="form-checkbox h-5 w-5 text-primary rounded border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:ring-primary"
+                                            type="checkbox"
+                                        />
+                                        <span
+                                            class="ml-2 text-text-light dark:text-text-dark"
+                                            >Hotels</span
+                                        >
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input
+                                            class="form-checkbox h-5 w-5 text-primary rounded border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:ring-primary"
+                                            type="checkbox"
+                                        />
+                                        <span
+                                            class="ml-2 text-text-light dark:text-text-dark"
+                                            >Free cancellation</span
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                    <div class="w-full lg:w-3/4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold" id="property-count">
+                                Stellenbosch: ... properties found
+                            </h2>
+                            <div class="flex items-center space-x-2">
+                                <button
+                                    class="p-2 rounded border border-primary text-primary bg-blue-100 dark:bg-blue-900/50"
+                                >
+                                    List
+                                </button>
+                                <button
+                                    class="p-2 rounded border border-border-light dark:border-border-dark text-secondary-text-light dark:text-secondary-text-dark"
+                                >
+                                    Grid
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- START: Dynamic Hotel List Container -->
+                        <!-- The static hotel cards have been removed. -->
+                        <!-- JavaScript will inject the new hotel cards here. -->
+                        <div id="hotel-list-container"></div>
+                        <!-- END: Dynamic Hotel List Container -->
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            /**
+             * Generates an array of fake hotel data.
+             * @param {number} count - The number of hotels to generate.
+             * @returns {Array<Object>} An array of hotel objects.
+             */
+            function generateFakeHotels(count) {
+                const hotels = [];
+
+                // Data pools for randomization
+                const names = [
+                    "Grand",
+                    "Royal",
+                    "Sunset",
+                    "Ocean",
+                    "Mountain",
+                    "City",
+                    "Park",
+                    "River",
+                    "Golden",
+                    "Silver",
+                    "Central",
+                    "Harbour",
+                    "Bay",
+                    "Hilltop",
+                    "Palm",
+                    "Vineyard",
+                    "Oak",
+                    "Winelands",
+                    "Valley",
+                ];
+                const types = [
+                    "Hotel",
+                    "Lodge",
+                    "Inn",
+                    "Suites",
+                    "Apartments",
+                    "Boutique",
+                    "Manor",
+                    "View",
+                    "Place",
+                    "Resort",
+                    "Guesthouse",
+                    "Estate",
+                ];
+                const locations = [
+                    "Hillside",
+                    "Downtown",
+                    "Harbour",
+                    "Gardens",
+                    "Plaza",
+                    "Heights",
+                    "Creek",
+                    "Valley",
+                    "Beachfront",
+                    "on-the-Hill",
+                    "Central",
+                    "Estates",
+                ];
+                const busStops = [
+                    "V&A Terminus",
+                    "Civic Centre",
+                    "Sea Point Main",
+                    "Camps Bay Drive",
+                    "Gardens Station",
+                    "Observatory Hub",
+                    "Newlands Depot",
+                    "Stellenbosch Central",
+                    "Eikestad Mall",
+                ];
+
+                // Helper to get a random item from an array
+                const getRandom = (arr) =>
+                    arr[Math.floor(Math.random() * arr.length)];
+
+                for (let i = 1; i <= count; i++) {
+                    const price =
+                        Math.floor(Math.random() * (20000 - 1000 + 1)) + 1000;
+                    const distance = (Math.random() * 5 + 0.2).toFixed(1);
+                    const rating = (Math.random() * (10 - 7) + 7).toFixed(1);
+                    let ratingText = "Good";
+                    if (rating >= 9.0) {
+                        ratingText = "Superb";
+                    } else if (rating >= 8.5) {
+                        ratingText = "Very Good";
+                    } else if (rating >= 8.0) {
+                        ratingText = "Good";
+                    } else {
+                        ratingText = "Pleasant";
+                    }
+
+                    const hotel = {
+                        id: i,
+                        name: `${getRandom(names)} ${getRandom(
+                            locations
+                        )} ${getRandom(types)}`,
+                        distanceFromBus: `${distance}km from ${getRandom(
+                            busStops
+                        )}`,
+                        price: price,
+                        rating: rating,
+                        ratingText: ratingText,
+                        reviewCount: Math.floor(Math.random() * 2000) + 50,
+                        breakfastIncluded: Math.random() > 0.4, // 60% chance
+                        wifiIncluded: Math.random() > 0.3, // 70% chance
+                        // Use a placeholder image service. Using picsum.photos for variety.
+                        imageUrl: `https://picsum.photos/id/${100 + i}/400/300`,
+                    };
+
+                    hotels.push(hotel);
+                }
+
+                return hotels;
+            }
+
+            /**
+             * Renders the hotel data as HTML cards and injects them into the page.
+             */
+            function renderHotels() {
+                const hotelCount = Math.floor(Math.random() * 50) + 100; // 100 to 149 hotels
+                // 1. Generate the data
+                const hotels = generateFakeHotels(hotelCount);
+
+                // 2. Get the container element
+                const container = document.getElementById(
+                    "hotel-list-container"
+                );
+                const countElement = document.getElementById("property-count");
+
+                // 3. Update the property count
+                countElement.textContent = `Stellenbosch: ${hotels.length} properties found`;
+
+                // 4. Loop through the data and create HTML
+                let allCardsHTML = "";
+                for (const hotel of hotels) {
+                    // --- Template for amenities ---
+                    // Using your existing styles
+                    const breakfastHTML = hotel.breakfastIncluded
+                        ? `
+                        <div class="flex items-center space-x-1 text-sm text-green-600 dark:text-green-400 font-semibold">
+                            <span class="material-icons text-lg">free_breakfast</span>
+                            <span>Breakfast included</span>
+                        </div>`
+                        : "";
+
+                    const wifiHTML = hotel.wifiIncluded
+                        ? `
+                        <div class="flex items-center space-x-1 text-sm text-secondary-text-light dark:text-secondary-text-dark">
+                            <span class="material-icons text-lg">wifi</span>
+                            <span>Free WiFi</span>
+                        </div>`
+                        : "";
+
+                    // --- Build the main card HTML ---
+                    // This structure matches your static cards exactly.
+                    allCardsHTML += `
+                        <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden mb-6 flex flex-col md:flex-row">
+                            <img
+                                alt="${hotel.name}"
+                                class="w-full md:w-1/3 h-64 md:h-auto object-cover"
+                                src="${hotel.imageUrl}"
+                                onerror="this.src='https://placehold.co/400x300/e0e0e0/777?text=Image+Not+Found'"
+                            />
+                            <div
+                                class="p-4 flex-grow flex flex-col justify-between"
+                            >
+                                <div>
+                                    <div
+                                        class="flex justify-between items-start"
+                                    >
+                                        <h3
+                                            class="text-xl font-bold text-primary"
+                                        >
+                                            ${hotel.name}
+                                        </h3>
+                                        <div class="text-right flex-shrink-0 ml-2">
+                                            <div class="flex items-center justify-end">
+                                                <span
+                                                    class="font-bold text-lg mr-2"
+                                                    >${hotel.ratingText}</span
+                                                >
+                                                <span
+                                                    class="bg-primary text-white text-lg font-bold px-2 py-1 rounded"
+                                                    >${hotel.rating}</span
+                                                >
+                                            </div>
+                                            <p
+                                                class="text-sm text-secondary-text-light dark:text-secondary-text-dark"
+                                            >
+                                                ${hotel.reviewCount.toLocaleString()} reviews
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center space-x-2 text-sm text-secondary-text-light dark:text-secondary-text-dark mt-2"
+                                    >
+                                        <span class="material-icons text-lg"
+                                            >directions_bus</span
+                                        >
+                                        <span>${hotel.distanceFromBus}</span>
+                                    </div>
+                                    <!-- Amenities dynamically added here -->
+                                    <div class="flex items-center space-x-4 mt-4">
+                                        ${breakfastHTML}
+                                        ${wifiHTML}
+                                    </div>
+                                </div>
+                                <div
+                                    class="mt-4 flex flex-col md:flex-row justify-between items-end"
+                                >
+                                    <div>
+                                        <!-- You could add a random "rooms left" message here -->
+                                        <p class="text-sm text-red-500">
+                                            ${
+                                                Math.random() > 0.7
+                                                    ? `Only ${
+                                                          Math.floor(
+                                                              Math.random() * 5
+                                                          ) + 1
+                                                      } rooms left at this price!`
+                                                    : ""
+                                            }
+                                        </p>
+                                    </div>
+                                    <div class="text-right mt-4 md:mt-0">
+                                        <p
+                                            class="text-2xl font-bold text-text-light dark:text-text-dark"
+                                        >
+                                            ZAR ${hotel.price.toLocaleString()}
+                                        </p>
+                                        <p
+                                            class="text-xs text-secondary-text-light dark:text-secondary-text-dark"
+                                        >
+                                            Includes taxes and charges
+                                        </p>
+                                        <button
+                                            class="mt-2 bg-primary text-white font-bold py-2 px-6 rounded hover:bg-blue-700"
+                                        >
+                                            View property
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 5. Inject the generated HTML into the container
+                container.innerHTML = allCardsHTML;
+            }
+
+            // Run the function when the page loads
+            document.addEventListener("DOMContentLoaded", renderHotels);
+        </script>
+    </body>
 </html>
