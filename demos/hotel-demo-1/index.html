@@ -289,55 +289,108 @@
                 const hotels = [];
 
                 // Data pools for randomization
-                const names = [
-                    "Grand",
-                    "Royal",
-                    "Sunset",
-                    "Ocean",
-                    "Mountain",
-                    "City",
-                    "Park",
-                    "River",
-                    "Golden",
-                    "Silver",
-                    "Central",
-                    "Harbour",
-                    "Bay",
-                    "Hilltop",
-                    "Palm",
-                    "Vineyard",
-                    "Oak",
-                    "Winelands",
-                    "Valley",
-                ];
-                const types = [
-                    "Hotel",
-                    "Lodge",
-                    "Inn",
-                    "Suites",
-                    "Apartments",
-                    "Boutique",
-                    "Manor",
-                    "View",
-                    "Place",
-                    "Resort",
-                    "Guesthouse",
-                    "Estate",
-                ];
-                const locations = [
-                    "Hillside",
-                    "Downtown",
-                    "Harbour",
-                    "Gardens",
-                    "Plaza",
-                    "Heights",
-                    "Creek",
-                    "Valley",
-                    "Beachfront",
-                    "on-the-Hill",
-                    "Central",
-                    "Estates",
-                ];
+                const hotelNames = [
+                    "The Grand Regal Hotel",
+                    "Sunset Harbour Inn",
+                    "Mountain View Lodge",
+                    "Ocean Breeze Suites",
+                    "City Central Apartments",
+                    "Parkside Boutique Hotel",
+                    "Riverfront Manor",
+                    "Golden Tulip Guesthouse",
+                    "Silver Creek Resort",
+                    "Central Plaza Hotel",
+                    "Harbour Lights Inn",
+                    "Bayview Resort & Spa",
+                    "Hilltop Gardens Hotel",
+                    "Palm Grove Suites",
+                    "Vineyard Valley Estate",
+                    "Oakwood Boutique Hotel",
+                    "Winelands Manor Guesthouse",
+                    "Valley View Place",
+                    "The Royal Crest Hotel",
+                    "Seaside Serenity Inn",
+                    "The Urban Oasis Suites",
+                    "Riverside Retreat Lodge",
+                    "The Golden Palm",
+                    "Silverado Resort",
+                    "Downtown Luxury Apartments",
+                    "The Hillside Haven",
+                    "Palm Beach Boutique Hotel",
+                    "The Vineyard Inn",
+                    "Oak Tree Manor",
+                    "The Winelands Guesthouse",
+                    "Azure Sky Hotel",
+                    "Crimson Peak Lodge",
+                    "Emerald Valley Inn",
+                    "Sapphire Shores Suites",
+                    "Ruby Gardens Apartments",
+                    "Topaz Mountain Boutique Hotel",
+                    "Garnet Grove Manor",
+                    "Opal Springs Guesthouse",
+                    "Diamond Ridge Resort",
+                    "Pearl River Hotel",
+                    "The Jade Vine Inn",
+                    "The Amethyst Resort & Spa",
+                    "Blackstone Hotel",
+                    "Whitewater Suites",
+                    "Greenleaf Estate",
+                    "Bluebell Boutique Hotel",
+                    "Redwood Manor",
+                    "Yellowstone Guesthouse",
+                    "The Coral Castle",
+                    "The Ivory Tower Hotel",
+                    "The Ebony Retreat",
+                    "The Scarlet Letter Inn",
+                    "The Indigo Plaza",
+                    "The Violet Tulip",
+                    "The Orange Blossom Suites",
+                    "The Fuchsia Flamingo",
+                    "The Lavender House",
+                    "The Magenta Rose",
+                    "The Teal Turtle",
+                    "The Cyan Seahorse",
+                    "The Maroon Shell",
+                    "The Navy Anchor",
+                    "The Olive Branch",
+                    "The Lime Tree",
+                    "The Aqua Marine",
+                    "The Coral Reef",
+                    "The Peach Blossom",
+                    "The Plum Tree",
+                    "The Cherry Blossom",
+                    "The Apricot Sun",
+                    "The Lemon Grove",
+                    "The Almond Tree",
+                    "The Coconut Palm",
+                    "The Mango Tree",
+                    "The Papaya Place",
+                    "The Guava Garden",
+                    "The Kiwi Corner",
+                    "The Fig Tree",
+                    "The Date Palm",
+                    "The Pomegranate Place",
+                    "The Starfruit Stay",
+                    "The Dragonfruit Den",
+                    "The Lychee Lodge",
+                    "The Rambutan Retreat",
+                    "The Mangosteen Manor",
+                    "The Jackfruit Junction",
+                    "The Durian Dome",
+                    "The Salak Sanctuary",
+                    "The Longan Loft",
+                    "The Passionfruit Palace",
+                    "The Persimmon Place",
+                    "The Quince Quarters",
+                    "The Loquat Lodge",
+                    "The Mulberry Manor",
+                    "The Gooseberry Guesthouse",
+                    "The Elderberry Estate",
+                    "The Cloudberry Castle",
+                    "The Crowberry Creek",
+                    "The Bearberry Boutique",
+                    "The Bilberry Bungalow",
+                ].splice(0, 98);
                 const busStops = [
                     "Waterfront North Pier",
                     "Bo-Kaap Stairs",
@@ -366,11 +419,29 @@
                     "Kuils River Station",
                 ];
 
-                // Helper to get a random item from an array
-                const getRandom = (arr) =>
-                    arr[Math.floor(Math.random() * arr.length)];
+                /**
+                 * Shuffles an array in place.
+                 * @param {Array} array The array to shuffle.
+                 */
+                function shuffleArray(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                }
 
-                for (let i = 1; i <= count; i++) {
+                // To ensure we have unique names, we'll shuffle the list and take the first `count` items.
+                const shuffledHotelNames = [...hotelNames];
+                shuffleArray(shuffledHotelNames);
+
+                // Ensure we don't try to generate more hotels than we have unique names
+                const numberOfHotelsToGenerate = Math.min(
+                    count,
+                    shuffledHotelNames.length
+                );
+
+                for (let i = 0; i < numberOfHotelsToGenerate; i++) {
+                    const hotelName = shuffledHotelNames[i];
                     const price =
                         Math.floor(Math.random() * (20000 - 1000 + 1)) + 1000;
                     const distance = (Math.random() * 5 + 0.2).toFixed(1);
@@ -388,12 +459,12 @@
 
                     const hotel = {
                         id: i,
-                        name: `${getRandom(names)} ${getRandom(
-                            locations
-                        )} ${getRandom(types)}`,
-                        distanceFromBus: `${distance}km from ${getRandom(
-                            busStops
-                        )}`,
+                        name: hotelName,
+                        distanceFromBus: `${distance}km from ${
+                            busStops[
+                                Math.floor(Math.random() * busStops.length)
+                            ]
+                        }`,
                         price: price,
                         rating: rating,
                         ratingText: ratingText,
@@ -413,7 +484,7 @@
              * Renders the hotel data as HTML cards and injects them into the page.
              */
             function renderHotels() {
-                const hotelCount = Math.floor(Math.random() * 50) + 100; // 100 to 149 hotels
+                const hotelCount = 103;
                 // 1. Generate the data
                 const hotels = generateFakeHotels(hotelCount);
 
