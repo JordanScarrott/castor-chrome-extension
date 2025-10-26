@@ -358,13 +358,13 @@
                     const price =
                         Math.floor(Math.random() * (20000 - 1000 + 1)) + 1000;
                     const distance = (Math.random() * 5 + 0.2).toFixed(1);
-                    const rating = (Math.random() * (10 - 7) + 7).toFixed(1);
+                    const rating = (Math.random() * (100 - 7) + 7).toFixed(0);
                     let ratingText = "Good";
-                    if (rating >= 9.0) {
+                    if (rating >= 90) {
                         ratingText = "Superb";
-                    } else if (rating >= 8.5) {
+                    } else if (rating >= 85) {
                         ratingText = "Very Good";
-                    } else if (rating >= 8.0) {
+                    } else if (rating >= 80) {
                         ratingText = "Good";
                     } else {
                         ratingText = "Pleasant";
