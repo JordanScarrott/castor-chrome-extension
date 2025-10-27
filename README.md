@@ -93,3 +93,51 @@ npm test
 ```
 
 This will run all tests defined in the `src/tests` directory.
+
+## Running the Demos
+
+The `demos` directory contains three static websites that can be used to test the extension's features. Each demo runs on its own port.
+
+**Prerequisites:**
+*   You must have completed the **Developer Setup** steps above.
+
+**Installation:**
+
+1.  **Navigate to the `demos` directory:**
+    ```bash
+    cd demos
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+    This will install the dependencies for all three demos.
+
+**Running all demos at once:**
+
+1.  **From the `demos` directory, run:**
+    ```bash
+    npm run serve
+    ```
+    This will start all three demo servers concurrently. The demos will be available at the following URLs:
+    *   **Hotel Demo:** `http://localhost:8081`
+    *   **Restaurant Demo:** `http://localhost:8082`
+    *   **Bus Tour Demo:** `http://localhost:8083`
+
+**Running each demo individually:**
+
+You can also run each demo on its own. From the `demos` directory, use one of the following commands:
+
+*   **Hotel Demo:**
+    ```bash
+    npm run serve:hotel
+    ```
+*   **Restaurant Demo:**
+    ```bash
+    npm run serve:restaurant
+    ```
+*   **Bus Tour Demo:**
+    ```bash
+    npm run serve:bus-tour
+    ```
