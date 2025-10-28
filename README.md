@@ -54,7 +54,8 @@ The Mangle reasoning engine is compiled to WebAssembly from a forked version of 
 To get started with development, follow these steps:
 
 **Prerequisites:**
-*   [Node.js](https://nodejs.org/) (which includes npm)
+*   [Node.js](https://nodejs.org/)
+*   [pnpm](https://pnpm.io/)
 *   [Google Chrome](https://www.google.com/chrome/) (latest version recommended)
 
 **Installation:**
@@ -67,12 +68,12 @@ To get started with development, follow these steps:
 
 2.  **Install dependencies:**
     ```bash
-    npm install
+    pnpm install
     ```
 
 3.  **Build the extension:**
     ```bash
-    npm run build
+    pnpm run build
     ```
     This will create a `dist` directory with the unpacked extension files.
 
@@ -89,7 +90,7 @@ To get started with development, follow these steps:
 This project uses [Vitest](https://vitest.dev/) for unit testing. To run the tests, use the following command:
 
 ```bash
-npm test
+pnpm test
 ```
 
 This will run all tests defined in the `src/tests` directory.
@@ -110,7 +111,7 @@ The `demos` directory contains three static websites that can be used to test th
 
 2.  **Install dependencies:**
     ```bash
-    npm install
+    pnpm install
     ```
     This will install the dependencies for all three demos.
 
@@ -118,7 +119,7 @@ The `demos` directory contains three static websites that can be used to test th
 
 1.  **From the `demos` directory, run:**
     ```bash
-    npm run serve
+    pnpm run serve
     ```
     This will start all three demo servers concurrently. The demos will be available at the following URLs:
     *   **Hotel Demo:** `http://localhost:8081`
@@ -131,13 +132,13 @@ You can also run each demo on its own. From the `demos` directory, use one of th
 
 *   **Hotel Demo:**
     ```bash
-    npm run serve:hotel
+    pnpm run serve:hotel
     ```
 *   **Restaurant Demo:**
     ```bash
-    npm run serve:restaurant
+    pnpm run serve:restaurant
     ```
 *   **Bus Tour Demo:**
     ```bash
-    npm run serve:bus-tour
+    pnpm run serve:bus-tour
     ```
