@@ -43,7 +43,8 @@ export function usePrompt() {
             mangle_rules: [],
         };
 
-        await generateMangleSchemaGeneric(userGoal);
+        // Attempt at automatic schema, rule, and query generation
+        // await generateMangleSchemaGeneric(userGoal);
 
         const prompt = createMangleSchemaPrompt(userGoal);
         const response = (await geminiNanoService.askPrompt<MangleSchema>(

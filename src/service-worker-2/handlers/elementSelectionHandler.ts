@@ -4,6 +4,7 @@ import { StreamingJSONParser } from "@/service-worker-2/utils/StreamingJSONParse
 import { findNewValues } from "@/service-worker-2/utils/findNewValues";
 import { throttle } from "es-toolkit";
 import { getNamespacedKey } from "@/utils/storageUtils";
+import { getGeminiApiConfig } from "@/service-worker-2/geminiNano/prompts/crossSiteDemo/crossSiteDemo";
 
 interface AnalysisState {
     analysisId: string;
@@ -97,9 +98,9 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
         required: ["tour_name"], // We need the name to link everything
     };
 
-    const userPrompt = `Please extract all relevant information from the following text:\n`;
-    const systemPrompt = `You are a highly accurate data extraction AI. Analyze the user-provided text and populate the given JSON schema with all relevant information. Be precise. If information for a field cannot be found, omit it from the output.`;
-    const goalSchema = tourLogisticsSchema;
+    const _userPrompt = `Please extract all relevant information from the following text:\n`;
+    const _systemPrompt = `You are a highly accurate data extraction AI. Analyze the user-provided text and populate the given JSON schema with all relevant information. Be precise. If information for a field cannot be found, omit it from the output.`;
+    const _goalSchema = tourLogisticsSchema;
 
     const jsonParser = new StreamingJSONParser();
     let fullJsonResponse = "";
@@ -112,13 +113,17 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
 
         const item = getFirstPrimitiveValue(newItems);
         if (item) {
-            const currentState = (await chrome.storage.local.get(storageKey))[storageKey];
+            const currentState = (await chrome.storage.local.get(storageKey))[
+                storageKey
+            ];
             currentState.ideas.push(item as string);
             await chrome.storage.local.set({ [storageKey]: currentState });
         }
 
         if (finishedAnalysing) {
-            const finalState = (await chrome.storage.local.get(storageKey))[storageKey];
+            const finalState = (await chrome.storage.local.get(storageKey))[
+                storageKey
+            ];
             finalState.status = "complete";
             await chrome.storage.local.set({ [storageKey]: finalState });
         }
@@ -136,45 +141,68 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
 
     try {
         // 🚀 Pass the goalSchema directly to the API call
+        const { userPrompt, jsonSchema, systemPrompt } = getGeminiApiConfig();
+        console.log(
+            "🚀 ~ handleElementSelection ~ userPrompt, jsonSchema, systemPrompt:",
+            userPrompt,
+            jsonSchema,
+            systemPrompt
+        );
         await geminiNanoService.askPromptStreamingBatched(
             html,
             systemPrompt,
             (batchText: string) => userPrompt + batchText,
             onRawChunk,
             {
-                schema: goalSchema,
+                schema: jsonSchema,
             }
         );
+        // await geminiNanoService.askPromptStreamingBatched(
+        //     html,
+        //     systemPrompt,
+        //     (batchText: string) => userPrompt + batchText,
+        //     onRawChunk,
+        //     {
+        //         schema: goalSchema,
+        //     }
+        // );
     } catch (error) {
         console.error("Error during streaming:", error);
-        const errorState = (await chrome.storage.local.get(storageKey))[storageKey];
+        const errorState = (await chrome.storage.local.get(storageKey))[
+            storageKey
+        ];
         errorState.status = "error";
-        errorState.ideas.push("I'm sorry, I encountered an error while trying to extract the text.");
+        errorState.ideas.push(
+            "I'm sorry, I encountered an error while trying to extract the text."
+        );
         await chrome.storage.local.set({ [storageKey]: errorState });
-
     } finally {
-        const translator = new MangleTranslator();
-        try {
-            const parsedData = JSON.parse(fullJsonResponse);
-            console.log(
-                "🚀 ~ handleElementSelection ~ parsedData:",
-                parsedData
-            );
-            console.log(
-                "Translated Mangle:",
-                translator.translate(parsedData, "tour-12345")
-            );
-        } catch (e) {
-            console.error("Failed to parse JSON from AI response:", e);
-            const errorState = (await chrome.storage.local.get(storageKey))[storageKey];
-            errorState.status = "error";
-            errorState.ideas.push("Error: Could not parse the extracted data.");
-            await chrome.storage.local.set({ [storageKey]: errorState });
-        }
+        // const translator = new MangleTranslator();
+        // try {
+        //     const parsedData = JSON.parse(fullJsonResponse);
+        //     console.log(
+        //         "🚀 ~ handleElementSelection ~ parsedData:",
+        //         parsedData
+        //     );
+        //     console.log(
+        //         "Translated Mangle:",
+        //         translator.translate(parsedData, "tour-12345")
+        //     );
+        // } catch (e) {
+        //     console.error("Failed to parse JSON from AI response:", e);
+        //     const errorState = (await chrome.storage.local.get(storageKey))[
+        //         storageKey
+        //     ];
+        //     errorState.status = "error";
+        //     errorState.ideas.push("Error: Could not parse the extracted data.");
+        //     await chrome.storage.local.set({ [storageKey]: errorState });
+        // }
 
         finishedAnalysing = true;
         // This will trigger the final update in the throttled function
         throttledCreateInsight(fullJsonResponse);
+
+        console.log("Logging final output: ", fullJsonResponse);
     }
 }
 
