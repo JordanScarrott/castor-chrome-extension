@@ -2,7 +2,11 @@
   "name": "demos",
   "private": true,
   "scripts": {
-    "serve": "echo \"Error: no serve specified\" && exit 1"
+    "serve": "pnpm run --parallel /^serve:.*/",
+    "serve:hotel": "cd hotel-demo-1 && pnpm run serve",
+    "serve:restaurant": "cd restaurant-demo-1 && pnpm run serve",
+    "serve:bus-tour": "cd bus-tour-demo-1 && pnpm run serve",
+    "postinstall": "cd hotel-demo-1 && pnpm install && cd ../restaurant-demo-1 && pnpm install && cd ../bus-tour-demo-1 && pnpm install"
   },
   "devDependencies": {
     "http-server": "^14.1.1"

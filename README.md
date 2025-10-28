@@ -54,7 +54,8 @@ The Mangle reasoning engine is compiled to WebAssembly from a forked version of 
 To get started with development, follow these steps:
 
 **Prerequisites:**
-*   [Node.js](https://nodejs.org/) (which includes npm)
+*   [Node.js](https://nodejs.org/)
+*   [pnpm](https://pnpm.io/)
 *   [Google Chrome](https://www.google.com/chrome/) (latest version recommended)
 
 **Installation:**
@@ -67,12 +68,12 @@ To get started with development, follow these steps:
 
 2.  **Install dependencies:**
     ```bash
-    npm install
+    pnpm install
     ```
 
 3.  **Build the extension:**
     ```bash
-    npm run build
+    pnpm run build
     ```
     This will create a `dist` directory with the unpacked extension files.
 
@@ -89,7 +90,55 @@ To get started with development, follow these steps:
 This project uses [Vitest](https://vitest.dev/) for unit testing. To run the tests, use the following command:
 
 ```bash
-npm test
+pnpm test
 ```
 
 This will run all tests defined in the `src/tests` directory.
+
+## Running the Demos
+
+The `demos` directory contains three static websites that can be used to test the extension's features. Each demo runs on its own port.
+
+**Prerequisites:**
+*   You must have completed the **Developer Setup** steps above.
+
+**Installation:**
+
+1.  **Navigate to the `demos` directory:**
+    ```bash
+    cd demos
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    pnpm install
+    ```
+    This will install the dependencies for all three demos.
+
+**Running all demos at once:**
+
+1.  **From the `demos` directory, run:**
+    ```bash
+    pnpm run serve
+    ```
+    This will start all three demo servers concurrently. The demos will be available at the following URLs:
+    *   **Hotel Demo:** `http://localhost:8081`
+    *   **Restaurant Demo:** `http://localhost:8082`
+    *   **Bus Tour Demo:** `http://localhost:8083`
+
+**Running each demo individually:**
+
+You can also run each demo on its own. From the `demos` directory, use one of the following commands:
+
+*   **Hotel Demo:**
+    ```bash
+    pnpm run serve:hotel
+    ```
+*   **Restaurant Demo:**
+    ```bash
+    pnpm run serve:restaurant
+    ```
+*   **Bus Tour Demo:**
+    ```bash
+    pnpm run serve:bus-tour
+    ```
