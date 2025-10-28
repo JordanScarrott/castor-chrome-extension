@@ -1,4 +1,5 @@
 import { geminiNanoService } from "@/service-worker-2/geminiNano/geminiNanoService";
+import { mangleInstance } from "@/service-worker-2/mangle/MangleInstance";
 import { MangleTranslator } from "@/service-worker-2/mangle/MangleTranslator";
 import { StreamingJSONParser } from "@/service-worker-2/utils/StreamingJSONParser";
 import { findNewValues } from "@/service-worker-2/utils/findNewValues";
@@ -154,21 +155,32 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
 
     } finally {
         const translator = new MangleTranslator();
+        const factsStorageKey = getNamespacedKey("mangle_facts", tabGroupId);
+
         try {
+            // 1. Load existing facts from storage
+            const existingFactsResult = await chrome.storage.local.get(factsStorageKey);
+            const existingFacts = existingFactsResult[factsStorageKey] || "";
+
+            // 2. Initialize Mangle with existing facts
+            if (existingFacts) {
+                await mangleInstance.define(existingFacts);
+            }
+
+            // 3. Translate new data and define new facts
             const parsedData = JSON.parse(fullJsonResponse);
-            console.log(
-                "🚀 ~ handleElementSelection ~ parsedData:",
-                parsedData
-            );
-            console.log(
-                "Translated Mangle:",
-                translator.translate(parsedData, "tour-12345")
-            );
+            const newFacts = translator.translate(parsedData, "tour-12345");
+            await mangleInstance.define(newFacts);
+
+            // 4. Save all facts back to storage
+            const allFacts = existingFacts + newFacts;
+            await chrome.storage.local.set({ [factsStorageKey]: allFacts });
+
         } catch (e) {
-            console.error("Failed to parse JSON from AI response:", e);
+            console.error("Error during Mangle processing:", e);
             const errorState = (await chrome.storage.local.get(storageKey))[storageKey];
             errorState.status = "error";
-            errorState.ideas.push("Error: Could not parse the extracted data.");
+            errorState.ideas.push("Error: Could not process the extracted data.");
             await chrome.storage.local.set({ [storageKey]: errorState });
         }
 
