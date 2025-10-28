@@ -4,7 +4,17 @@ import { StreamingJSONParser } from "@/service-worker-2/utils/StreamingJSONParse
 import { findNewValues } from "@/service-worker-2/utils/findNewValues";
 import { throttle } from "es-toolkit";
 import { getNamespacedKey } from "@/utils/storageUtils";
-import { getGeminiApiConfig } from "@/service-worker-2/geminiNano/prompts/crossSiteDemo/crossSiteDemo";
+import {
+    cross_site_demo_rules,
+    ensureFactEndsWithPeriod,
+    getGeminiApiConfig,
+    MangleFactApiResponse,
+} from "@/service-worker-2/geminiNano/prompts/crossSiteDemo/crossSiteDemo";
+import { initializeMangleInstance } from "@/tests/modules/mangle/mangleRunTimeUtils";
+
+// Ensure the Mangle functions are declared if they are globally available
+declare function mangleDefine(text: string): string | null;
+declare function mangleQuery(text: string): string;
 
 interface AnalysisState {
     analysisId: string;
@@ -203,7 +213,64 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
         throttledCreateInsight(fullJsonResponse);
 
         console.log("Logging final output: ", fullJsonResponse);
+
+        await initializeMangleInstance();
+
+        // 1. Prime the predicates by defining dummy facts first.
+        // This ensures the schema is known before rules are defined.
+        const primeFacts = [
+            'bus_stop_on_route("dummy data", "dummy route").',
+            'restaurant_rating("dummy hotel", 0).',
+            'restaurant_at_hotel("dummy restaurant", "dummy hotel").',
+            'hotel_location("dummy hotel", "dumy location", 500).',
+            'restaurant_at_hotel("dummy restaurant", "dummy hotel").',
+        ];
+        for (const fact of primeFacts) {
+            const err = mangleDefine(fact);
+            if (err) console.error("Mangle prime fact error:", err);
+        }
+
+        const finalFacts = JSON.parse(
+            fullJsonResponse
+        ) as MangleFactApiResponse;
+
+        console.log("🚀 ~ handleElementSelection ~ finalFacts:", finalFacts);
+
+        ingestMangleFacts(finalFacts.bus_stop_on_route);
+        ingestMangleFacts(finalFacts.hotel_location);
+        ingestMangleFacts(finalFacts.restaurant_at_hotel);
+        ingestMangleFacts(finalFacts.restaurant_rating);
+
+        // if (!rulesIngested) {
+        ingestMangleRules(cross_site_demo_rules);
+        // }
     }
+}
+
+function ingestMangleFacts(facts: string[]): void {
+    for (const fact of facts) {
+        const f = ensureFactEndsWithPeriod(fact);
+        console.log("Ingesting mangle fact:", f);
+        const err = mangleDefine(f);
+        if (err) return console.error("Mangle define fact error:", err);
+    }
+    // const key = getNamespacedKey("mangle_facts", "undefined");
+    // chrome.storage.local.set({ [key]: facts });
+}
+
+let rulesIngested = false;
+function ingestMangleRules(rules: string[]): void {
+    for (const rule of rules) {
+        console.log("Ingesting mangle rule:", rule);
+        const err = mangleDefine(rule);
+        if (err) return console.error("Mangle define rule error:", err);
+    }
+    const key = getNamespacedKey("mangle_rules", "undefined");
+    chrome.storage.local.set({ [key]: rules });
+
+    const result = mangleQuery("is_wine_tour_stop(Stop)");
+    console.log("🚀 ~ ingestMangleFacts ~ is_wine_tour_stop:", result);
+    rulesIngested = true;
 }
 
 /**

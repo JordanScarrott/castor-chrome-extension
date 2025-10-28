@@ -1,4 +1,31 @@
 /**
+ * Defines the TypeScript type for the JSON object expected back from the Gemini API.
+ * This type corresponds directly to the `geminiJsonSchema`.
+ */
+export type MangleFactApiResponse = {
+    bus_stop_on_route: string[];
+    restaurant_rating: string[];
+    restaurant_at_hotel: string[];
+    hotel_location: string[];
+};
+
+/**
+ * Ensures a Mangle fact string is valid and ends with a period.
+ * @param fact The raw fact string from the API.
+ * @returns A cleaned, valid Mangle fact string.
+ */
+export function ensureFactEndsWithPeriod(fact: string): string {
+    if (typeof fact !== "string" || fact.trim() === "") {
+        return ""; // Return empty string for invalid input
+    }
+    const trimmedFact = fact.trim();
+    if (trimmedFact.endsWith(".")) {
+        return trimmedFact; // Already correct
+    }
+    return trimmedFact + "."; // Add the missing period
+}
+
+/**
  * Defines the JSON schema for the generative model.
  * This schema instructs the model to return an object where each key
  * corresponds to a Mangle predicate, and the value is an array of
@@ -124,3 +151,20 @@ export function getGeminiApiConfig(): GeminiApiConfig {
         userPrompt: userPromptTemplate,
     };
 }
+
+export const cross_site_demo_rules = [
+    // 1. Find all bus stops on the "Stellenbosch wine tour" route.
+    'is_wine_tour_stop(BusStop) :- bus_stop_on_route(BusStop, "Route 303").',
+
+    // 2. Find hotels within "walking distance" (defined as <= 1000 metres, or 1.0 km) of those stops.
+    "hotel_is_walkable_to_wine_route(Hotel, BusStop) :- hotel_location(Hotel, BusStop, Distance), is_wine_tour_stop(BusStop), Distance <= 1000.",
+
+    // 3. Find "good" restaurants (defined as rating >= 45, or 4.5).
+    "is_good_restaurant(Restaurant) :- restaurant_rating(Restaurant, Rating), Rating >= 45.",
+
+    // 4. Find hotels that contain a "good" restaurant.
+    "hotel_has_good_restaurant(Hotel, Restaurant) :- restaurant_at_hotel(Restaurant, Hotel), is_good_restaurant(Restaurant).",
+
+    // 5. Final Goal: Find hotels that are *both* walkable to the wine route AND have a good restaurant.
+    "find_convenient_hotel(Hotel, Restaurant, BusStop) :- hotel_is_walkable_to_wine_route(Hotel, BusStop), hotel_has_good_restaurant(Hotel, Restaurant).",
+];
