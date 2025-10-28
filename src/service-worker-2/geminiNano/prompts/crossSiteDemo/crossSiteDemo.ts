@@ -168,3 +168,11 @@ export const cross_site_demo_rules = [
     // 5. Final Goal: Find hotels that are *both* walkable to the wine route AND have a good restaurant.
     "find_convenient_hotel(Hotel, Restaurant, BusStop) :- hotel_is_walkable_to_wine_route(Hotel, BusStop), hotel_has_good_restaurant(Hotel, Restaurant).",
 ];
+
+export const cross_site_demo_queries = [
+    "is_wine_tour_stop(BusStop)",
+    "hotel_is_walkable_to_wine_route(Hotel, Stop)",
+    "is_good_restaurant(Restaurant)",
+    "hotel_has_good_restaurant(Hotel, Restaurant)",
+    "find_convenient_hotel(Hotel, Restaurant, BusStop)",
+];

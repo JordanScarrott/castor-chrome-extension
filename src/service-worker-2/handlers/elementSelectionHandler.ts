@@ -5,6 +5,7 @@ import { findNewValues } from "@/service-worker-2/utils/findNewValues";
 import { throttle } from "es-toolkit";
 import { getNamespacedKey } from "@/utils/storageUtils";
 import {
+    cross_site_demo_queries,
     cross_site_demo_rules,
     ensureFactEndsWithPeriod,
     getGeminiApiConfig,
@@ -268,9 +269,15 @@ function ingestMangleRules(rules: string[]): void {
     const key = getNamespacedKey("mangle_rules", "undefined");
     chrome.storage.local.set({ [key]: rules });
 
-    const result = mangleQuery("is_wine_tour_stop(Stop)");
-    console.log("🚀 ~ ingestMangleFacts ~ is_wine_tour_stop:", result);
+    runMangleQueries(cross_site_demo_queries);
     rulesIngested = true;
+}
+
+function runMangleQueries(queries: string[]): void {
+    for (const query of queries) {
+        const result = mangleQuery(query);
+        console.log(`Ran mangle query: ${query}. Result: ${result}`);
+    }
 }
 
 /**
