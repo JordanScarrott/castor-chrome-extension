@@ -4,8 +4,10 @@
         <Chat
             ref="chatComponent"
             :is-loading="isLoading"
-            :sample-questions="currentQuestions"
+            :sample-questions="sampleQuestions"
+            :cross-site-query-map="crossSiteQueryMap"
             @submit-question="handleQuestion"
+            @submit-mangle-query="handleMangleQuery"
         />
     </div>
 </template>
@@ -13,7 +15,7 @@
 <script setup lang="ts">
 import Chat from "@/popup/components/Chat.vue";
 import { hotelNaturalLanguageQuestions } from "@/service-worker-2/handlers/hotelDataHandler";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useSessionStore } from "@/popup/store/sessionStore";
 import { useStorageManager } from "@/popup/composables/useStorageManager";
 
@@ -22,6 +24,7 @@ const sessionStore = useSessionStore();
 const { useTabGroupChromeStorage } = useStorageManager(sessionStore.tabGroupId);
 
 const analysisState = useTabGroupChromeStorage<any>("analysis", null);
+const crossSiteQueryMap = ref<Record<string, string>>({});
 
 watch(analysisState, (newState, oldState) => {
     if (!newState) return;
@@ -53,7 +56,7 @@ watch(analysisState, (newState, oldState) => {
 });
 
 // 2. Control the loading state
-const currentQuestions = ref(hotelNaturalLanguageQuestions);
+const sampleQuestions = ref(hotelNaturalLanguageQuestions);
 
 import { useAiMessageStream } from "@/popup/composables/useAiMessageStream";
 import { useChromeStorage } from "@/popup/composables/useChromeStorage";
@@ -61,6 +64,16 @@ import { useChromeStorage } from "@/popup/composables/useChromeStorage";
 const { isLoading, startLoading, stopLoading } = useAiMessageStream(
     (messageId) => chatComponent.value?.streamAiResponse(messageId)
 );
+
+onMounted(async () => {
+    try {
+        const queries = await chrome.runtime.sendMessage({ type: "TRANSLATE_QUERIES" });
+        crossSiteQueryMap.value = queries;
+    } catch (error) {
+        console.error("Failed to fetch translated queries:", error);
+    }
+});
+
 
 // 4. Listen for when the user asks a question
 async function handleQuestion(questionText: string) {
@@ -78,6 +91,21 @@ async function handleQuestion(questionText: string) {
         chatComponent.value?.streamAiResponse(Date.now() + "")(
             "Sorry, I was unable to process your question."
         );
+    }
+}
+
+async function handleMangleQuery(query: string) {
+    startLoading();
+    try {
+        const question = crossSiteQueryMap.value[query];
+        await chrome.runtime.sendMessage({
+            type: 'EXECUTE_MANGLE_QUERY',
+            payload: { query, question }
+        });
+    } catch (error) {
+        console.error('Failed to execute Mangle query:', error);
+        stopLoading();
+        chatComponent.value?.streamAiResponse(Date.now() + '')('Sorry, I encountered an error while running the query.');
     }
 }
 

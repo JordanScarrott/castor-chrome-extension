@@ -10,8 +10,8 @@ export interface ApiContract {
         { status: "QUEUED" | "ERROR"; message?: string } // Response
     ];
     EXECUTE_MANGLE_QUERY: [
-        { query: string },
-        { result: string | null; error?: string }
+        { query: string, question: string },
+        void
     ];
     GET_FACT_STORE_STATE: [
         undefined, // No payload for this request
@@ -23,6 +23,7 @@ export interface ApiContract {
         { result: QandA[] }
     ];
     ELEMENT_TEXT_SELECTED: [string, void];
+    TRANSLATE_QUERIES: [undefined, Record<string, string>];
 }
 
 // Generic types to make working with the contract easier

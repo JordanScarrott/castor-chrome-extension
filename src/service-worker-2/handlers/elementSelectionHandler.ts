@@ -237,43 +237,76 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
 
         console.log("🚀 ~ handleElementSelection ~ finalFacts:", finalFacts);
 
-        ingestMangleFacts(finalFacts.bus_stop_on_route);
-        ingestMangleFacts(finalFacts.hotel_location);
-        ingestMangleFacts(finalFacts.restaurant_at_hotel);
-        ingestMangleFacts(finalFacts.restaurant_rating);
+        await ingestMangleFacts(finalFacts.bus_stop_on_route, tabGroupId);
+        await ingestMangleFacts(finalFacts.hotel_location, tabGroupId);
+        await ingestMangleFacts(finalFacts.restaurant_at_hotel, tabGroupId);
+        await ingestMangleFacts(finalFacts.restaurant_rating, tabGroupId);
 
         // if (!rulesIngested) {
-        ingestMangleRules(cross_site_demo_rules);
+        await ingestMangleRules(cross_site_demo_rules, tabGroupId);
         // }
     }
 }
 
-function ingestMangleFacts(facts: string[]): void {
-    for (const fact of facts) {
+async function ingestMangleFacts(facts: string[], tabGroupId: number): Promise<void> {
+    const key = getNamespacedKey("mangle_facts", tabGroupId);
+    const existingData = await chrome.storage.local.get(key);
+    const existingFacts = existingData[key] || [];
+
+    const newFacts = facts.filter(fact => !existingFacts.includes(fact));
+
+    for (const fact of newFacts) {
         const f = ensureFactEndsWithPeriod(fact);
         console.log("Ingesting mangle fact:", f);
         const err = mangleDefine(f);
-        if (err) return console.error("Mangle define fact error:", err);
+        if (err) {
+            console.error("Mangle define fact error:", err);
+            return; // Stop on error
+        }
     }
-    // const key = getNamespacedKey("mangle_facts", "undefined");
-    // chrome.storage.local.set({ [key]: facts });
+
+    if (newFacts.length > 0) {
+        const updatedFacts = [...existingFacts, ...newFacts];
+        await chrome.storage.local.set({ [key]: updatedFacts });
+    }
 }
 
-let rulesIngested = false;
-function ingestMangleRules(rules: string[]): void {
+async function ingestMangleRules(rules: string[], tabGroupId: number): Promise<void> {
+    const key = getNamespacedKey("mangle_rules", tabGroupId);
     for (const rule of rules) {
         console.log("Ingesting mangle rule:", rule);
         const err = mangleDefine(rule);
-        if (err) return console.error("Mangle define rule error:", err);
+        if (err) {
+            console.error("Mangle define rule error:", err);
+            return; // Stop on error
+        }
     }
-    const key = getNamespacedKey("mangle_rules", "undefined");
-    chrome.storage.local.set({ [key]: rules });
-
-    runMangleQueries(cross_site_demo_queries);
-    rulesIngested = true;
+    await chrome.storage.local.set({ [key]: rules });
+    await runMangleQueries(cross_site_demo_queries, tabGroupId);
 }
 
-function runMangleQueries(queries: string[]): void {
+export async function rehydrateMangleState(tabGroupId: number): Promise<void> {
+    await initializeMangleInstance();
+
+    const factsKey = getNamespacedKey("mangle_facts", tabGroupId);
+    const rulesKey = getNamespacedKey("mangle_rules", tabGroupId);
+
+    const data = await chrome.storage.local.get([factsKey, rulesKey]);
+    const facts = data[factsKey] || [];
+    const rules = data[rulesKey] || [];
+
+    for (const fact of facts) {
+        const err = mangleDefine(fact);
+        if (err) console.error("Mangle rehydrate fact error:", err);
+    }
+    for (const rule of rules) {
+        const err = mangleDefine(rule);
+        if (err) console.error("Mangle rehydrate rule error:", err);
+    }
+}
+
+async function runMangleQueries(queries: string[], tabGroupId: number): Promise<void> {
+    await rehydrateMangleState(tabGroupId);
     for (const query of queries) {
         const result = mangleQuery(query);
         console.log(`Ran mangle query: ${query}. Result: ${result}`);
