@@ -43,8 +43,8 @@ const { createTabGroup } = useTabGroupManager();
 
 const goals = [
     "Help me find a budget laptop that also has a great screen.",
-    "Help me find a hotel near the Waterfront with a great restaurant that also lies on a bus route.",
     "Shop for a 'get well soon' basket with local Cape Town treats.",
+    "Help me find a hotel near the Waterfront with a great restaurant that also lies on a bus route.",
     "Investigate the cause of an error in the console logs.",
 ];
 
