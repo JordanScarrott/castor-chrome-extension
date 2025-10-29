@@ -21,16 +21,27 @@ import { useStorageManager } from "@/popup/composables/useStorageManager";
 
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 const sessionStore = useSessionStore();
-const { useTabGroupChromeStorage } = useStorageManager(sessionStore.tabGroupId);
+const { useTabGroupChromeStorage, useTabGroupStorage } = useStorageManager(
+    sessionStore.tabGroupId
+);
 
 const analysisState = useTabGroupChromeStorage<any>("analysis", null);
 const crossSiteQueryMap = ref<Record<string, string>>({});
+
+// Use local storage for the translated queries
+const translatedQueries = useTabGroupStorage<Record<string, string>>(
+    "translated_queries",
+    {}
+);
 
 watch(analysisState, (newState, oldState) => {
     if (!newState) return;
 
     if (!oldState || newState.analysisId !== oldState.analysisId) {
-        chatComponent.value?.addAnalysisCard(newState.analysisId, newState.topic);
+        chatComponent.value?.addAnalysisCard(
+            newState.analysisId,
+            newState.topic
+        );
     }
 
     if (newState.ideas.length > (oldState?.ideas.length || 0)) {
@@ -46,8 +57,13 @@ watch(analysisState, (newState, oldState) => {
     }
 
     if (newState.status === "error" && oldState?.status !== "error") {
-        const errorMessage = newState.ideas[newState.ideas.length - 1] || "An unknown error occurred.";
-        chatComponent.value?.updateAnalysisCard(newState.analysisId, errorMessage);
+        const errorMessage =
+            newState.ideas[newState.ideas.length - 1] ||
+            "An unknown error occurred.";
+        chatComponent.value?.updateAnalysisCard(
+            newState.analysisId,
+            errorMessage
+        );
         chatComponent.value?.completeAnalysisCard(newState.analysisId);
         setTimeout(() => {
             analysisState.value = null;
@@ -66,14 +82,41 @@ const { isLoading, startLoading, stopLoading } = useAiMessageStream(
 );
 
 onMounted(async () => {
-    try {
-        const queries = await chrome.runtime.sendMessage({ type: "TRANSLATE_QUERIES" });
-        crossSiteQueryMap.value = queries;
-    } catch (error) {
-        console.error("Failed to fetch translated queries:", error);
+    const animateQueries = (queries: Record<string, string>) => {
+        const queryEntries = Object.entries(queries);
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < queryEntries.length) {
+                const [key, value] = queryEntries[i];
+                crossSiteQueryMap.value = {
+                    ...crossSiteQueryMap.value,
+                    [key]: value,
+                };
+                i++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 1000); // 1-second delay between each chip
+    };
+
+    // Check if the queries are already in local storage
+    if (Object.keys(translatedQueries.value).length > 0) {
+        // If queries are cached, animate them directly
+        animateQueries(translatedQueries.value);
+    } else {
+        // If not, fetch them from the service worker
+        try {
+            const queries = await chrome.runtime.sendMessage({
+                type: "TRANSLATE_QUERIES",
+            });
+            translatedQueries.value = queries; // Save to local storage
+            // Animate the newly fetched queries
+            animateQueries(queries);
+        } catch (error) {
+            console.error("Failed to fetch translated queries:", error);
+        }
     }
 });
-
 
 // 4. Listen for when the user asks a question
 async function handleQuestion(questionText: string) {
@@ -99,13 +142,15 @@ async function handleMangleQuery(query: string) {
     try {
         const question = crossSiteQueryMap.value[query];
         await chrome.runtime.sendMessage({
-            type: 'EXECUTE_MANGLE_QUERY',
-            payload: { query, question, tabGroupId: sessionStore.tabGroupId }
+            type: "EXECUTE_MANGLE_QUERY",
+            payload: { query, question, tabGroupId: sessionStore.tabGroupId },
         });
     } catch (error) {
-        console.error('Failed to execute Mangle query:', error);
+        console.error("Failed to execute Mangle query:", error);
         stopLoading();
-        chatComponent.value?.streamAiResponse(Date.now() + '')('Sorry, I encountered an error while running the query.');
+        chatComponent.value?.streamAiResponse(Date.now() + "")(
+            "Sorry, I encountered an error while running the query."
+        );
     }
 }
 
