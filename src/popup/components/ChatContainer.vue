@@ -21,10 +21,18 @@ import { useStorageManager } from "@/popup/composables/useStorageManager";
 
 const chatComponent = ref<InstanceType<typeof Chat> | null>(null);
 const sessionStore = useSessionStore();
-const { useTabGroupChromeStorage } = useStorageManager(sessionStore.tabGroupId);
+const { useTabGroupChromeStorage, useTabGroupStorage } = useStorageManager(
+    sessionStore.tabGroupId
+);
 
 const analysisState = useTabGroupChromeStorage<any>("analysis", null);
 const crossSiteQueryMap = ref<Record<string, string>>({});
+
+// Use local storage for the translated queries
+const translatedQueries = useTabGrupStorage<Record<string, string>>(
+    "translated_queries",
+    {}
+);
 
 watch(analysisState, (newState, oldState) => {
     if (!newState) return;
@@ -66,11 +74,39 @@ const { isLoading, startLoading, stopLoading } = useAiMessageStream(
 );
 
 onMounted(async () => {
-    try {
-        const queries = await chrome.runtime.sendMessage({ type: "TRANSLATE_QUERIES" });
-        crossSiteQueryMap.value = queries;
-    } catch (error) {
-        console.error("Failed to fetch translated queries:", error);
+    const animateQueries = (queries: Record<string, string>) => {
+        const queryEntries = Object.entries(queries);
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < queryEntries.length) {
+                const [key, value] = queryEntries[i];
+                crossSiteQueryMap.value = {
+                    ...crossSiteQueryMap.value,
+                    [key]: value,
+                };
+                i++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 1000); // 1-second delay between each chip
+    };
+
+    // Check if the queries are already in local storage
+    if (Object.keys(translatedQueries.value).length > 0) {
+        // If queries are cached, animate them directly
+        animateQueries(translatedQueries.value);
+    } else {
+        // If not, fetch them from the service worker
+        try {
+            const queries = await chrome.runtime.sendMessage({
+                type: "TRANSLATE_QUERIES",
+            });
+            translatedQueries.value = queries; // Save to local storage
+            // Animate the newly fetched queries
+            animateQueries(queries);
+        } catch (error) {
+            console.error("Failed to fetch translated queries:", error);
+        }
     }
 });
 
