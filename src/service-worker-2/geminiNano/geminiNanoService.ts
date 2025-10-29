@@ -419,7 +419,7 @@ export async function formatResponseWithAI(
     try {
         const options = {
             sharedContext:
-                "The user is expecting a well formatted markdown response.",
+                "The user is expecting a well formatted markdown response. Format your response using a bulleted list and bold text where appropriate. Do not use any other forms of markdown.",
             tone: "neutral",
             format: "markdown",
             length: "short",
