@@ -162,8 +162,8 @@ async function handleNaturalLanguageQuestion(question: string) {
             type: "MATCH_QUESTION",
             payload: {
                 question,
-                queries: crossSiteQueryMap.value
-            }
+                queries: crossSiteQueryMap.value,
+            },
         });
 
         if (matchedQuery) {
@@ -172,7 +172,7 @@ async function handleNaturalLanguageQuestion(question: string) {
             // Handle case where no match is found
             stopLoading();
             chatComponent.value?.streamAiResponse(Date.now() + "")(
-                "Sorry, I couldn't find a matching question."
+                "Sorry, I'm unable to help with that right now."
             );
         }
     } catch (error) {
