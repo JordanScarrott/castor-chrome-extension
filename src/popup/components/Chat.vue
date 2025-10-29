@@ -141,6 +141,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
     (e: "submit-question", questionText: string): void;
     (e: "submit-mangle-query", query: string): void;
+    (e: "submit-natural-language-question", questionText: string): void;
 }>();
 
 // --- STATE MANAGEMENT ---
@@ -182,7 +183,7 @@ const handleSubmit = () => {
     if (!text) return;
 
     addMessage(text, "user");
-    emit("submit-question", text);
+    emit("submit-natural-language-question", text);
     userInput.value = "";
 };
 

@@ -24,6 +24,7 @@ export interface ApiContract {
     ];
     ELEMENT_TEXT_SELECTED: [string, void];
     TRANSLATE_QUERIES: [undefined, Record<string, string>];
+    MATCH_QUESTION: [{ question: string, queries: Record<string, string> }, string | null];
 }
 
 // Generic types to make working with the contract easier
