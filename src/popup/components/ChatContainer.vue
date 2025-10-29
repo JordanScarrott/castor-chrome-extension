@@ -8,6 +8,7 @@
             :cross-site-query-map="crossSiteQueryMap"
             @submit-question="handleQuestion"
             @submit-mangle-query="handleMangleQuery"
+            @submit-natural-language-question="handleNaturalLanguageQuestion"
         />
     </div>
 </template>
@@ -106,6 +107,35 @@ async function handleMangleQuery(query: string) {
         console.error('Failed to execute Mangle query:', error);
         stopLoading();
         chatComponent.value?.streamAiResponse(Date.now() + '')('Sorry, I encountered an error while running the query.');
+    }
+}
+
+async function handleNaturalLanguageQuestion(question: string) {
+    startLoading();
+    try {
+        const matchedQuery = await chrome.runtime.sendMessage({
+            type: "MATCH_QUESTION",
+            payload: {
+                question,
+                queries: crossSiteQueryMap.value
+            }
+        });
+
+        if (matchedQuery) {
+            handleMangleQuery(matchedQuery);
+        } else {
+            // Handle case where no match is found
+            stopLoading();
+            chatComponent.value?.streamAiResponse(Date.now() + "")(
+                "Sorry, I couldn't find a matching question."
+            );
+        }
+    } catch (error) {
+        console.error("Failed to match question:", error);
+        stopLoading();
+        chatComponent.value?.streamAiResponse(Date.now() + "")(
+            "Sorry, I encountered an error while matching your question."
+        );
     }
 }
 
