@@ -292,12 +292,13 @@
                 const hotelNames = [
                     "The Grand Regal Hotel",
                     "Sunset Harbour Inn",
+                    "The Longan Loft",
                     "Mountain View Lodge",
                     "Ocean Breeze Suites",
                     "City Central Apartments",
                     "Parkside Boutique Hotel",
                     "Riverfront Manor",
-                    "Golden Tulip Guesthouse",
+                    "Golden Tulip Hotel",
                     "Silver Creek Resort",
                     "Central Plaza Hotel",
                     "Harbour Lights Inn",
@@ -378,7 +379,6 @@
                     "The Jackfruit Junction",
                     "The Durian Dome",
                     "The Salak Sanctuary",
-                    "The Longan Loft",
                     "The Passionfruit Palace",
                     "The Persimmon Place",
                     "The Quince Quarters",
@@ -394,7 +394,7 @@
                 const busStops = [
                     "Waterfront North Pier",
                     "Bo-Kaap Stairs",
-                    "Lion's Head View",
+                    "East City Precinct",
                     "Kloof Street Junction",
                     "Long Street Exchange",
                     "Salt River Market",
@@ -417,6 +417,10 @@
                     "Atlantis Industrial",
                     "Bellville Central",
                     "Kuils River Station",
+                ].splice(0, 12);
+
+                const busStopDistances = [
+                    2.9, 2.7, 0.2, 5.1, 2.9, 2.8, 1.3, 0.6, 0.9, 1.1, 2.9, 0.1,
                 ];
 
                 /**
@@ -432,7 +436,7 @@
 
                 // To ensure we have unique names, we'll shuffle the list and take the first `count` items.
                 const shuffledHotelNames = [...hotelNames];
-                shuffleArray(shuffledHotelNames);
+                // shuffleArray(shuffledHotelNames);
 
                 // Ensure we don't try to generate more hotels than we have unique names
                 const numberOfHotelsToGenerate = Math.min(
@@ -444,7 +448,8 @@
                     const hotelName = shuffledHotelNames[i];
                     const price =
                         Math.floor(Math.random() * (20000 - 1000 + 1)) + 1000;
-                    const distance = (Math.random() * 5 + 0.2).toFixed(1);
+                    // const distance = (Math.random() * 5 + 0.2).toFixed(1);
+                    const distance = busStopDistances.at(i) || 1.6;
                     const rating = (Math.random() * (100 - 7) + 7).toFixed(0);
                     let ratingText = "Good";
                     if (rating >= 90) {
@@ -460,11 +465,7 @@
                     const hotel = {
                         id: i,
                         name: `Hotel name: ${hotelName}`,
-                        distanceFromBus: `${distance}km from ${
-                            busStops[
-                                Math.floor(Math.random() * busStops.length)
-                            ]
-                        } bus stop`,
+                        distanceFromBus: `${distance}km from ${busStops[i]} bus stop`,
                         price: price,
                         rating: `Rating: ${rating}`,
                         ratingText: `${ratingText}`,
