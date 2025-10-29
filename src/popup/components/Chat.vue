@@ -48,6 +48,15 @@
             <!-- Guiding Question Chips -->
             <HorizontalScroller class="chip-container">
                 <button
+                    v-for="(question, query) in props.crossSiteQueryMap"
+                    :key="query"
+                    @click="() => handleMangleChipClick(query as string)"
+                    class="chip"
+                    :disabled="props.isLoading"
+                >
+                    {{ question }}
+                </button>
+                <!--<button
                     v-for="question in props.sampleQuestions"
                     :key="question"
                     @click="() => handleQuestionChipClick(question)"
@@ -55,7 +64,7 @@
                     :disabled="props.isLoading"
                 >
                     {{ question }}
-                </button>
+                </button>-->
             </HorizontalScroller>
 
             <!-- Text Input and Send Button -->
@@ -115,6 +124,7 @@ import SendIcon from "./SendIcon.vue";
 interface Props {
     sampleQuestions?: string[];
     isLoading?: boolean;
+    crossSiteQueryMap?: Record<string, string>;
 }
 
 // --- PROPS ---
@@ -124,11 +134,13 @@ const props = withDefaults(defineProps<Props>(), {
         "Show me hotels with a pool.",
     ],
     isLoading: false,
+    crossSiteQueryMap: () => ({}),
 });
 
 // --- EMITS ---
 const emit = defineEmits<{
     (e: "submit-question", questionText: string): void;
+    (e: "submit-mangle-query", query: string): void;
 }>();
 
 // --- STATE MANAGEMENT ---
@@ -178,6 +190,15 @@ const handleQuestionChipClick = (question: string) => {
     if (props.isLoading) return;
     addMessage(question, "user");
     emit("submit-question", question);
+};
+
+const handleMangleChipClick = (query: string) => {
+    if (props.isLoading) return;
+    const question = props.crossSiteQueryMap?.[query];
+    if (question) {
+        addMessage(question, "user");
+        emit("submit-mangle-query", query);
+    }
 };
 
 const clearChat = () => {
