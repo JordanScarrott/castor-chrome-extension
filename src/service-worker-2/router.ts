@@ -18,7 +18,7 @@ const handlers = {
     ELEMENT_TEXT_SELECTED: handleElementSelection,
     HOTEL_DATA_EXTRACTED: handleHotelDataExtraction,
     TRANSLATE_QUERIES: handleTranslateQueries,
-    EXECUTE_MANGLE_QUERY: handleExecuteQuery,
+    // EXECUTE_MANGLE_QUERY: handleExecuteQuery,
 };
 
 export function routeMessage(

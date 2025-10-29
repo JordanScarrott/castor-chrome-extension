@@ -56,7 +56,7 @@
                 >
                     {{ question }}
                 </button>
-                <button
+                <!--<button
                     v-for="question in props.sampleQuestions"
                     :key="question"
                     @click="() => handleQuestionChipClick(question)"
@@ -64,7 +64,7 @@
                     :disabled="props.isLoading"
                 >
                     {{ question }}
-                </button>
+                </button>-->
             </HorizontalScroller>
 
             <!-- Text Input and Send Button -->

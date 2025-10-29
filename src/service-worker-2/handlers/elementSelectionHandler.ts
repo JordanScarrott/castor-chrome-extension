@@ -248,12 +248,15 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
     }
 }
 
-async function ingestMangleFacts(facts: string[], tabGroupId: number): Promise<void> {
+async function ingestMangleFacts(
+    facts: string[],
+    tabGroupId: number
+): Promise<void> {
     const key = getNamespacedKey("mangle_facts", tabGroupId);
     const existingData = await chrome.storage.local.get(key);
     const existingFacts = existingData[key] || [];
 
-    const newFacts = facts.filter(fact => !existingFacts.includes(fact));
+    const newFacts = facts.filter((fact) => !existingFacts.includes(fact));
 
     for (const fact of newFacts) {
         const f = ensureFactEndsWithPeriod(fact);
@@ -271,7 +274,10 @@ async function ingestMangleFacts(facts: string[], tabGroupId: number): Promise<v
     }
 }
 
-async function ingestMangleRules(rules: string[], tabGroupId: number): Promise<void> {
+async function ingestMangleRules(
+    rules: string[],
+    tabGroupId: number
+): Promise<void> {
     const key = getNamespacedKey("mangle_rules", tabGroupId);
     for (const rule of rules) {
         console.log("Ingesting mangle rule:", rule);
@@ -296,7 +302,9 @@ export async function rehydrateMangleState(tabGroupId: number): Promise<void> {
     const rules = data[rulesKey] || [];
 
     for (const fact of facts) {
-        const err = mangleDefine(fact);
+        const f = ensureFactEndsWithPeriod(fact);
+
+        const err = mangleDefine(f);
         if (err) console.error("Mangle rehydrate fact error:", err);
     }
     for (const rule of rules) {
@@ -305,7 +313,10 @@ export async function rehydrateMangleState(tabGroupId: number): Promise<void> {
     }
 }
 
-async function runMangleQueries(queries: string[], tabGroupId: number): Promise<void> {
+async function runMangleQueries(
+    queries: string[],
+    tabGroupId: number
+): Promise<void> {
     await rehydrateMangleState(tabGroupId);
     for (const query of queries) {
         const result = mangleQuery(query);
