@@ -31,10 +31,7 @@ export interface SessionState {
 // Mock delay function
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function _updateGoalForTabGroup(
-    tabGroupId: number,
-    goalText: string | null
-) {
+function _updateGoalForTabGroup(tabGroupId: number, goalText: string | null) {
     localStorage.setItem("activeTabGroupId", String(tabGroupId));
     const storageManager = useStorageManager(tabGroupId);
     const goal = storageManager.useTabGroupStorage("goal", null);
@@ -112,19 +109,19 @@ export const useSessionStore = defineStore("session", {
             this.tabGroupId = tabGroupId;
             _updateGoalForTabGroup(tabGroupId, goalText);
 
-            try {
-                const { schema } = await serviceWorkerApi.generateMangleSchema(
-                    goalText
-                );
-                console.log("Generated Mangle Schema:", schema);
-                this.guidingQuestions = schema.guiding_questions;
-                this.schema = schema;
-            } catch (error) {
-                console.error("Failed to generate Mangle Schema:", error);
-                // Optionally, set an error state to display to the user
-            } finally {
-                this.isLoading = false;
-            }
+            // try {
+            //     const { schema } = await serviceWorkerApi.generateMangleSchema(
+            //         goalText
+            //     );
+            //     console.log("Generated Mangle Schema:", schema);
+            //     this.guidingQuestions = schema.guiding_questions;
+            //     this.schema = schema;
+            // } catch (error) {
+            //     console.error("Failed to generate Mangle Schema:", error);
+            //     // Optionally, set an error state to display to the user
+            // } finally {
+            //     this.isLoading = false;
+            // }
         },
 
         resetSession() {
@@ -154,24 +151,22 @@ export const useSessionStore = defineStore("session", {
         },
 
         async addManualSource(content: string) {
-            console.log("addManualSource action called with:", content);
-
-            const response = await serviceWorkerApi.processNewContent(
-                content,
-                this.schema
-            );
-            console.log("alksdjaklsdljas", response);
-
-            const newSource: Source = {
-                id: `manual-${Date.now()}`,
-                title: "Manually Added Note",
-                faviconUrl: "assets/note-icon.svg", // Placeholder icon
-                facts: [
-                    "This is a manually added fact.",
-                    "The user pasted this content directly.",
-                ],
-            };
-            this.knowledgeSources.push(newSource);
+            // console.log("addManualSource action called with:", content);
+            // const response = await serviceWorkerApi.processNewContent(
+            //     content,
+            //     this.schema
+            // );
+            // console.log("alksdjaklsdljas", response);
+            // const newSource: Source = {
+            //     id: `manual-${Date.now()}`,
+            //     title: "Manually Added Note",
+            //     faviconUrl: "assets/note-icon.svg", // Placeholder icon
+            //     facts: [
+            //         "This is a manually added fact.",
+            //         "The user pasted this content directly.",
+            //     ],
+            // };
+            // this.knowledgeSources.push(newSource);
         },
 
         async executeQuery(queryText: string) {

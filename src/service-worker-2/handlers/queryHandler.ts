@@ -11,7 +11,9 @@ export async function handleExecuteQuery(
     try {
         await rehydrateMangleState(tabGroupId);
         const queryResult = mangleQuery(payload.query);
+        console.log("🚀 ~ handleExecuteQuery ~ queryResult:", queryResult);
         const parsedResult = JSON.parse(queryResult);
+        console.log("🚀 ~ handleExecuteQuery ~ parsedResult:", parsedResult);
         await formatResponseWithAI(payload.question, parsedResult);
     } catch (error) {
         console.error("Error executing Mangle query:", error);

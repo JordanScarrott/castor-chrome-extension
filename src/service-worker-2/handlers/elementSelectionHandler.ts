@@ -295,19 +295,23 @@ export async function rehydrateMangleState(tabGroupId: number): Promise<void> {
     await initializeMangleInstance();
 
     const factsKey = getNamespacedKey("mangle_facts", tabGroupId);
+    console.log("🚀 ~ rehydrateMangleState ~ factsKey:", factsKey);
     const rulesKey = getNamespacedKey("mangle_rules", tabGroupId);
+    console.log("🚀 ~ rehydrateMangleState ~ rulesKey:", rulesKey);
 
     const data = await chrome.storage.local.get([factsKey, rulesKey]);
     const facts = data[factsKey] || [];
     const rules = data[rulesKey] || [];
 
     for (const fact of facts) {
+        console.log("🚀 ~ rehydrateMangleState ~ fact:", fact);
         const f = ensureFactEndsWithPeriod(fact);
 
         const err = mangleDefine(f);
         if (err) console.error("Mangle rehydrate fact error:", err);
     }
     for (const rule of rules) {
+        console.log("🚀 ~ rehydrateMangleState ~ rule:", rule);
         const err = mangleDefine(rule);
         if (err) console.error("Mangle rehydrate rule error:", err);
     }
