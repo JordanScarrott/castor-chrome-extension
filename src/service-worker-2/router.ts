@@ -26,16 +26,20 @@ export function routeMessage(
     sender: chrome.runtime.MessageSender
 ) {
     const handler = handlers[message.type];
-    if (handler) {
-        // If the message is HOTEL_DATA_EXTRACTED, inject the tabGroupId into the payload.
-        if (sender.tab && sender.tab.groupId) {
-            return (handler as any)(message.payload, sender.tab.groupId);
-        }
-
-        return (handler as any)(message.payload);
-    } else {
-        return Promise.reject(
-            new Error(`No handler found for type: ${message.type}`)
-        );
+    if (!handler) {
+        return Promise.reject(new Error(`No handler found for type: ${message.type}`));
     }
+
+    // Prioritize tabGroupId from payload if it exists
+    if (message.payload && typeof message.payload === 'object' && 'tabGroupId' in message.payload) {
+        return (handler as any)(message.payload, message.payload.tabGroupId);
+    }
+
+    // Fallback to sender's tab groupId for handlers that need it
+    if (sender.tab && sender.tab.groupId) {
+        return (handler as any)(message.payload, sender.tab.groupId);
+    }
+
+    // Call handler without tabGroupId
+    return (handler as any)(message.payload);
 }

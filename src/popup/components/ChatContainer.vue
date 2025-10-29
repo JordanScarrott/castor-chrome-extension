@@ -100,7 +100,7 @@ async function handleMangleQuery(query: string) {
         const question = crossSiteQueryMap.value[query];
         await chrome.runtime.sendMessage({
             type: 'EXECUTE_MANGLE_QUERY',
-            payload: { query, question }
+            payload: { query, question, tabGroupId: sessionStore.tabGroupId }
         });
     } catch (error) {
         console.error('Failed to execute Mangle query:', error);
