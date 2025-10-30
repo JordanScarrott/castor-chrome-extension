@@ -6,11 +6,7 @@
 
 The goal of Castor is to transform web browsing from a series of disconnected sessions into a cohesive, intelligent research process. By leveraging the on-device power of Gemini Nano and the Mangle reasoning engine, this extension provides users with deep insights into information gathered across multiple tabs, helping them synthesize data and make complex decisions without manual effort.
 
-## How It Works
-
-Castor uses a combination of on-device AI (via Gemini Nano) and a WebAssembly-based reasoning engine (Mangle) to create a local knowledge graph from the web pages you visit. This allows you to ask complex questions and get synthesized answers based on the content you've consumed.
-
-## Core Dependencies
+## Core Technologies
 
 *   **Framework:** [Vue 3](https://vuejs.org/)
 *   **On-Device AI:** [Google Gemini Nano](https://ai.google.dev/docs/gemini_api_overview)
@@ -19,24 +15,36 @@ Castor uses a combination of on-device AI (via Gemini Nano) and a WebAssembly-ba
 *   **State Management:** [Pinia](https://pinia.vuejs.org/)
 *   **Language:** [TypeScript](https://www.typescriptlang.org/)
 
+### Mangle Reasoning Engine
+
+The Mangle Datalog engine, compiled to WebAssembly, provides the core logic and reasoning capabilities. The engine's flexibility and power are validated by a comprehensive test suite that showcases its ability to handle any fact schema and demonstrates all possible operations. Key validation files include:
+*   `realWorldTests.test.ts`
+*   `newMangleTests.test.ts`
+*   `crossSiteDemo.test.ts`
+
 ## Gemini API Usage
 
-This project utilizes the Gemini API in the following ways:
+Castor leverages Google's on-device Gemini Nano APIs to integrate AI seamlessly into the browsing experience.
 
-**Writer API:**
-*   **Summarization:** Condensing webpage content into concise summaries for knowledge extraction.
-*   **Natural Language Formatting:** Transforming raw Datalog query results into user-friendly, natural language responses.
+### [Prompt API](https://developer.chrome.com/docs/ai/prompt-api?hl=en)
 
-**Prompt API:**
-*   **Title Generation:** Creating short, context-aware titles for new tab groups based on the user's research goal.
-*   **Query Translation:** Converting structured Datalog queries into natural language questions to be displayed as interactive sample questions in the UI.
-*   **Real-time Notifications:** Generating brief, user-facing status updates about data discoveries during browsing.
+The Prompt API is used for versatile, context-aware text generation tasks:
+
+*   **Fact Ingestion:** Taking unstructured text from webpages and transforming it into structured Datalog facts for the Mangle engine.
+*   **Tab Group Title Generation:** Creating short, context-aware titles for new tab groups based on the user's stated research goal.
+*   **Natural Language Query Generation:** Translating formal Datalog queries into user-friendly questions, which are presented as clickable chips in the chat interface.
+
+### [Writer API](https://developer.chrome.com/docs/ai/writer-api?hl=en)
+
+The Writer API is used for refining and formatting text:
+
+*   **AI Response Formatting:** Taking the structured output from a Mangle query and reformatting it into a polished, natural language response for the user.
 
 ## Developer Setup
 
 **Prerequisites:**
 *   [Node.js](https://nodejs.org/)
-*   [pnpm](https://pnpm.io/)
+*   [pnpm](https://pnpm.io/) (This project uses `pnpm` for package management)
 *   [Google Chrome](https://www.google.com/chrome/) (latest version with AI features enabled)
 
 **1. Install Dependencies:**
