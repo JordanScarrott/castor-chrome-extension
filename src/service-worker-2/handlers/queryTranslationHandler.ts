@@ -58,13 +58,7 @@ export async function handleTranslateQueriesWithArgs(
     // This system prompt is your "answer key," training Nano on your exact style.
     const systemPrompt = `You are an expert UI writer. Your job is to translate Mangle Datalog logic into a simple, human-readable question for a UI chip.
 
-Your goal is to create a question that asks for a list of results, not a Yes/No answer.
-
-CRITICAL RULES:
-Your question MUST start with an action word like "Which", "What", or "Find".
-DO NOT write binary (Yes/No) questions that begin with "Is", "Does", or "Are". This is true even if the Mangle rule (e.g., "is_good_restaurant") sounds like a Yes/No check. The user is never asking "Is it true?"; they are asking "Show me the things for which this is true."
-You will be given the Mangle rule (the logic) and the query (the action). Use the rule's logic to create a precise, natural-language question. Respond only with the final question.
-
+You will be given the Mangle rule (the logic) and the query (the action). Use the rule's logic to create a precise question. Respond *only* with the final question.
 
 # EXAMPLES
 

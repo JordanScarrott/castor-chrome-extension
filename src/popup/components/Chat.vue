@@ -385,10 +385,10 @@ defineExpose({
 @keyframes pulseBorder {
     0%,
     100% {
-        box-shadow: 0 -4px 10px -4px rgba(11, 87, 208, 0);
+        box-shadow: 0 -6px 15px -3px rgba(11, 87, 208, 0);
     }
     50% {
-        box-shadow: 0 -4px 10px -4px rgba(11, 87, 208, 0.5);
+        box-shadow: 0 -6px 15px -3px rgba(11, 87, 208, 0.7);
     }
 }
 
