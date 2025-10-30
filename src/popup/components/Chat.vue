@@ -84,41 +84,29 @@
             </HorizontalScroller>
 
             <!-- Text Input and Send Button -->
-            <form @submit.prevent="handleSubmit" class="input-form">
+            <form class="input-wrapper" @submit.prevent="handleSubmit">
                 <button
                     type="button"
+                    class="upload-btn"
                     @click="handleAttachClick"
                     :disabled="props.isLoading"
-                    class="send-btn"
                 >
-                    <svg
-                        class="send-icon"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                        ></path>
-                    </svg>
+                    <PaperclipIcon />
                 </button>
-                <input
+                <textarea
                     v-model="userInput"
-                    type="text"
-                    placeholder="Type your message here..."
-                    class="chat-input"
+                    placeholder="Ask Castor"
+                    class="goal-input"
                     :disabled="props.isLoading"
-                />
+                    rows="1"
+                    @keydown="handleKeyPress"
+                ></textarea>
                 <button
                     type="submit"
                     :disabled="!userInput.trim() || props.isLoading"
                     class="send-btn"
                 >
-                    <SendIcon />
+                    <SendIcon :is-loading="props.isLoading" />
                 </button>
             </form>
         </div>
@@ -134,6 +122,7 @@ import CastorIcon from "./CastorIcon.vue";
 import HorizontalScroller from "./HorizontalScroller.vue";
 import MarkdownStream from "./MarkdownStream.vue";
 import SendIcon from "./SendIcon.vue";
+import PaperclipIcon from "./PaperclipIcon.vue";
 
 // --- TYPE DEFINITIONS ---
 
@@ -176,6 +165,14 @@ const { attachFromPage } = usePageAttachment();
 const handleAttachClick = () => {
     attachFromPage();
 };
+
+const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleSubmit();
+    }
+};
+
 const scrollToBottom = () => {
     nextTick(() => {
         if (messageContainer.value) {
@@ -444,27 +441,52 @@ defineExpose({
     border-color: #c9deff;
 }
 
-.input-form {
+.input-wrapper {
+    display: flex;
+    flex-direction: row; /* Changed from column to row */
+    align-items: center; /* Vertically center items */
+    background-color: #ffffff;
+    padding: 8px 16px; /* Adjusted padding */
+    border-radius: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dcdfe2;
+    transition: box-shadow 0.2s;
+    width: 90%; /* Constrain the width */
+    max-width: 28rem; /* Add a max-width */
+    margin: 0 auto;
+}
+.input-wrapper:focus-within {
+    box-shadow: 0 0 0 2px #d2e3fc;
+    border-color: #0b57d0;
+}
+.goal-input {
+    flex: 1;
+    border: none;
+    box-shadow: none;
+    padding: 4px;
+    font-size: 14px;
+    background-color: transparent;
+    color: #3c4043;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    line-height: 1.5;
+}
+.goal-input::placeholder {
+    color: #9ab0c9;
+}
+.upload-btn {
+    padding: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #9ab0c9;
+    border: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
 }
-
-.chat-input {
-    flex: 1;
-    border: 1px solid #dcdfe2;
-    border-radius: 8px;
-    box-shadow: none;
-    padding: 12px;
-    font-size: 14px;
-    background-color: #ffffff;
-}
-.chat-input:focus {
-    outline: none;
-    border-color: #0b57d0;
-    box-shadow: 0 0 0 2px #d2e3fc;
-}
-
 .send-btn {
     padding: 8px;
     border-radius: 50%;
@@ -476,6 +498,8 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 32px;
+    height: 32px;
 }
 .send-btn:hover {
     background-color: #0a4cb0;
@@ -484,13 +508,9 @@ defineExpose({
     background-color: #b3c9e6;
     cursor: not-allowed;
 }
-.send-icon {
-    width: 24px;
-    height: 24px;
-    transform: rotate(90deg);
-}
-.input-form .send-btn[type="button"] .send-icon {
-    transform: rotate(0deg);
+
+.goal-input::placeholder {
+    color: #9ca3af;
 }
 
 /* Typing Indicator Styles */
