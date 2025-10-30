@@ -99,6 +99,7 @@
                     class="goal-input"
                     :disabled="props.isLoading"
                     rows="1"
+                    @keydown="handleKeyPress"
                 ></textarea>
                 <button
                     type="submit"
@@ -164,6 +165,14 @@ const { attachFromPage } = usePageAttachment();
 const handleAttachClick = () => {
     attachFromPage();
 };
+
+const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleSubmit();
+    }
+};
+
 const scrollToBottom = () => {
     nextTick(() => {
         if (messageContainer.value) {
