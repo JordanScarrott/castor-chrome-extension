@@ -85,6 +85,14 @@
 
             <!-- Text Input and Send Button -->
             <form class="input-wrapper" @submit.prevent="handleSubmit">
+                <button
+                    type="button"
+                    class="upload-btn"
+                    @click="handleAttachClick"
+                    :disabled="props.isLoading"
+                >
+                    <PaperclipIcon />
+                </button>
                 <textarea
                     v-model="userInput"
                     placeholder="Ask Castor"
@@ -92,23 +100,13 @@
                     :disabled="props.isLoading"
                     rows="1"
                 ></textarea>
-                <div class="button-container">
-                    <button
-                        type="button"
-                        class="upload-btn"
-                        @click="handleAttachClick"
-                        :disabled="props.isLoading"
-                    >
-                        <PaperclipIcon />
-                    </button>
-                    <button
-                        type="submit"
-                        :disabled="!userInput.trim() || props.isLoading"
-                        class="send-btn"
-                    >
-                        <SendIcon :is-loading="props.isLoading" />
-                    </button>
-                </div>
+                <button
+                    type="submit"
+                    :disabled="!userInput.trim() || props.isLoading"
+                    class="send-btn"
+                >
+                    <SendIcon :is-loading="props.isLoading" />
+                </button>
             </form>
         </div>
     </div>
@@ -439,7 +437,8 @@ defineExpose({
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid #dcdfe2;
     transition: box-shadow 0.2s;
-    width: 100%; /* Use full width */
+    width: 90%; /* Constrain the width */
+    max-width: 28rem; /* Add a max-width */
     margin: 0 auto;
 }
 .input-wrapper:focus-within {
@@ -461,12 +460,6 @@ defineExpose({
 }
 .goal-input::placeholder {
     color: #9ab0c9;
-}
-.button-container {
-    display: flex;
-    align-items: center; /* Ensure buttons are centered vertically */
-    padding: 0; /* Remove padding */
-    gap: 8px; /* Add some space between buttons */
 }
 .upload-btn {
     padding: 8px;
