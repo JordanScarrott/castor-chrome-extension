@@ -30,7 +30,7 @@ export async function handleElementSelection(html: string, tabGroupId: number) {
 
     const initialState: AnalysisState = {
         analysisId,
-        topic: "Analyzing selected content...",
+        topic: "Understanding content...",
         status: "analyzing",
         ideas: [],
     };
