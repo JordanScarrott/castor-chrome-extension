@@ -44,14 +44,30 @@
         </div>
 
         <!-- Action Toolbar & Input Area -->
-        <div class="input-area" :class="{ 'disabled-input': props.isLoading }">
+        <div
+            class="input-area"
+            :class="{
+                'disabled-input': props.isLoading,
+                'insights-loading': props.isFetchingInsights,
+            }"
+        >
             <!-- Guiding Question Chips -->
-            <HorizontalScroller class="chip-container">
+            <div
+                v-if="Object.keys(props.crossSiteQueryMap).length"
+                class="insights-title"
+            >
+                Insights
+            </div>
+            <HorizontalScroller
+                v-if="Object.keys(props.crossSiteQueryMap).length"
+                class="chip-container"
+            >
                 <button
                     v-for="(question, query) in props.crossSiteQueryMap"
                     :key="query"
                     @click="() => handleMangleChipClick(query as string)"
                     class="chip"
+                    :class="{ 'chip-animated': shouldAnimateChips }"
                     :disabled="props.isLoading"
                 >
                     {{ question }}
@@ -125,6 +141,8 @@ interface Props {
     sampleQuestions?: string[];
     isLoading?: boolean;
     crossSiteQueryMap?: Record<string, string>;
+    shouldAnimateChips?: boolean;
+    isFetchingInsights?: boolean;
 }
 
 // --- PROPS ---
@@ -135,6 +153,8 @@ const props = withDefaults(defineProps<Props>(), {
     ],
     isLoading: false,
     crossSiteQueryMap: () => ({}),
+    shouldAnimateChips: false,
+    isFetchingInsights: false,
 });
 
 // --- EMITS ---
@@ -358,8 +378,30 @@ defineExpose({
     pointer-events: none;
 }
 
+.input-area.insights-loading {
+    animation: pulseBorder 2s infinite ease-in-out;
+}
+
+@keyframes pulseBorder {
+    0%,
+    100% {
+        box-shadow: 0 -4px 10px -4px rgba(11, 87, 208, 0);
+    }
+    50% {
+        box-shadow: 0 -4px 10px -4px rgba(11, 87, 208, 0.5);
+    }
+}
+
 .chip-container {
     margin-bottom: 12px;
+}
+
+.insights-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: #5f6368;
+    margin-bottom: 4px;
+    text-transform: uppercase;
 }
 
 .chip {
@@ -373,6 +415,24 @@ defineExpose({
     border-radius: 16px;
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+.chip-animated {
+    animation: fadeIn 0.5s ease-in-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+        background-color: #e8f0fe;
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+        background-color: #ffffff;
+    }
 }
 .chip:hover {
     background-color: #e8f0fe;
