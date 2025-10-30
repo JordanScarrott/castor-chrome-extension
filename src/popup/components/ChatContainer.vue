@@ -7,6 +7,7 @@
             :sample-questions="sampleQuestions"
             :cross-site-query-map="crossSiteQueryMap"
             :should-animate-chips="shouldAnimateChips"
+            :is-fetching-insights="isFetchingInsights"
             @submit-question="handleQuestion"
             @submit-mangle-query="handleMangleQuery"
             @submit-natural-language-question="handleNaturalLanguageQuestion"
@@ -30,6 +31,7 @@ const { useTabGroupChromeStorage, useTabGroupStorage } = useStorageManager(
 const analysisState = useTabGroupChromeStorage<any>("analysis", null);
 const crossSiteQueryMap = ref<Record<string, string>>({});
 const shouldAnimateChips = ref(false);
+const isFetchingInsights = ref(false);
 
 // Use local storage for the translated queries
 const translatedQueries = useTabGroupStorage<Record<string, string>>(
@@ -98,8 +100,9 @@ onMounted(async () => {
                 i++;
             } else {
                 clearInterval(interval);
+                isFetchingInsights.value = false; // Animation finished
             }
-        }, 100); // 0.1-second delay between each chip
+        }, 500); // 0.5-second delay between each chip
     };
 
     // Check if the queries are already in local storage
@@ -109,6 +112,7 @@ onMounted(async () => {
         shouldAnimateChips.value = false;
     } else {
         // If not, fetch them from the service worker and animate them
+        isFetchingInsights.value = true;
         try {
             const queries = await chrome.runtime.sendMessage({
                 type: "TRANSLATE_QUERIES",
@@ -118,6 +122,7 @@ onMounted(async () => {
             shouldAnimateChips.value = true;
         } catch (error) {
             console.error("Failed to fetch translated queries:", error);
+            isFetchingInsights.value = false;
         }
     }
 });

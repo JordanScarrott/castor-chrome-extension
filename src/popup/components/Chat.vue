@@ -44,7 +44,13 @@
         </div>
 
         <!-- Action Toolbar & Input Area -->
-        <div class="input-area" :class="{ 'disabled-input': props.isLoading }">
+        <div
+            class="input-area"
+            :class="{
+                'disabled-input': props.isLoading,
+                'insights-loading': props.isFetchingInsights,
+            }"
+        >
             <!-- Guiding Question Chips -->
             <div
                 v-if="Object.keys(props.crossSiteQueryMap).length"
@@ -136,6 +142,7 @@ interface Props {
     isLoading?: boolean;
     crossSiteQueryMap?: Record<string, string>;
     shouldAnimateChips?: boolean;
+    isFetchingInsights?: boolean;
 }
 
 // --- PROPS ---
@@ -147,6 +154,7 @@ const props = withDefaults(defineProps<Props>(), {
     isLoading: false,
     crossSiteQueryMap: () => ({}),
     shouldAnimateChips: false,
+    isFetchingInsights: false,
 });
 
 // --- EMITS ---
@@ -368,6 +376,20 @@ defineExpose({
 .input-area.disabled-input {
     opacity: 0.5;
     pointer-events: none;
+}
+
+.input-area.insights-loading {
+    animation: pulseBorder 2s infinite ease-in-out;
+}
+
+@keyframes pulseBorder {
+    0%,
+    100% {
+        box-shadow: 0 -4px 10px -4px rgba(11, 87, 208, 0);
+    }
+    50% {
+        box-shadow: 0 -4px 10px -4px rgba(11, 87, 208, 0.5);
+    }
 }
 
 .chip-container {
