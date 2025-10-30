@@ -470,6 +470,8 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 32px;
+    height: 32px;
 }
 .send-btn {
     padding: 8px;
@@ -482,6 +484,8 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 32px;
+    height: 32px;
 }
 .send-btn:hover {
     background-color: #0a4cb0;
