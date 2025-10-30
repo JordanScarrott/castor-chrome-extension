@@ -293,6 +293,10 @@ const completeAnalysisCard = (id: string) => {
     }
 };
 
+const hasAnalysisCard = (id: string) => {
+    return messages.value.some((m) => m.id === id);
+};
+
 onMounted(() => {
     scrollToBottom();
 });
@@ -303,6 +307,7 @@ defineExpose({
     addAnalysisCard,
     updateAnalysisCard,
     completeAnalysisCard,
+    hasAnalysisCard,
 });
 </script>
 

@@ -42,7 +42,10 @@ const translatedQueries = useTabGroupStorage<Record<string, string>>(
 watch(analysisState, (newState, oldState) => {
     if (!newState) return;
 
-    if (!oldState || newState.analysisId !== oldState.analysisId) {
+    if (
+        !chatComponent.value?.hasAnalysisCard(newState.analysisId) &&
+        (!oldState || newState.analysisId !== oldState.analysisId)
+    ) {
         chatComponent.value?.addAnalysisCard(
             newState.analysisId,
             newState.topic
