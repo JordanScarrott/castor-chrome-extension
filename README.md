@@ -1,144 +1,85 @@
-# Mangle Chrome Extension: A Browser with a Brain
+# Castor: A Browser with a Brain
 
-*An experimental Chrome extension that gives your browser a persistent, logical memory, enabling on-device AI to reason about the web content you consume.*
+**Castor is an experimental Chrome extension built for the Google Chrome AI Challenge.** It gives your browser a persistent, logical memory, enabling on-device AI to reason about the web content you consume.
 
 ## Project Goal
 
-The primary goal of this project is to transform the web browsing experience from a series of disconnected sessions into a cohesive, intelligent research process. By leveraging the on-device power of Gemini Nano and the Mangle reasoning engine, this extension aims to provide users with deep insights into the information they gather across multiple tabs. It helps users synthesize data and make complex decisions without manually collating information.
+The goal of Castor is to transform web browsing from a series of disconnected sessions into a cohesive, intelligent research process. By leveraging the on-device power of Gemini Nano and the Mangle reasoning engine, this extension provides users with deep insights into information gathered across multiple tabs, helping them synthesize data and make complex decisions without manual effort.
 
-## Use Case Example: Buying a Laptop
-
-Imagine you're trying to buy a new laptop. You have ten tabs open: five with different models from various online stores, and five with reviews and benchmark comparisons. Switching between tabs, you struggle to keep track of the specs, prices, and pros and cons of each option.
-
-With this extension, you can simply tell it: "My goal is to find the best laptop for under $1500 with at least 16GB of RAM and a good keyboard for programming."
-
-As you browse, the extension consumes the information from each tab, adding it to its knowledge base. When you're ready, you can ask it questions like:
-*   "Which of these laptops have the best battery life according to the reviews?"
-*   "Summarize the negative feedback for the Dell XPS 15."
-*   "Based on my goal, which laptop is the best value for the money?"
-
-The extension reasons over the data from all your open tabs and provides you with a synthesized, actionable answer, helping you make a better, more informed decision, faster.
-
-## How It Works
-
-The extension uses a combination of on-device AI (via Gemini Nano) and a WebAssembly-based reasoning engine (Mangle) to create a local knowledge graph from the web pages you visit. This allows you to ask complex questions and get synthesized answers based on the content you've consumed.
-
-The core reasoning loop is as follows:
-1.  **Consume Content:** The user browses to a web page.
-2.  **Perceive & Summarize:** Gemini Nano summarizes the page content.
-3.  **Extract Knowledge:** The summary is converted into structured Mangle Datalog facts.
-4.  **Load into Memory:** The facts are loaded into the Mangle Wasm engine.
-5.  **Ask a Question:** The user asks a natural language question.
-6.  **Translate to Logic:** The question is translated into a formal Mangle query.
-7.  **Reason & Deduce:** The Mangle engine executes the query against its knowledge graph.
-8.  **Deliver the Insight:** The result is displayed to the user.
-
-## Dependencies
-
-This project is built with a modern web stack:
+## Core Technologies
 
 *   **Framework:** [Vue 3](https://vuejs.org/)
+*   **On-Device AI:** [Google Gemini Nano](https://ai.google.dev/docs/gemini_api_overview)
+*   **Reasoning Engine:** [Mangle Datalog Engine (Wasm)](https://github.com/JordanScarrott/mangle-wasm)
 *   **Build Tool:** [Vite](https://vitejs.dev/)
-*   **Testing:** [Vitest](https://vitest.dev/)
 *   **State Management:** [Pinia](https://pinia.vuejs.org/)
 *   **Language:** [TypeScript](https://www.typescriptlang.org/)
-*   **Linting/Formatting:** [Biome](https://biomejs.dev/)
 
-## Wasm Module
+### Mangle Reasoning Engine
 
-The Mangle reasoning engine is compiled to WebAssembly from a forked version of the official Mangle project. The source for the Wasm module can be found here:
-[https://github.com/JordanScarrott/mangle-wasm](https://github.com/JordanScarrott/mangle-wasm)
+The Mangle Datalog engine, compiled to WebAssembly, provides the core logic and reasoning capabilities. The engine's flexibility and power are validated by a comprehensive test suite that showcases its ability to handle any fact schema and demonstrates all possible operations. Key validation files include:
+*   `realWorldTests.test.ts`
+*   `newMangleTests.test.ts`
+*   `crossSiteDemo.test.ts`
+
+## Gemini API Usage
+
+Castor leverages Google's on-device Gemini Nano APIs to integrate AI seamlessly into the browsing experience.
+
+### [Prompt API](https://developer.chrome.com/docs/ai/prompt-api?hl=en)
+
+The Prompt API is used for versatile, context-aware text generation tasks:
+
+*   **Fact Ingestion:** Taking unstructured text from webpages and transforming it into structured Datalog facts for the Mangle engine.
+*   **Tab Group Title Generation:** Creating short, context-aware titles for new tab groups based on the user's stated research goal.
+*   **Natural Language Query Generation:** Translating formal Datalog queries into user-friendly questions, which are presented as clickable chips in the chat interface.
+
+### [Writer API](https://developer.chrome.com/docs/ai/writer-api?hl=en)
+
+The Writer API is used for refining and formatting text:
+
+*   **AI Response Formatting:** Taking the structured output from a Mangle query and reformatting it into a polished, natural language response for the user.
 
 ## Developer Setup
 
-To get started with development, follow these steps:
-
 **Prerequisites:**
 *   [Node.js](https://nodejs.org/)
-*   [pnpm](https://pnpm.io/)
-*   [Google Chrome](https://www.google.com/chrome/) (latest version recommended)
+*   [pnpm](https://pnpm.io/) (This project uses `pnpm` for package management)
+*   [Google Chrome](https://www.google.com/chrome/) (latest version with AI features enabled)
 
-**Installation:**
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/JordanScarrott/mangle-chrome-extension.git
-    cd mangle-chrome-extension
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    pnpm install
-    ```
-
-3.  **Build the extension:**
-    ```bash
-    pnpm run build
-    ```
-    This will create a `dist` directory with the unpacked extension files.
-
-**Loading the extension in Chrome:**
-
-1.  Open Chrome and navigate to `chrome://extensions`.
-2.  Enable **"Developer mode"** using the toggle in the top-right corner.
-3.  Click **"Load unpacked"**.
-4.  Select the `dist` directory from this project.
-5.  The extension icon should appear in your browser's toolbar.
-
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for unit testing. To run the tests, use the following command:
-
+**1. Install Dependencies:**
 ```bash
-pnpm test
+pnpm install
 ```
 
-This will run all tests defined in the `src/tests` directory.
+**2. Build the Extension:**
+```bash
+pnpm run build
+```
 
-## Running the Demos
+**3. Load the Extension in Chrome:**
+1.  Navigate to `chrome://extensions`.
+2.  Enable **"Developer mode"**.
+3.  Click **"Load unpacked"** and select the `dist` directory.
 
-The `demos` directory contains three static websites that can be used to test the extension's features. Each demo runs on its own port.
+## Running the Demo Websites
 
-**Prerequisites:**
-*   You must have completed the **Developer Setup** steps above.
+The `demos` directory contains three static websites for testing the extension's features.
 
-**Installation:**
+**1. Navigate to the `demos` directory:**
+```bash
+cd demos
+```
 
-1.  **Navigate to the `demos` directory:**
-    ```bash
-    cd demos
-    ```
+**2. Install Demo Dependencies:**
+```bash
+pnpm install
+```
 
-2.  **Install dependencies:**
-    ```bash
-    pnpm install
-    ```
-    This will install the dependencies for all three demos.
-
-**Running all demos at once:**
-
-1.  **From the `demos` directory, run:**
-    ```bash
-    pnpm run serve
-    ```
-    This will start all three demo servers concurrently. The demos will be available at the following URLs:
-    *   **Hotel Demo:** `http://localhost:8081`
-    *   **Restaurant Demo:** `http://localhost:8082`
-    *   **Bus Tour Demo:** `http://localhost:8083`
-
-**Running each demo individually:**
-
-You can also run each demo on its own. From the `demos` directory, use one of the following commands:
-
-*   **Hotel Demo:**
-    ```bash
-    pnpm run serve:hotel
-    ```
-*   **Restaurant Demo:**
-    ```bash
-    pnpm run serve:restaurant
-    ```
-*   **Bus Tour Demo:**
-    ```bash
-    pnpm run serve:bus-tour
-    ```
+**3. Run all Demos:**
+```bash
+pnpm run serve
+```
+*   **Hotel Demo:** `http://localhost:8081`
+*   **Restaurant Demo:** `http://localhost:8082`
+*   **Bus Tour Demo:** `http://localhost:8083`
