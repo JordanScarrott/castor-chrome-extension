@@ -6,6 +6,7 @@
     "serve:hotel": "cd hotel-demo-1 && pnpm run serve",
     "serve:restaurant": "cd restaurant-demo-1 && pnpm run serve",
     "serve:bus-tour": "cd bus-tour-demo-1 && pnpm run serve",
+    "build": "rm -rf dist && mkdir dist && cp -r hotel-demo-1 restaurant-demo-1 bus-tour-demo-1 dist/",
     "postinstall": "cd hotel-demo-1 && pnpm install && cd ../restaurant-demo-1 && pnpm install && cd ../bus-tour-demo-1 && pnpm install"
   },
   "devDependencies": {
