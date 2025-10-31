@@ -10,17 +10,10 @@ The goal of Castor is to transform web browsing from a series of disconnected se
 
 *   **Framework:** [Vue 3](https://vuejs.org/)
 *   **On-Device AI:** [Google Gemini Nano](https://ai.google.dev/docs/gemini_api_overview)
-*   **Reasoning Engine:** [Mangle Datalog Engine (WASM)](https://github.com/JordanScarrott/mangle-wasm)
+*   **Reasoning Engine:** [Google Mangle (which I compiled to WASM)](https://github.com/JordanScarrott/mangle-wasm)
 *   **Build Tool:** [Vite](https://vitejs.dev/)
 *   **State Management:** [Pinia](https://pinia.vuejs.org/)
 *   **Language:** [TypeScript](https://www.typescriptlang.org/)
-
-### Mangle Reasoning Engine
-
-The Mangle Datalog engine, compiled to WebAssembly, provides the core logic and reasoning capabilities. The engine's flexibility and power are validated by a comprehensive test suite that showcases its ability to handle any fact schema and demonstrates all possible operations. Key validation files include:
-*   `realWorldTests.test.ts`
-*   `newMangleTests.test.ts`
-*   `crossSiteDemo.test.ts`
 
 ## Gemini API Usage
 
@@ -39,6 +32,13 @@ The Prompt API is used for versatile, context-aware text generation tasks:
 The Writer API is used for refining and formatting text:
 
 *   **AI Response Formatting:** Taking the structured output from a Mangle query and reformatting it into a polished, natural language response for the user.
+
+### Mangle Reasoning Engine
+
+The Mangle Datalog engine, compiled to WebAssembly, provides the core logic and reasoning capabilities. The engine's flexibility and power are validated by a comprehensive test suite that showcases its ability to handle any fact schema and demonstrates all possible operations. Key validation files include:
+*   `realWorldTests.test.ts`
+*   `newMangleTests.test.ts`
+*   `crossSiteDemo.test.ts`
 
 ## Developer Setup
 
