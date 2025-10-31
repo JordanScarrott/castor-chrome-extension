@@ -1,16 +1,16 @@
 # Castor: A Browser with a Brain
 
-**Castor is an experimental Chrome extension built for the Google Chrome AI Challenge.** It gives your browser a persistent, logical memory, enabling on-device AI to reason about the web content you consume.
+A Chrome Built-in AI Challenge submission that partners Gemini Nano with a Google Mangle compiled to WebAssembly. This partnership allows Gemini Nano to make complex, multi-step deductions about data scattered across all your browser tabs, turning chaos into insight.
 
 ## Project Goal
 
-The goal of Castor is to transform web browsing from a series of disconnected sessions into a cohesive, intelligent research process. By leveraging the on-device power of Gemini Nano and the Mangle reasoning engine, this extension provides users with deep insights into information gathered across multiple tabs, helping them synthesize data and make complex decisions without manual effort.
+The goal of Castor is to transform web browsing from a series of disconnected sessions into a cohesive, intelligent journey. By leveraging the on-device power of Gemini Nano and the Mangle reasoning engine, this extension provides users with deep insights into information gathered across multiple tabs, helping them synthesize data and make complex decisions without manual effort.
 
 ## Core Technologies
 
 *   **Framework:** [Vue 3](https://vuejs.org/)
 *   **On-Device AI:** [Google Gemini Nano](https://ai.google.dev/docs/gemini_api_overview)
-*   **Reasoning Engine:** [Mangle Datalog Engine (Wasm)](https://github.com/JordanScarrott/mangle-wasm)
+*   **Reasoning Engine:** [Mangle Datalog Engine (WASM)](https://github.com/JordanScarrott/mangle-wasm)
 *   **Build Tool:** [Vite](https://vitejs.dev/)
 *   **State Management:** [Pinia](https://pinia.vuejs.org/)
 *   **Language:** [TypeScript](https://www.typescriptlang.org/)
