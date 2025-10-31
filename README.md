@@ -1,10 +1,14 @@
-# Castor: A Browser with a Brain
+# Castor: The brain for the modern browser
 
 A Chrome Built-in AI Challenge submission that partners Gemini Nano with a Google Mangle compiled to WebAssembly. This partnership allows Gemini Nano to make complex, multi-step deductions about data scattered across all your browser tabs, turning chaos into insight.
 
 ## Project Goal
 
 The goal of Castor is to transform web browsing from a series of disconnected sessions into a cohesive, intelligent journey. By leveraging the on-device power of Gemini Nano and the Mangle reasoning engine, this extension provides users with deep insights into information gathered across multiple tabs, helping them synthesize data and make complex decisions without manual effort.
+
+## Google Chrome Built-in AI Challenge 2025
+See my demo video for the Google Chrome Built-in AI Challenge 2025 here: [Castor - The brain for the modern browser - Chrome Extension Demo
+](https://youtu.be/cirnnE6_dz4)
 
 ## Core Technologies
 
